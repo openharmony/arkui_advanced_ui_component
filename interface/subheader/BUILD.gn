@@ -34,17 +34,10 @@ ohos_shared_library("subheader") {
 
   deps = [ ":subheader_abc" ]
 
-  if (is_standard_system) {
-    external_deps = [
-      "hilog:libhilog",
-      "napi:ace_napi",
-    ]
-  } else {
-    external_deps = [
-      "hilog:libhilog",
-      "napi:ace_napi",
-    ]
-  }
+  external_deps = [
+    "hilog:libhilog",
+    "napi:ace_napi",
+  ]
 
   subsystem_name = "arkui"
   part_name = "advanced_ui_component"

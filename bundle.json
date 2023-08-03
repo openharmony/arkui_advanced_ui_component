@@ -1,0 +1,46 @@
+{
+    "name": "@ohos/advanced_ui_component",
+    "version": "1.0.0",
+    "description": "advanced_ui_component",
+    "publishAs": "code-segment",
+    "segment": {
+        "destPath": "foundation/arkui/advanced_ui_component"
+    },
+    "component": {
+        "name": "advanced_ui_component",
+        "subsystem": "arkui",
+        "syscap": [],
+        "features": [],
+        "adapted_system_type": [
+            "standard"
+        ],
+        "rom": "5120KB",
+        "ram": "10240KB",
+        "deps": {
+            "components": [
+                "hilog",
+                "napi"
+            ],
+            "third_party": []
+        },
+        "build": {
+            "sub_component": [
+              "//foundation/arkui/advanced_ui_component/interface/filter:filter",
+              "//foundation/arkui/advanced_ui_component/interface/composetitlebar:composetitlebar",
+              "//foundation/arkui/advanced_ui_component/interface/editabletitlebar:editabletitlebar",
+              "//foundation/arkui/advanced_ui_component/interface/selecttitlebar:selecttitlebar",
+              "//foundation/arkui/advanced_ui_component/interface/tabtitlebar:tabtitlebar",
+              "//foundation/arkui/advanced_ui_component/interface/splitlayout:splitlayout",
+              "//foundation/arkui/advanced_ui_component/interface/subheader:subheader",
+              "//foundation/arkui/advanced_ui_component/interface/treeview:treeview",
+              "//foundation/arkui/advanced_ui_component/interface/composelistitem:composelistitem",
+              "//foundation/arkui/advanced_ui_component/interface/swiperefresher:swiperefresher",
+              "//foundation/arkui/advanced_ui_component/interface/arkdialog:arkdialog",
+              "//foundation/arkui/advanced_ui_component/interface/toolbar:toolbar",
+              "//foundation/arkui/advanced_ui_component/interface/progressbutton:progressbutton"
+            ],
+            "inner_kits": [],
+            "test": []
+        }
+    }
+}
