@@ -35,8 +35,8 @@ ohos_shared_library("toolbar") {
   deps = [ ":toolbar_abc" ]
 
   external_deps = [
-	"hilog:libhilog",
-	"napi:ace_napi",
+    "hilog:libhilog",
+    "napi:ace_napi",
   ]
 
   subsystem_name = "arkui"
