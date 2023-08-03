@@ -160,7 +160,7 @@ struct ComposeListItemExample {
 ```
 
 
-![示例2-左侧元素+文本](figures/示例2-左侧元素+文本.PNG)
+![示例2-左侧元素+文本](figures/zh-cn_image_2023072904.PNG)
 
 
 ## 示例3-右侧元素
@@ -196,7 +196,7 @@ struct ComposeListItemExample {
 ```
 
 
-![示例3-右侧元素](figures/示例3-右侧元素.PNG)
+![示例3-右侧元素](figures/zh-cn_image_2023072905.PNG)
 
 
 ## 示例4-左右元素+文本
@@ -237,4 +237,4 @@ struct ComposeListItemExample {
   }
 ```
 
-![示例4-左右元素+文本](figures/示例4-左右元素+文本.PNG)
+![示例4-左右元素+文本](figures/zh-cn_image_2023072906.PNG)
