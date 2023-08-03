@@ -197,7 +197,7 @@ struct Index {
 }
 ```
 
-![20230728-111325(WeLinkPC)](figures/20230728-111325(WeLinkPC).png)
+![20230728-111325](figures/20230728-111325.png)
 
 
 ### 示例2
@@ -263,7 +263,7 @@ dialogControllerList: CustomDialogController = new CustomDialogController({
 }
 ```
 
-![20230728-101201(WeLinkPC)](figures/20230728-101201(WeLinkPC).png)
+![20230728-101201](figures/20230728-101201.png)
 
 
 ### 示例3
@@ -318,7 +318,7 @@ dialogControllerCheckBox: CustomDialogController = new CustomDialogController({
 }
 ```
 
-![20230728-101236(WeLinkPC)](figures/20230728-101236(WeLinkPC).png)
+![20230728-101236](figures/20230728-101236.png)
 
 
 ### 示例4
@@ -370,7 +370,7 @@ dialogControllerConfirm: CustomDialogController = new CustomDialogController({
 }
 ```
 
-![20230728-101355(WeLinkPC)](figures/20230728-101355(WeLinkPC).png)
+![20230728-101355](figures/20230728-101355.png)
 
 
 ### 示例5
@@ -411,4 +411,4 @@ dialogControllerProgress: CustomDialogController = new CustomDialogController({
 }
 ```
 
-![20230728-101306(WeLinkPC)](figures/20230728-101306(WeLinkPC).png)
+![20230728-101306](figures/20230728-101306.png)

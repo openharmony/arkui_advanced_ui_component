@@ -32,8 +32,8 @@ TabTitleBar({tabItems: Array&lt;TabTitleBarTabItem&gt;, menuItems?: Array&lt;Tab
 
 | 参数名 | 参数类型 | 必选 | 装饰器类型 | 参数描述 | 
 | -------- | -------- | -------- | -------- | -------- |
-| tabItems | Array_&lt;_[ERROR:Invalid&nbsp;link:zh-cn_topic_0000001665635385.xml#xref77363764816,link:zh-cn_topic_0000001658503585.xml#section151512317614](zh-cn_topic_0000001658503585.xml#section151512317614)_&gt;_ | 是 | - | 左侧页签项目列表，定义标题栏左侧的页签项目。 | 
-| menuItems | Array_&lt;_[ERROR:Invalid&nbsp;link:zh-cn_topic_0000001665635385.xml#xref1873737124811,link:zh-cn_topic_0000001658503585.xml#section5189124910420](zh-cn_topic_0000001658503585.xml#section5189124910420)_&gt;_ | 否 | - | 右侧菜单项目列表，定义标题栏右侧的菜单项目 | 
+| tabItems | Array&lt;TabTitleBarTabItem&gt; | 是 | - | 左侧页签项目列表，定义标题栏左侧的页签项目。 | 
+| menuItems | Array&lt;TabTitleBarMenuItem&gt; | 否 | - | 右侧菜单项目列表，定义标题栏右侧的菜单项目 | 
 | swiperContent | ()&nbsp;=&gt;&nbsp;void | 否 | \@BuilderParam | 页签列表关联的页面内容构造器 | 
 
 
