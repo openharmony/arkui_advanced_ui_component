@@ -37,7 +37,7 @@ ohos_shared_library("splitlayout") {
   external_deps = [
     "hilog:libhilog",
     "napi:ace_napi",
-  ]
+    ]
 
   subsystem_name = "arkui"
   part_name = "advanced_ui_component"
