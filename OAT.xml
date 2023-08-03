@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <oatconfig>
+        <filefilterlist>
+             <filefilter name="binaryFileTypePolicyFilter" desc="二进制文件校验策略的过滤条件" >
+                <filteritem type="filepath" name="doc/figures/zh-cn_image_2023072903.PNG" desc="自研图片"/>
+                <filteritem type="filepath" name="doc/figures/zh-cn_image_2023072904.PNG" desc="自研图片"/>
+                <filteritem type="filepath" name="doc/figures/zh-cn_image_2023072905.PNG" desc="自研图片"/>
+                <filteritem type="filepath" name="doc/figures/zh-cn_image_2023072906.PNG" desc="自研图片"/>
+            </filefilter>
+        </filefilterlist>
+    </oatconfig>
+</configuration>
