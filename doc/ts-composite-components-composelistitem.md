@@ -26,7 +26,7 @@ ComposeListItem({contentItem?: ContentItem, operateItem?: OperateItem})
 
 **装饰器类型：**\@Component
 
-**系统能力：**SystemCapability.ArkUI.ArkUI.Full
+**系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
 
 **参数：**
@@ -71,9 +71,9 @@ ComposeListItem({contentItem?: ContentItem, operateItem?: OperateItem})
 | icon | [OperateIcon](#operateicon) | 否 | 右侧元素-第一个图标，大小为24\*24dp。 | 
 | subIcon | [OperateIcon](#operateicon) | 否 | 右侧元素-第二个图标，大小为24\*24dp。 | 
 | button | [OperateButton](#operatebutton) | 否 | 右侧元素-按钮。 | 
-| switch | [OperateCheck](#switchcheckboxradio-operatecheck) | 否 | 右侧元素-开关。 | 
-| checkbox | [OperateCheck](#switchcheckboxradio-operatecheck) | 否 | 右侧元素-多选框，大小为24\*24dp。 | 
-| radio | [OperateCheck](#switchcheckboxradio-operatecheck) | 否 | 右侧元素-单选，大小为24\*24dp。 | 
+| switch | [OperateCheck](https://gitee.com/openharmony-sig/arkui_advanced_ui_component/blob/master/doc/ts-composite-components-composelistitem.md#switchcheckboxradio-operatecheck) | 否 | 右侧元素-开关。 | 
+| checkbox | [OperateCheck](https://gitee.com/openharmony-sig/arkui_advanced_ui_component/blob/master/doc/ts-composite-components-composelistitem.md#switchcheckboxradio-operatecheck) | 否 | 右侧元素-多选框，大小为24\*24dp。 | 
+| radio | [OperateCheck](https://gitee.com/openharmony-sig/arkui_advanced_ui_component/blob/master/doc/ts-composite-components-composelistitem.md#switchcheckboxradio-operatecheck) | 否 | 右侧元素-单选，大小为24\*24dp。 | 
 | image | [ResourceStr](https://docs.openharmony.cn/pages/v4.0/zh-cn/application-dev/reference/arkui-ts/ts-types.md/#resourcestr) | 否 | 右侧元素-图片，大小为48\*48dp。 | 
 | text | [ResourceStr](https://docs.openharmony.cn/pages/v4.0/zh-cn/application-dev/reference/arkui-ts/ts-types.md/#resourcestr) | 否 | 右侧元素-文字。 | 
 

@@ -26,14 +26,14 @@ TabTitleBar({tabItems: Array&lt;TabTitleBarTabItem&gt;, menuItems?: Array&lt;Tab
 
 **装饰器类型：**\@Component
 
-**系统能力：**SystemCapability.ArkUI.ArkUI.Full
+**系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
 **参数：**
 
 | 参数名 | 参数类型 | 必选 | 装饰器类型 | 参数描述 | 
 | -------- | -------- | -------- | -------- | -------- |
-| tabItems | Array&lt;TabTitleBarTabItem&gt; | 是 | - | 左侧页签项目列表，定义标题栏左侧的页签项目。 | 
-| menuItems | Array&lt;TabTitleBarMenuItem&gt; | 否 | - | 右侧菜单项目列表，定义标题栏右侧的菜单项目 | 
+| tabItems | Array&lt;[TabTitleBarTabItem](https://gitee.com/openharmony-sig/arkui_advanced_ui_component/blob/master/doc/ts-composite-components-tabtitlebar.md/#tabtitlebartabitem)&gt; | 是 | - | 左侧页签项目列表，定义标题栏左侧的页签项目。 | 
+| menuItems | Array&lt;[TabTitleBarMenuItem](https://gitee.com/openharmony-sig/arkui_advanced_ui_component/blob/master/doc/ts-composite-components-tabtitlebar.md/#tabtitlebarmenuitem)&gt; | 否 | - | 右侧菜单项目列表，定义标题栏右侧的菜单项目 | 
 | swiperContent | ()&nbsp;=&gt;&nbsp;void | 否 | \@BuilderParam | 页签列表关联的页面内容构造器 | 
 
 

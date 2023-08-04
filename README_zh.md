@@ -29,6 +29,6 @@ advanced_ui 是基于使用场景设计，为应用提供高效的UI组合，接
 advanced_ui框架提供了丰富的、ui设计统一的、高效的UI组合组件、样式定义，组件之间相互独立，随取随用，也可以在需求相同的地方重复使用。开发者可以高效的使用，节省大量的工作量。
 
 ## 使用说明
-> 见[doc文件夹](https://gitee.com/openharmony-sig/arkui_advanced_ui_component/doc)
+> 见[doc文件夹](https://gitee.com/openharmony-sig/arkui_advanced_ui_component/tree/master/doc)
 
  

@@ -31,5 +31,5 @@ The following figure shows the directory structure.
 With advanced_ui, you can develop your application UI must faster, leveraging its diverse array of UI component combinations with consistent design and style definitions. You can use and reuse any component anywhere as needed.
 
 ## How to Use
-> See the [doc folder](https://gitee.com/openharmony-sig/arkui_advanced_ui_component/doc).
+> See the [doc folder](https://gitee.com/openharmony-sig/arkui_advanced_ui_component/tree/master/doc).
  
