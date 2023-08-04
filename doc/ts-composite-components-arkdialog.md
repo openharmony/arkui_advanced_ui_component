@@ -32,7 +32,7 @@ TipsDialog({controller: CustomDialogController, imageRes: Resource, imageSize: S
 **装饰器类型：**\@CustomDialog
 
 
-**系统能力：**SystemCapability.ArkUI.ArkUI.Full
+**系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
 
 **参数：**
@@ -59,7 +59,7 @@ SelectDialog({controller: CustomDialogController, title: ResourceStr, content?: 
 
 **装饰器类型：**\@CustomDialog
 
-**系统能力：**SystemCapability.ArkUI.ArkUI.Full
+**系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
 **参数：**
 
@@ -81,7 +81,7 @@ ConfirmDialog({controller: CustomDialogController, title: ResourceStr, content?:
 
 **装饰器类型：**\@CustomDialog
 
-**系统能力：**SystemCapability.ArkUI.ArkUI.Full
+**系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
 **参数：**
 
@@ -104,7 +104,7 @@ AlertDialog({controller: CustomDialogController, content?: ResourceStr, primaryB
 
 **装饰器类型：**\@CustomDialog
 
-**系统能力：**SystemCapability.ArkUI.ArkUI.Full
+**系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
 **参数：**
 
@@ -130,7 +130,7 @@ LoadingDialog({controller: CustomDialogController, content?: ResourceStr})
 
 ## ButtonOptions
 
-**系统能力：**SystemCapability.ArkUI.ArkUI.Full
+**系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
 | 名称 | 类型 | 必填 | 描述 | 
 | -------- | -------- | -------- | -------- |

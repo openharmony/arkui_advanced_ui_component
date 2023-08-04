@@ -26,7 +26,7 @@ SwipeRefresher ({content: string, isLoading: boolean})
 
 **装饰器类型：**\@Component
 
-**系统能力：**SystemCapability.ArkUI.ArkUI.Full
+**系统能力：** SystemCapability.ArkUI.ArkUI.Full
 
 **参数：**
 
