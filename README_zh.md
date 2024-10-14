@@ -4,9 +4,12 @@
 advanced_ui 是基于使用场景设计，为应用提供高效的UI组合，接口封闭、风格一致，开箱即用的组件接口；使用ArkTS语言开发，依赖系统的public API
 
 ## 软件架构
-**图 1**  advanced_ui和ArkUI架构关系 
+**图 1**  advanced_ui和ArkUI架构关系
+
 ![](figures/advanced_ui.png "advanced_ui和ArkUI架构关系")
-**图 2**  advanced_ui架构设计 
+
+**图 2**  advanced_ui架构设计
+
 ![](figures/advanced_ui_sub.png "advanced_ui架构设计")
 
 ## 目录
@@ -14,15 +17,11 @@ advanced_ui 是基于使用场景设计，为应用提供高效的UI组合，接
 
 ```
 /arkui_advanced_ui_component
-├── interface                       # 接口目录
-│   ├── arkdialog                   # 各个组件目录
-│   └── composelistitem
-│   └── .....
+├── atomicservicetabs                   # Components
+│   └── interface                       # APIs
+│   └── source                          # framework sorce work
+├── .....
 
-├── source                          # 框架源码
-│   ├── arkdialog                   # 各个组件目录
-│   └── composelistitem
-│   └── .....
 ```
 ## 使用场景<a name="section171384529150"></a>
 
