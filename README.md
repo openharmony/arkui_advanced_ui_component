@@ -7,6 +7,7 @@ advanced_ui is an ArkTS-based UI framework that offers efficient UI combinations
 **Figure 1** Relationship between advanced_ui and ArkUI
 
 ![](figures/advanced_ui_en.png "Relationship between advanced_ui and ArkUI")
+
 **Figure 2** advanced_ui architecture
 
 ![](figures/advanced_ui_sub_en.png "advanced_ui architecture")
@@ -16,20 +17,12 @@ The following figure shows the directory structure.
 
 ```
 /arkui_advanced_ui_component
-├── interface                       # APIs
-│   ├── arkdialog                   # Components
-│   └── composelistitem
-│   └── .....
+├── atomicservicetabs                   # Components
+│   └── interface                       # APIs
+│   └── source                          # framework sorce work
+├── .....
 
-├── source                          # Framework source code
-│   ├── arkdialog                   # Components
-│   └── composelistitem
-│   └── .....
 ```
 ## When to Use
 
 With advanced_ui, you can develop your application UI must faster, leveraging its diverse array of UI component combinations with consistent design and style definitions. You can use and reuse any component anywhere as needed.
-
-## How to Use
-> See the [doc folder](https://gitee.com/openharmony-sig/arkui_advanced_ui_component/tree/master/doc).
- 

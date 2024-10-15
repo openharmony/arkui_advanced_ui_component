@@ -1,13 +1,13 @@
 {
     "name": "@ohos/advanced_ui_component",
     "version": "1.0.0",
-    "description": "advanced_ui_component",
+    "description": "as_advanced_ui_component",
     "publishAs": "code-segment",
     "segment": {
-        "destPath": "foundation/arkui/advanced_ui_component"
+        "destPath": "foundation/arkui/as_advanced_ui_component"
     },
     "component": {
-        "name": "advanced_ui_component",
+        "name": "as_advanced_ui_component",
         "subsystem": "arkui",
         "syscap": [],
         "features": [],
@@ -25,19 +25,7 @@
         },
         "build": {
             "sub_component": [
-              "//foundation/arkui/advanced_ui_component/interface/filter:filter",
-              "//foundation/arkui/advanced_ui_component/interface/composetitlebar:composetitlebar",
-              "//foundation/arkui/advanced_ui_component/interface/editabletitlebar:editabletitlebar",
-              "//foundation/arkui/advanced_ui_component/interface/selecttitlebar:selecttitlebar",
-              "//foundation/arkui/advanced_ui_component/interface/tabtitlebar:tabtitlebar",
-              "//foundation/arkui/advanced_ui_component/interface/splitlayout:splitlayout",
-              "//foundation/arkui/advanced_ui_component/interface/subheader:subheader",
-              "//foundation/arkui/advanced_ui_component/interface/treeview:treeview",
-              "//foundation/arkui/advanced_ui_component/interface/composelistitem:composelistitem",
-              "//foundation/arkui/advanced_ui_component/interface/swiperefresher:swiperefresher",
-              "//foundation/arkui/advanced_ui_component/interface/arkdialog:arkdialog",
-              "//foundation/arkui/advanced_ui_component/interface/toolbar:toolbar",
-              "//foundation/arkui/advanced_ui_component/interface/progressbutton:progressbutton"
+              "//foundation/arkui/arkui_advanced_ui_component/atomicservicetabs/interfaces:atomicservicetabs"
             ],
             "inner_kits": [],
             "test": []
