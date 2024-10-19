@@ -12,5 +12,12 @@
 # limitations under the License.
 
 group("as_advanced_ui_component") {
-  deps = [ "atomicservicetabs/interfaces:atomicservicetabs" ]
+  deps = [
+    "atomicservicenavigation/interfaces:atomicservicenavigation",
+    "atomicservicetabs/interfaces:atomicservicetabs",
+    "atomicserviceweb/interfaces:atomicserviceweb",
+    "innerfullscreenlaunchcomponent/interfaces:innerfullscreenlaunchcomponent",
+    "interstitialdialogaction/interfaces:interstitialdialogaction",
+    "navpushpathhelper:navpushpathhelper",
+  ]
 }
