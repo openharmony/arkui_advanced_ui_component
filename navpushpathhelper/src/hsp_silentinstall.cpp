@@ -106,7 +106,7 @@ bool HspSilentInstall::IsHspExist(const std::string &moduleName, const std::stri
     return false;
 }
 
-void HspSilentInstall::InitRouteMap()
+void HspSilentInstall::UpdateRouteMap()
 {
     auto container = OHOS::Ace::Container::CurrentSafely();
     CHECK_NULL_VOID(container);

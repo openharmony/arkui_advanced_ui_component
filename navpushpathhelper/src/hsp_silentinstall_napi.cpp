@@ -56,9 +56,9 @@ napi_value HspSilentInstallNapi::IsHspExist(napi_env env, napi_callback_info inf
     return jsResult;
 }
 
-napi_value HspSilentInstallNapi::InitRouteMap(napi_env env, napi_callback_info info)
+napi_value HspSilentInstallNapi::UpdateRouteMap(napi_env env, napi_callback_info info)
 {
-    HspSilentInstall::InitRouteMap();
+    HspSilentInstall::UpdateRouteMap();
     return nullptr;
 }
 
