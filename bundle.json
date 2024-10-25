@@ -1,13 +1,13 @@
 {
-    "name": "@ohos/as_advanced_ui_component",
+    "name": "@ohos/advanced_ui_component",
     "version": "1.0.0",
-    "description": "as_advanced_ui_component",
+    "description": "advanced_ui_component",
     "publishAs": "code-segment",
     "segment": {
-        "destPath": "foundation/arkui/as_advanced_ui_component"
+        "destPath": "foundation/arkui/advanced_ui_component"
     },
     "component": {
-        "name": "as_advanced_ui_component",
+        "name": "advanced_ui_component",
         "subsystem": "arkui",
         "syscap": [],
         "features": [],
