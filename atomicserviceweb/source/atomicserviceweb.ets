@@ -247,7 +247,6 @@ export struct AtomicServiceWeb {
       return true;
     }
     url = this.cutUrl(url);
-    console.log(`AtomicServiceWebLog checkUrl url=${url}`);
     return true;
   }
 }
