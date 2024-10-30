@@ -57,5 +57,5 @@ ohos_shared_library("innerfullscreenlaunchcomponent") {
 
   relative_install_dir = "module/arkui/advanced"
   subsystem_name = "arkui"
-  part_name = "as_advanced_ui_component"
+  part_name = "atomicservice_ui_component"
 }

@@ -11,13 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-group("advanced_ui_component") {
+group("atomicservice_ui_component") {
   deps = [
     "atomicservicenavigation/interfaces:atomicservicenavigation",
     "atomicservicetabs/interfaces:atomicservicetabs",
     "atomicserviceweb/interfaces:atomicserviceweb",
     "innerfullscreenlaunchcomponent/interfaces:innerfullscreenlaunchcomponent",
     "interstitialdialogaction/interfaces:interstitialdialogaction",
-    "navpushpathhelper:navpushpathhelper",
   ]
 }
