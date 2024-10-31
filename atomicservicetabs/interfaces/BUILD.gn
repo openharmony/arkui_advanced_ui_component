@@ -55,5 +55,5 @@ ohos_shared_library("atomicservicetabs") {
 
   relative_install_dir = "module/atomicservice"
   subsystem_name = "arkui"
-  part_name = "as_advanced_ui_component"
+  part_name = "atomicservice_ui_component"
 }
