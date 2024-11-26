@@ -1,13 +1,13 @@
 {
     "name": "@ohos/advanced_ui_component",
     "version": "1.0.0",
-    "description": "atomicservice_ui_component",
+    "description": "advanced_ui_component",
     "publishAs": "code-segment",
     "segment": {
-        "destPath": "foundation/arkui/arkui_advanced_ui_component"
+        "destPath": "foundation/arkui/advanced_ui_component"
     },
     "component": {
-        "name": "atomicservice_ui_component",
+        "name": "advanced_ui_component",
         "subsystem": "arkui",
         "syscap": [],
         "features": [],
@@ -25,11 +25,11 @@
         },
         "build": {
             "sub_component": [
-              "//foundation/arkui/arkui_advanced_ui_component/atomicservicenavigation/interfaces:atomicservicenavigation",
-              "//foundation/arkui/arkui_advanced_ui_component/atomicservicetabs/interfaces:atomicservicetabs",
-              "//foundation/arkui/arkui_advanced_ui_component/atomicserviceweb/interfaces:atomicserviceweb",
-              "//foundation/arkui/arkui_advanced_ui_component/innerfullscreenlaunchcomponent/interfaces:innerfullscreenlaunchcomponent",
-              "//foundation/arkui/arkui_advanced_ui_component/interstitialdialogaction/interfaces:interstitialdialogaction"
+              "//foundation/arkui/advanced_ui_component/atomicservicenavigation/interfaces:atomicservicenavigation",
+              "//foundation/arkui/advanced_ui_component/atomicservicetabs/interfaces:atomicservicetabs",
+              "//foundation/arkui/advanced_ui_component/atomicserviceweb/interfaces:atomicserviceweb",
+              "//foundation/arkui/advanced_ui_component/innerfullscreenlaunchcomponent/interfaces:innerfullscreenlaunchcomponent",
+              "//foundation/arkui/advanced_ui_component/interstitialdialogaction/interfaces:interstitialdialogaction"
             ],
             "inner_kits": [],
             "test": []
