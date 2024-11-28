@@ -657,23 +657,6 @@ class AtomicService {
     return http.substring(index + 1);
   }
 
-  saveDownloadFile(filePath: string, fileName: string, options: DownloadFileOptions,
-    callback: (uri: string) => void): void {
-    let documentPicker = new filePicker.DocumentViewPicker();
-    documentPicker.save({
-      newFileNames: [fileName]
-    }).then(res => {
-      let uri: string = res[0];
-      fs.copy(fileUri.getUriFromPath(filePath), uri).then(() => {
-        callback && callback(uri);
-      }).catch((err: BusinessError) => {
-        this.error(err, options);
-      });
-    }).catch((err: BusinessError) => {
-      this.error(err, options);
-    });
-  }
-
   checkAccessToken(permissionName: Permissions): Promise<abilityAccessCtrl.GrantStatus> {
     let bundleInfo: bundleManager.BundleInfo = bundleManager.getBundleInfoForSelfSync(
       bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
@@ -889,20 +872,12 @@ class AtomicServiceApi extends AtomicService {
 
   openPreview(options: OpenPreviewOptions): void {
     let uri: string = this.getUri(options.uri as string);
-    filePreview.canPreview(this.context, uri).then((res: boolean) => {
-      if (!res) {
-        this.errorWithCodeAndMsg(IMAGE_CAN_NOT_PREVIEW_ERROR, options);
-        return;
-      }
-      filePreview.openPreview(this.context, {
-        uri: uri,
-        mimeType: options.mimeType as string,
-        title: options.title
-      }).then(() => {
-        this.success(new OpenPreviewResult(), options);
-      }).catch((err: BusinessError) => {
-        this.error(err, options);
-      });
+    filePreview.openPreview(this.context, {
+      uri: uri,
+      mimeType: options.mimeType as string,
+      title: options.title
+    }).then(() => {
+      this.success(new OpenPreviewResult(), options);
     }).catch((err: BusinessError) => {
       this.error(err, options);
     });
@@ -936,7 +911,6 @@ class AtomicServiceApi extends AtomicService {
   }
 
   downloadFile(options: DownloadFileOptions): void {
-    let fileName: string = options.fileName ? options.fileName : this.parseFileNameFromUrl(options.url);
     let cacheFileName: string = `${util.generateRandomUUID().replaceAll('-', '')}`;
     let filePath: string = `${this.context.cacheDir}/${cacheFileName}`;
     request.downloadFile(this.context, {
@@ -949,9 +923,7 @@ class AtomicServiceApi extends AtomicService {
       background: false
     }).then((downloadTask: request.DownloadTask) => {
       downloadTask.on('complete', () => {
-        this.saveDownloadFile(filePath, fileName, options, uri => {
-          this.success(new DownloadFileResult(uri), options);
-        });
+        this.success(new DownloadFileResult(filePath), options);
       });
       downloadTask.on('fail', errCode => {
         this.errorWithCodeAndMsg(new AsError(errCode, 'File download fail.'), options);
