@@ -775,22 +775,6 @@ class AtomicService {
         return n6.substring(o6 + 1);
     }
 
-    saveDownloadFile(z5, a6, b6, c6) {
-        let d6 = new filePicker.DocumentViewPicker();
-        d6.save({
-            newFileNames: [a6]
-        }).then(h6 => {
-            let i6 = h6[0];
-            fs.copy(fileUri.getUriFromPath(z5), i6).then(() => {
-                c6 && c6(i6);
-            }).catch((l6) => {
-                this.error(l6, b6);
-            });
-        }).catch((g6) => {
-            this.error(g6, b6);
-        });
-    }
-
     checkAccessToken(v5) {
         let w5 = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
         let x5 = w5.appInfo.accessTokenId;
@@ -1003,22 +987,14 @@ class AtomicServiceApi extends AtomicService {
 
     openPreview(n3) {
         let o3 = this.getUri(n3.uri);
-        filePreview.canPreview(this.context, o3).then((s3) => {
-            if (!s3) {
-                this.errorWithCodeAndMsg(IMAGE_CAN_NOT_PREVIEW_ERROR, n3);
-                return;
-            }
-            filePreview.openPreview(this.context, {
-                uri: o3,
-                mimeType: n3.mimeType,
-                title: n3.title
-            }).then(() => {
-                this.success(new OpenPreviewResult(), n3);
-            }).catch((v3) => {
-                this.error(v3, n3);
-            });
-        }).catch((r3) => {
-            this.error(r3, n3);
+        filePreview.openPreview(this.context, {
+            uri: o3,
+            mimeType: n3.mimeType,
+            title: n3.title
+        }).then(() => {
+            this.success(new OpenPreviewResult(), n3);
+        }).catch((v3) => {
+            this.error(v3, n3);
         });
     }
 
@@ -1050,7 +1026,6 @@ class AtomicServiceApi extends AtomicService {
     }
 
     downloadFile(m2) {
-        let n2 = m2.fileName ? m2.fileName : this.parseFileNameFromUrl(m2.url);
         let o2 = `${util.generateRandomUUID().replaceAll('-', '')}`;
         let p2 = `${this.context.cacheDir}/${o2}`;
         request.downloadFile(this.context, {
@@ -1063,9 +1038,7 @@ class AtomicServiceApi extends AtomicService {
             background: false
         }).then((t2) => {
             t2.on('complete', () => {
-                this.saveDownloadFile(p2, n2, m2, y2 => {
-                    this.success(new DownloadFileResult(y2), m2);
-                });
+                    this.success(new DownloadFileResult(p2), m2);
             });
             t2.on('fail', w2 => {
                 this.errorWithCodeAndMsg(new AsError(w2, 'File download fail.'), m2);
