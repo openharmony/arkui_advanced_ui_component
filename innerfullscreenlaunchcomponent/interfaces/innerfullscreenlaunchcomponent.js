@@ -150,6 +150,11 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
         try {
             const o = await abilityManager.isEmbeddedOpenAllowed(this.context, this.appId);
             if (o) {
+                if (this.isShow) {
+                    hilog.error(0x3900, 'InnerFullScreenLaunchComponent', ' EmbeddedAbility already shows');
+                    this.isShow = false;
+                    return;
+                }
                 this.isShow = true;
                 hilog.info(0x3900, 'InnerFullScreenLaunchComponent', ' EmbeddedOpen is Allowed!');
             }
