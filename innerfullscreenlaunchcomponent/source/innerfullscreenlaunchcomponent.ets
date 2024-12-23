@@ -115,6 +115,11 @@ export struct InnerFullScreenLaunchComponent {
     try {
       const res: boolean = await abilityManager.isEmbeddedOpenAllowed(this.context, this.appId);
       if (res) {
+        if (this.isShow) {
+          hilog.error(0x3900, 'InnerFullScreenLaunchComponent', ' EmbeddedAbility already shows');
+          this.isShow = false;
+          return;
+        }
         this.isShow = true;
         hilog.info(0x3900, 'InnerFullScreenLaunchComponent', ' EmbeddedOpen is Allowed!');
       } else {
