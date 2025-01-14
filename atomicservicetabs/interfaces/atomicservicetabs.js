@@ -18,6 +18,13 @@ if (!("finalizeConstruction" in ViewPU.prototype)) {
 }
 const DEFAULT_BAR_WIDTH = 96;
 const DEFAULT_BAR_HEIGHT = 52;
+const TEXT_WIDTH_HEIGHT_SIZE = 24;
+const TEXT_FONT_WEIGHT = 500;
+const TEXT_LIGHT_HEIGHT = 14;
+const TEXT_SELECTED_COLOR = { "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_bottom_tab_text_on'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
+const TEXT_UNSELECTED_COLOR = { "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_bottom_tab_text_off'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
+const ICON_SELECTED_COLOR = { "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_bottom_tab_icon'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
+const ICON_UNSELECTED_COLOR = { "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_bottom_tab_icon_off'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
 export class AtomicServiceTabs extends ViewPU {
     constructor(m1, n1, o1, p1 = -1, q1 = undefined, r1) {
         super(m1, o1, p1, r1);
@@ -119,6 +126,68 @@ export class AtomicServiceTabs extends ViewPU {
     set barOverlap(e1) {
         this.__barOverlap.set(e1);
     }
+    getColor(userColor, defaultColor) {
+        return userColor ? userColor : defaultColor;
+    }
+    getFontSize(item) {
+        return item.icon && item.text ? { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_caption'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" } : { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_button3'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
+    }
+    TabBuilder(item, index, parent = null) {
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            Column.create();
+            Column.width('100%');
+        }, Column);
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            If.create();
+            if (item.icon) {
+                this.ifElseBranchUpdateFunction(0, () => {
+                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                        Image.create(item.icon);
+                        Image.width(TEXT_WIDTH_HEIGHT_SIZE);
+                        Image.height(TEXT_WIDTH_HEIGHT_SIZE);
+                        Image.margin({ bottom: 4 });
+                        Image.objectFit(ImageFit.Contain);
+                        Image.fillColor(this.selectedIndex === index ? this.getColor(item.selectedColor, ICON_SELECTED_COLOR)
+                            : this.getColor(item.unselectedColor, ICON_UNSELECTED_COLOR));
+                        Image.backgroundColor(Color.Transparent);
+                    }, Image);
+                });
+            }
+            else {
+                this.ifElseBranchUpdateFunction(1, () => {
+                });
+            }
+        }, If);
+        If.pop();
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            If.create();
+            if (item.text) {
+                this.ifElseBranchUpdateFunction(0, () => {
+                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                        Text.create(item.text);
+                        Text.textOverflow({ overflow: TextOverflow.Ellipsis });
+                        Text.maxLines(1);
+                        Text.fontColor(this.selectedIndex === index ? this.getColor(item.selectedColor, TEXT_SELECTED_COLOR)
+                            : this.getColor(item.unselectedColor, TEXT_UNSELECTED_COLOR));
+                        Text.maxFontSize(this.getFontSize(item));
+                        Text.minFontSize(9);
+                        Text.fontWeight(TEXT_FONT_WEIGHT);
+                        Text.lineHeight(TEXT_LIGHT_HEIGHT);
+                        Text.textAlign(TextAlign.Center);
+                        Text.focusOnTouch(true);
+                        Text.padding({ left: 4, right: 4 });
+                    }, Text);
+                    Text.pop();
+                });
+            }
+            else {
+                this.ifElseBranchUpdateFunction(1, () => {
+                });
+            }
+        }, If);
+        If.pop();
+        Column.pop();
+    }
     initialRender() {
         this.observeComponentCreation2((c1, d1) => {
             Tabs.create({
@@ -162,9 +231,9 @@ export class AtomicServiceTabs extends ViewPU {
                                     }, If);
                                     If.pop();
                                 });
-                                TabContent.tabBar(BottomTabBarStyle.of(n.icon, n.text)
-                                    .labelStyle({ unselectedColor: n.unselectedColor, selectedColor: n.selectedColor })
-                                    .iconStyle({ unselectedColor: n.unselectedColor, selectedColor: n.selectedColor }));
+                                TabContent.tabBar({ builder: () => {
+                                    this.TabBuilder.call(this, item, index);
+                                } });
                                 TabContent.width((!this.tabContents && this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%');
                                 TabContent.height((!this.tabContents && this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%');
                             }, TabContent);
