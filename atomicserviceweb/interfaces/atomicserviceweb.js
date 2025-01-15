@@ -125,7 +125,7 @@ export class AtomicServiceWeb extends ViewPU {
         this.__mixedMode = new SynchedPropertySimpleOneWayPU(t10.mixedMode, this, "mixedMode");
         this.__darkMode = new SynchedPropertySimpleOneWayPU(t10.darkMode, this, "darkMode");
         this.__forceDarkAccess = new SynchedPropertySimpleOneWayPU(t10.forceDarkAccess, this, "forceDarkAccess");
-        this.__nestedScroll = new SynchedPropertyObjectOneWayPU(t10.nestedScroll, this, "nestedScroll");
+        this.__nestedScroll = new SynchedPropertyObjectOneWayPU(t10.nestedScroll, this, 'nestedScroll');
         this.__controller = new SynchedPropertyNesedObjectPU(t10.controller, this, "controller");
         this.onMessage = () => {
         };
