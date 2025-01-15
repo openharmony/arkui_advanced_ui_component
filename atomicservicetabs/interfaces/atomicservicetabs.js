@@ -16,7 +16,7 @@
 if (!("finalizeConstruction" in ViewPU.prototype)) {
     Reflect.set(ViewPU.prototype, "finalizeConstruction", () => { });
 }
-import display from "@ohos.display";
+const display = requireNapi('display');
 const DEFAULT_BAR_WIDTH = 96;
 const DEFAULT_BAR_HEIGHT = 48;
 const TEXT_WIDTH_HEIGHT_SIZE = 24;
