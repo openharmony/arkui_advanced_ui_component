@@ -21,10 +21,6 @@ const TEXT_FONT_WEIGHT: number = 500;
 const TEXT_LIGHT_HEIGHT: number = 14;
 const MARGIN_HORIZONTAL_VP: number = 8
 const MARGIN_VERTICAL_VP: number = 4;
-const TEXT_SELECTED_COLOR: ResourceColor = $r('sys.color.ohos_id_color_bottom_tab_text_on');
-const TEXT_UNSELECTED_COLOR: ResourceColor = $r('sys.color.ohos_id_color_bottom_tab_text_off');
-const ICON_SELECTED_COLOR: ResourceColor = $r('sys.color.ohos_id_color_bottom_tab_icon');
-const ICON_UNSELECTED_COLOR: ResourceColor = $r('sys.color.ohos_id_color_bottom_tab_icon_off');
 
 @Component
 export struct AtomicServiceTabs {
@@ -43,26 +39,22 @@ export struct AtomicServiceTabs {
   onChange?: Callback<number>;
   onTabBarClick?: Callback<number>;
   onContentWillChange?: OnContentWillChangeCallback;
-  @State selectedIndex: number = 0;
-  @State layoutModelStatue: boolean = false;
-  @State widthFlag: boolean = false;
-  @State landStatus: boolean = false;
-  @State barHeight?: Length = undefined;
-  @State barModeStatus: BarMode = BarMode.Fixed;
-  @State iconTextStatus: boolean = false;
-  @State directionStatus: FlexDirection = FlexDirection.Column;
-  @State textMarginTop?: number = undefined;
-  @State textMarginLeft?: number = undefined;
-  @State tabMargin?: number = undefined;
-  @State tabPadding?: number = MARGIN_VERTICAL_VP;
+  @State private selectedIndex: number = 0;
+  @State private isHorizontal: boolean = false;
+  @State private barModeStatus: BarMode = BarMode.Fixed;
+  @State private directionStatus: FlexDirection = FlexDirection.Column;
+  @State private textMarginTop?: number = undefined;
+  @State private textMarginLeft?: number = undefined;
+  @State private tabMargin?: number = undefined;
+  @State private tabPadding?: number = MARGIN_VERTICAL_VP;
+  private isIconAndText: boolean = false;
+  private barHeight?: Length = undefined;
   listener: mediaquery.MediaQueryListener =
     this.getUIContext().getMediaQuery().matchMediaSync('(orientation: landscape)');
 
   aboutToAppear() {
-    this.initBarWidthAndHeight()
-    if (this.iconTextStatus && this.layoutMode === LayoutMode.AUTO && this.tabBarPosition === TabBarPosition.BOTTOM) {
-      this.landStatus = this.listener.matches;
-      this.foldListener();
+    this.initBarModeAndHeight()
+    if (this.isIconAndText && this.layoutMode === LayoutMode.AUTO && this.tabBarPosition === TabBarPosition.BOTTOM) {
       this.startListener();
     }
   }
@@ -72,10 +64,10 @@ export struct AtomicServiceTabs {
     display.off('foldDisplayModeChange');
   }
 
-  initBarWidthAndHeight() {
-    this.layoutModelStatue = (this.layoutMode === LayoutMode.HORIZONTAL) ? true : false;
+  initBarModeAndHeight() {
+    this.isHorizontal = (this.layoutMode === LayoutMode.HORIZONTAL) ? true : false;
     if (this.tabBarOptionsArray[0].icon && this.tabBarOptionsArray[0].text) {
-      this.iconTextStatus = true;
+      this.isIconAndText = true;
     }
     if (this.tabBarPosition === TabBarPosition.LEFT) {
       this.barModeStatus = BarMode.Scrollable;
@@ -84,50 +76,38 @@ export struct AtomicServiceTabs {
     this.buildTab();
   }
 
-  getScreenInfo() {
-    const screenWidth = px2vp(display.getDefaultDisplaySync().width);
-    this.widthFlag = screenWidth / this.tabBarOptionsArray.length > 104 ? true : false;
-  }
-
-  foldListener() {
+  startListener() {
     if (display.isFoldable()) {
       display.on('foldDisplayModeChange', (data: display.FoldDisplayMode) => {
-        this.getScreenInfo();
         this.initLayoutStatus();
       });
     }
-  }
-
-  startListener() {
     this.listener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
-      this.landStatus = mediaQueryResult.matches;
-      this.getScreenInfo();
       this.initLayoutStatus();
     });
   }
 
   initLayoutStatus() {
-    this.layoutModelStatue = (this.landStatus || this.widthFlag) ? true : false;
+    const screenWidth = px2vp(display.getDefaultDisplaySync().width);
+    const widthFlag = screenWidth / this.tabBarOptionsArray.length > 104 ? true : false;
+    console.log('widthFlag===  ', widthFlag)
+    this.isHorizontal = widthFlag ? true : false;
     this.buildTab();
   }
 
   buildTab() {
-    this.directionStatus = this.layoutModelStatue ? FlexDirection.Row : FlexDirection.Column;
-    if (this.iconTextStatus) {
-      this.textMarginTop = this.layoutModelStatue ? undefined : MARGIN_VERTICAL_VP;
-      this.textMarginLeft = this.layoutModelStatue ? MARGIN_HORIZONTAL_VP : undefined;
-      this.tabPadding = this.layoutModelStatue ? undefined : MARGIN_VERTICAL_VP;
-      this.tabMargin = this.layoutModelStatue ? MARGIN_HORIZONTAL_VP : undefined;
+    this.directionStatus = this.isHorizontal ? FlexDirection.Row : FlexDirection.Column;
+    if (this.isIconAndText) {
+      this.textMarginTop = this.isHorizontal ? undefined : MARGIN_VERTICAL_VP;
+      this.textMarginLeft = this.isHorizontal ? MARGIN_HORIZONTAL_VP : undefined;
+      this.tabPadding = this.isHorizontal ? undefined : MARGIN_VERTICAL_VP;
+      this.tabMargin = this.isHorizontal ? MARGIN_HORIZONTAL_VP : undefined;
     }
   }
 
-  getColor(userColor: ResourceColor, defaultColor: ResourceColor): ResourceColor {
-    return userColor ? userColor : defaultColor;
-  }
-
   getFontSize(): Resource {
-    return this.layoutModelStatue ? $r('sys.float.ohos_id_text_size_button3') :
-      (this.iconTextStatus ? $r('sys.float.ohos_id_text_size_caption') :
+    return this.isHorizontal ? $r('sys.float.ohos_id_text_size_button3') :
+      (this.isIconAndText ? $r('sys.float.ohos_id_text_size_caption') :
       $r('sys.float.ohos_id_text_size_button3'));
   }
 
@@ -143,8 +123,7 @@ export struct AtomicServiceTabs {
           .width(TEXT_WIDTH_HEIGHT_SIZE)
           .height(TEXT_WIDTH_HEIGHT_SIZE)
           .objectFit(ImageFit.Contain)
-          .fillColor(this.selectedIndex === index ? this.getColor(item.selectedColor, ICON_SELECTED_COLOR)
-            : this.getColor(item.unselectedColor, ICON_UNSELECTED_COLOR))
+          .fillColor(this.selectedIndex === index ? item.selectedColor : item.unselectedColor)
           .backgroundColor(Color.Transparent)
           .flexShrink(0)
       }
@@ -152,8 +131,7 @@ export struct AtomicServiceTabs {
         Text(item.text)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
           .maxLines(1)
-          .fontColor(this.selectedIndex === index ? this.getColor(item.selectedColor, TEXT_SELECTED_COLOR)
-            : this.getColor(item.unselectedColor, TEXT_UNSELECTED_COLOR))
+          .fontColor(this.selectedIndex === index ? item.selectedColor : item.unselectedColor)
           .maxFontSize(this.getFontSize())
           .minFontSize(9)
           .fontWeight(TEXT_FONT_WEIGHT)
@@ -226,7 +204,7 @@ export class TabBarOptions {
   public selectedColor?: ResourceColor;
 
   constructor(icon: ResourceStr | TabBarSymbol, text: ResourceStr,
-              unselectedColor?: ResourceColor, selectedColor?: ResourceColor) {
+    unselectedColor?: ResourceColor, selectedColor?: ResourceColor) {
     this.icon = icon;
     this.text = text;
     this.unselectedColor = unselectedColor;
@@ -240,4 +218,5 @@ export enum TabBarPosition {
 }
 
 export type TabContentBuilder = () => void;
+
 export type OnContentWillChangeCallback = (currentIndex: number, comingIndex: number) => boolean;
