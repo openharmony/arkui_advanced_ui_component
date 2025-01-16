@@ -125,6 +125,7 @@ export class AtomicServiceWeb extends ViewPU {
         this.__mixedMode = new SynchedPropertySimpleOneWayPU(t10.mixedMode, this, "mixedMode");
         this.__darkMode = new SynchedPropertySimpleOneWayPU(t10.darkMode, this, "darkMode");
         this.__forceDarkAccess = new SynchedPropertySimpleOneWayPU(t10.forceDarkAccess, this, "forceDarkAccess");
+        this.__nestedScroll = new SynchedPropertyObjectOneWayPU(t10.nestedScroll, this, 'nestedScroll');
         this.__controller = new SynchedPropertyNesedObjectPU(t10.controller, this, "controller");
         this.onMessage = () => {
         };
@@ -202,6 +203,7 @@ export class AtomicServiceWeb extends ViewPU {
         this.__mixedMode.reset(q10.mixedMode);
         this.__darkMode.reset(q10.darkMode);
         this.__forceDarkAccess.reset(q10.forceDarkAccess);
+        this.__nestedScroll.reset(q10.nestedScroll);
         this.__controller.set(q10.controller);
     }
 
@@ -209,6 +211,7 @@ export class AtomicServiceWeb extends ViewPU {
         this.__mixedMode.purgeDependencyOnElmtId(p10);
         this.__darkMode.purgeDependencyOnElmtId(p10);
         this.__forceDarkAccess.purgeDependencyOnElmtId(p10);
+        this.__nestedScroll.purgeDependencyOnElmtId(p10);
         this.__controller.purgeDependencyOnElmtId(p10);
     }
 
@@ -216,6 +219,7 @@ export class AtomicServiceWeb extends ViewPU {
         this.__mixedMode.aboutToBeDeleted();
         this.__darkMode.aboutToBeDeleted();
         this.__forceDarkAccess.aboutToBeDeleted();
+        this.__nestedScroll.aboutToBeDeleted();
         this.__controller.aboutToBeDeleted();
         SubscriberManager.Get().delete(this.id__());
         this.aboutToBeDeletedInternal();
@@ -243,6 +247,14 @@ export class AtomicServiceWeb extends ViewPU {
 
     set forceDarkAccess(r11) {
         this.__forceDarkAccess.set(r11);
+    }
+
+    get nestedScroll() {
+        return this.__nestedScroll.get();
+    }
+
+    set nestedScroll(d9) {
+        this.__nestedScroll.set(d9);
     }
 
     get controller() {
@@ -279,6 +291,7 @@ export class AtomicServiceWeb extends ViewPU {
             Web.mixedMode(this.mixedMode);
             Web.darkMode(this.darkMode);
             Web.forceDarkAccess(this.forceDarkAccess);
+            Web.nestedScroll(ObservedObject.GetRawObject(this.nestedScroll));
             Web.onErrorReceive((q11) => this.onCommonCallBack('onErrorReceive', q11, this.onErrorReceive));
             Web.onHttpErrorReceive((p11) => this.onCommonCallBack('onHttpErrorReceive', p11, this.onHttpErrorReceive));
             Web.onPageBegin((l10) => this.onCommonCallBack('onPageBegin', l10, this.onPageBegin));
@@ -1038,7 +1051,7 @@ class AtomicServiceApi extends AtomicService {
             background: false
         }).then((t2) => {
             t2.on('complete', () => {
-                    this.success(new DownloadFileResult(p2), m2);
+                this.success(new DownloadFileResult(p2), m2);
             });
             t2.on('fail', w2 => {
                 this.errorWithCodeAndMsg(new AsError(w2, 'File download fail.'), m2);

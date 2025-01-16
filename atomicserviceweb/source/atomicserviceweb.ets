@@ -113,6 +113,7 @@ export struct AtomicServiceWeb {
   @Prop mixedMode?: MixedMode;
   @Prop darkMode?: WebDarkMode;
   @Prop forceDarkAccess?: boolean;
+  @Prop nestedScroll?: NestedScrollOptions | NestedScrollOptionsExt;
   @ObjectLink controller: AtomicServiceWebController;
   public onMessage?: Callback<OnMessageEvent> = () => {
   };
@@ -165,6 +166,7 @@ export struct AtomicServiceWeb {
       .mixedMode(this.mixedMode)
       .darkMode(this.darkMode)
       .forceDarkAccess(this.forceDarkAccess)
+      .nestedScroll(this.nestedScroll)
       .onErrorReceive((event: OnErrorReceiveEvent) => this.onCommonCallBack('onErrorReceive', event,
         this.onErrorReceive))
       .onHttpErrorReceive((event: OnHttpErrorReceiveEvent) => this.onCommonCallBack('onHttpErrorReceive', event,
