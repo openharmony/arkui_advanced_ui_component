@@ -40,8 +40,8 @@ export let GradientAlpha;
 export let MixMode;
 (function (MixMode) {
     MixMode.AVERAGE = 1;
-    MixMode.TOWARDS_PRIMARY = 2;
-    MixMode.TOWARDS_SECOND = 3;
+    MixMode.BIAS_STYLE_ONE = 2;
+    MixMode.BIAS_STYLE_TWO = 3;
 })(MixMode || (MixMode = {}));
 export class AtomicServiceNavigation extends ViewPU {
     constructor(w, x, y, z = -1, a1 = undefined, b1) {
@@ -210,11 +210,11 @@ export class AtomicServiceNavigation extends ViewPU {
                         //双色渐变五五分
                         this.drawGradientCanvasHalf(this.context, primaryColor, secondColor);
                     }
-                    else if (mixMode === MixMode.TOWARDS_PRIMARY) {
+                    else if (mixMode === MixMode.BIAS_STYLE_ONE) {
                         //第一种双色渐变三七分
                         this.drawGradientCanvasPrefer(this.context, primaryColor, secondColor);
                     }
-                    else if (mixMode === MixMode.TOWARDS_SECOND) {
+                    else if (mixMode === MixMode.BIAS_STYLE_TWO) {
                         //第二种双色渐变三七分
                         this.drawGradientCanvasPrefer1(this.context, primaryColor, secondColor);
                     }
