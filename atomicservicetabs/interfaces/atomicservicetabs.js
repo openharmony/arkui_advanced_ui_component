@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -6,7 +7,7 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to  in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -25,18 +26,18 @@ const TEXT_LIGHT_HEIGHT = 14;
 const MARGIN_HORIZONTAL_VP = 8;
 const MARGIN_VERTICAL_VP = 4;
 export class AtomicServiceTabs extends ViewPU {
-    constructor(m1, n1, o1, p1 = -1, q1 = undefined, r1) {
-        super(m1, o1, p1, r1);
-        if (typeof q1 === "function") {
-            this.paramsGenerator_ = q1;
+    constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
+        super(parent, __localStorage, elmtId, extraInfo);
+        if (typeof paramsLambda === "function") {
+            this.paramsGenerator_ = paramsLambda;
         }
         this.tabContents = undefined;
-        this.__tabBarOptionsArray = new SynchedPropertyObjectOneWayPU(n1.tabBarOptionsArray, this, "tabBarOptionsArray");
-        this.__tabBarPosition = new SynchedPropertySimpleOneWayPU(n1.tabBarPosition, this, "tabBarPosition");
-        this.__barBackgroundColor = new SynchedPropertyObjectOneWayPU(n1.barBackgroundColor, this, "barBackgroundColor");
-        this.__index = new SynchedPropertyObjectOneWayPU(n1.index, this, "index");
-        this.__barOverlap = new SynchedPropertySimpleOneWayPU(n1.barOverlap, this, "barOverlap");
-        this.__layoutMode = new SynchedPropertySimpleOneWayPU(n1.layoutMode, this, "layoutMode");
+        this.__tabBarOptionsArray = new SynchedPropertyObjectOneWayPU(params.tabBarOptionsArray, this, "tabBarOptionsArray");
+        this.__tabBarPosition = new SynchedPropertySimpleOneWayPU(params.tabBarPosition, this, "tabBarPosition");
+        this.__barBackgroundColor = new SynchedPropertyObjectOneWayPU(params.barBackgroundColor, this, "barBackgroundColor");
+        this.__index = new SynchedPropertyObjectOneWayPU(params.index, this, "index");
+        this.__barOverlap = new SynchedPropertySimpleOneWayPU(params.barOverlap, this, "barOverlap");
+        this.__layoutMode = new SynchedPropertySimpleOneWayPU(params.layoutMode, this, "layoutMode");
         this.controller = new TabsController();
         this.onChange = undefined;
         this.onTabBarClick = undefined;
@@ -52,97 +53,97 @@ export class AtomicServiceTabs extends ViewPU {
         this.isIconAndText = false;
         this.barHeight = undefined;
         this.listener = this.getUIContext().getMediaQuery().matchMediaSync('(orientation: landscape)');
-        this.setInitiallyProvidedValue(n1);
+        this.setInitiallyProvidedValue(params);
         this.finalizeConstruction();
     }
-    setInitiallyProvidedValue(l1) {
-        if (l1.tabContents !== undefined) {
-            this.tabContents = l1.tabContents;
+    setInitiallyProvidedValue(params) {
+        if (params.tabContents !== undefined) {
+            this.tabContents = params.tabContents;
         }
-        if (l1.tabBarPosition === undefined) {
+        if (params.tabBarPosition === undefined) {
             this.__tabBarPosition.set(TabBarPosition.BOTTOM);
         }
-        if (l1.barBackgroundColor === undefined) {
+        if (params.barBackgroundColor === undefined) {
             this.__barBackgroundColor.set(Color.Transparent);
         }
-        if (l1.index === undefined) {
+        if (params.index === undefined) {
             this.__index.set(0);
         }
-        if (l1.barOverlap === undefined) {
+        if (params.barOverlap === undefined) {
             this.__barOverlap.set(true);
         }
-        if (l1.layoutMode === undefined) {
+        if (params.layoutMode === undefined) {
             this.__layoutMode.set(LayoutMode.VERTICAL);
         }
-        if (l1.controller !== undefined) {
-            this.controller = l1.controller;
+        if (params.controller !== undefined) {
+            this.controller = params.controller;
         }
-        if (l1.onChange !== undefined) {
-            this.onChange = l1.onChange;
+        if (params.onChange !== undefined) {
+            this.onChange = params.onChange;
         }
-        if (l1.onTabBarClick !== undefined) {
-            this.onTabBarClick = l1.onTabBarClick;
+        if (params.onTabBarClick !== undefined) {
+            this.onTabBarClick = params.onTabBarClick;
         }
-        if (l1.onContentWillChange !== undefined) {
-            this.onContentWillChange = l1.onContentWillChange;
+        if (params.onContentWillChange !== undefined) {
+            this.onContentWillChange = params.onContentWillChange;
         }
-        if (l1.selectedIndex !== undefined) {
-            this.selectedIndex = l1.selectedIndex;
+        if (params.selectedIndex !== undefined) {
+            this.selectedIndex = params.selectedIndex;
         }
-        if (l1.isHorizontal !== undefined) {
-            this.isHorizontal = l1.isHorizontal;
+        if (params.isHorizontal !== undefined) {
+            this.isHorizontal = params.isHorizontal;
         }
-        if (l1.barModeStatus !== undefined) {
-            this.barModeStatus = l1.barModeStatus;
+        if (params.barModeStatus !== undefined) {
+            this.barModeStatus = params.barModeStatus;
         }
-        if (l1.directionStatus !== undefined) {
-            this.directionStatus = l1.directionStatus;
+        if (params.directionStatus !== undefined) {
+            this.directionStatus = params.directionStatus;
         }
-        if (l1.textMarginTop !== undefined) {
-            this.textMarginTop = l1.textMarginTop;
+        if (params.textMarginTop !== undefined) {
+            this.textMarginTop = params.textMarginTop;
         }
-        if (l1.textMarginLeft !== undefined) {
-            this.textMarginLeft = l1.textMarginLeft;
+        if (params.textMarginLeft !== undefined) {
+            this.textMarginLeft = params.textMarginLeft;
         }
-        if (l1.tabMargin !== undefined) {
-            this.tabMargin = l1.tabMargin;
+        if (params.tabMargin !== undefined) {
+            this.tabMargin = params.tabMargin;
         }
-        if (l1.tabPadding !== undefined) {
-            this.tabPadding = l1.tabPadding;
+        if (params.tabPadding !== undefined) {
+            this.tabPadding = params.tabPadding;
         }
-        if (l1.isIconAndText !== undefined) {
-            this.isIconAndText = l1.isIconAndText;
+        if (params.isIconAndText !== undefined) {
+            this.isIconAndText = params.isIconAndText;
         }
-        if (l1.barHeight !== undefined) {
-            this.barHeight = l1.barHeight;
+        if (params.barHeight !== undefined) {
+            this.barHeight = params.barHeight;
         }
-        if (l1.listener !== undefined) {
-            this.listener = l1.listener;
+        if (params.listener !== undefined) {
+            this.listener = params.listener;
         }
     }
-    updateStateVars(k1) {
-        this.__tabBarOptionsArray.reset(k1.tabBarOptionsArray);
-        this.__tabBarPosition.reset(k1.tabBarPosition);
-        this.__barBackgroundColor.reset(k1.barBackgroundColor);
-        this.__index.reset(k1.index);
-        this.__barOverlap.reset(k1.barOverlap);
-        this.__layoutMode.reset(k1.layoutMode);
+    updateStateVars(params) {
+        this.__tabBarOptionsArray.reset(params.tabBarOptionsArray);
+        this.__tabBarPosition.reset(params.tabBarPosition);
+        this.__barBackgroundColor.reset(params.barBackgroundColor);
+        this.__index.reset(params.index);
+        this.__barOverlap.reset(params.barOverlap);
+        this.__layoutMode.reset(params.layoutMode);
     }
-    purgeVariableDependenciesOnElmtId(j1) {
-        this.__tabBarOptionsArray.purgeDependencyOnElmtId(j1);
-        this.__tabBarPosition.purgeDependencyOnElmtId(j1);
-        this.__barBackgroundColor.purgeDependencyOnElmtId(j1);
-        this.__index.purgeDependencyOnElmtId(j1);
-        this.__barOverlap.purgeDependencyOnElmtId(j1);
-        this.__layoutMode.purgeDependencyOnElmtId(j1);
-        this.__selectedIndex.purgeDependencyOnElmtId(j1);
-        this.__isHorizontal.purgeDependencyOnElmtId(j1);
-        this.__barModeStatus.purgeDependencyOnElmtId(j1);
-        this.__directionStatus.purgeDependencyOnElmtId(j1);
-        this.__textMarginTop.purgeDependencyOnElmtId(j1);
-        this.__textMarginLeft.purgeDependencyOnElmtId(j1);
-        this.__tabMargin.purgeDependencyOnElmtId(j1);
-        this.__tabPadding.purgeDependencyOnElmtId(j1);
+    purgeVariableDependenciesOnElmtId(rmElmtId) {
+        this.__tabBarOptionsArray.purgeDependencyOnElmtId(rmElmtId);
+        this.__tabBarPosition.purgeDependencyOnElmtId(rmElmtId);
+        this.__barBackgroundColor.purgeDependencyOnElmtId(rmElmtId);
+        this.__index.purgeDependencyOnElmtId(rmElmtId);
+        this.__barOverlap.purgeDependencyOnElmtId(rmElmtId);
+        this.__layoutMode.purgeDependencyOnElmtId(rmElmtId);
+        this.__selectedIndex.purgeDependencyOnElmtId(rmElmtId);
+        this.__isHorizontal.purgeDependencyOnElmtId(rmElmtId);
+        this.__barModeStatus.purgeDependencyOnElmtId(rmElmtId);
+        this.__directionStatus.purgeDependencyOnElmtId(rmElmtId);
+        this.__textMarginTop.purgeDependencyOnElmtId(rmElmtId);
+        this.__textMarginLeft.purgeDependencyOnElmtId(rmElmtId);
+        this.__tabMargin.purgeDependencyOnElmtId(rmElmtId);
+        this.__tabPadding.purgeDependencyOnElmtId(rmElmtId);
     }
     aboutToBeDeleted() {
         this.__tabBarOptionsArray.aboutToBeDeleted();
@@ -165,32 +166,32 @@ export class AtomicServiceTabs extends ViewPU {
     get tabBarOptionsArray() {
         return this.__tabBarOptionsArray.get();
     }
-    set tabBarOptionsArray(i1) {
-        this.__tabBarOptionsArray.set(i1);
+    set tabBarOptionsArray(newValue) {
+        this.__tabBarOptionsArray.set(newValue);
     }
     get tabBarPosition() {
         return this.__tabBarPosition.get();
     }
-    set tabBarPosition(h1) {
-        this.__tabBarPosition.set(h1);
+    set tabBarPosition(newValue) {
+        this.__tabBarPosition.set(newValue);
     }
     get barBackgroundColor() {
         return this.__barBackgroundColor.get();
     }
-    set barBackgroundColor(g1) {
-        this.__barBackgroundColor.set(g1);
+    set barBackgroundColor(newValue) {
+        this.__barBackgroundColor.set(newValue);
     }
     get index() {
         return this.__index.get();
     }
-    set index(f1) {
-        this.__index.set(f1);
+    set index(newValue) {
+        this.__index.set(newValue);
     }
     get barOverlap() {
         return this.__barOverlap.get();
     }
-    set barOverlap(e1) {
-        this.__barOverlap.set(e1);
+    set barOverlap(newValue) {
+        this.__barOverlap.set(newValue);
     }
     get layoutMode() {
         return this.__layoutMode.get();
@@ -362,7 +363,7 @@ export class AtomicServiceTabs extends ViewPU {
         Flex.pop();
     }
     initialRender() {
-        this.observeComponentCreation2((c1, d1) => {
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
             Tabs.create({
                 barPosition: this.tabBarPosition === TabBarPosition.LEFT ? BarPosition.Start : BarPosition.End,
                 index: this.index,
@@ -392,21 +393,21 @@ export class AtomicServiceTabs extends ViewPU {
             Tabs.width((!this.tabContents && this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%');
             Tabs.height((!this.tabContents && this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%');
         }, Tabs);
-        this.observeComponentCreation2((h, i) => {
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
             ForEach.create();
-            const j = (l, m) => {
-                const n = l;
-                this.observeComponentCreation2((p, q) => {
+            const forEachItemGenFunction = (_item, index) => {
+                const item = _item;
+                this.observeComponentCreation2((elmtId, isInitialRender) => {
                     If.create();
-                    if (n) {
+                    if (item) {
                         this.ifElseBranchUpdateFunction(0, () => {
-                            this.observeComponentCreation2((u, v) => {
+                            this.observeComponentCreation2((elmtId, isInitialRender) => {
                                 TabContent.create(() => {
-                                    this.observeComponentCreation2((y, z) => {
+                                    this.observeComponentCreation2((elmtId, isInitialRender) => {
                                         If.create();
-                                        if (this.tabContents && this.tabContents[m]) {
+                                        if (this.tabContents && this.tabContents[index]) {
                                             this.ifElseBranchUpdateFunction(0, () => {
-                                                this.tabContents[m]?.bind(this)?.(this);
+                                                this.tabContents[index]?.bind(this)?.();
                                             });
                                         }
                                         else {
@@ -432,7 +433,7 @@ export class AtomicServiceTabs extends ViewPU {
                 }, If);
                 If.pop();
             };
-            this.forEachUpdateFunction(h, this.tabBarOptionsArray, j, undefined, true, false);
+            this.forEachUpdateFunction(elmtId, this.tabBarOptionsArray, forEachItemGenFunction, undefined, true, false);
         }, ForEach);
         ForEach.pop();
         Tabs.pop();
@@ -442,18 +443,17 @@ export class AtomicServiceTabs extends ViewPU {
     }
 }
 export class TabBarOptions {
-    constructor(b, c, d, e) {
-        this.icon = b;
-        this.text = c;
-        this.unselectedColor = d;
-        this.selectedColor = e;
+    constructor(icon, text, unselectedColor, selectedColor) {
+        this.icon = icon;
+        this.text = text;
+        this.unselectedColor = unselectedColor;
+        this.selectedColor = selectedColor;
     }
 }
-
 export var TabBarPosition;
-(function (a) {
-    a[a["LEFT"] = 0] = "LEFT";
-    a[a["BOTTOM"] = 1] = "BOTTOM";
+(function (TabBarPosition) {
+    TabBarPosition[TabBarPosition["LEFT"] = 0] = "LEFT";
+    TabBarPosition[TabBarPosition["BOTTOM"] = 1] = "BOTTOM";
 })(TabBarPosition || (TabBarPosition = {}));
 
 export default { AtomicServiceTabs, TabBarOptions, TabBarPosition};
