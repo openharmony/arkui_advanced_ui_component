@@ -38,8 +38,8 @@ export enum GradientAlpha {
 
 export enum MixMode {
   AVERAGE = 1,
-  BIAS_STYLE_ONE = 2,
-  BIAS_STYLE_TWO = 3,
+  CROSS = 2,
+  TOWARDS = 3,
 }
 
 @Component
@@ -88,10 +88,10 @@ export struct AtomicServiceNavigation {
           if (mixMode === MixMode.AVERAGE) {
             //双色渐变五五分
             this.drawGradientCanvasHalf(this.context, primaryColor, secondColor);
-          } else if (mixMode === MixMode.BIAS_STYLE_ONE) {
+          } else if (mixMode === MixMode.CROSS) {
             //第一种双色渐变三七分
             this.drawGradientCanvasPrefer(this.context, primaryColor, secondColor);
-          } else if (mixMode === MixMode.BIAS_STYLE_TWO) {
+          } else if (mixMode === MixMode.TOWARDS) {
             //第二种双色渐变三七分
             this.drawGradientCanvasPrefer1(this.context, primaryColor, secondColor);
           }
