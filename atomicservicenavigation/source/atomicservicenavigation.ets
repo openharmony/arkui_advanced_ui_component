@@ -23,7 +23,6 @@ const HALF_RATIO = 0.5;
 const SEVENTY_PERCENT_RATIO = 0.7;
 const FOURTY_PERCENT_RATIO = 0.4;
 const SIXTY_PERCENT_RATIO = 0.6;
-const TWENTY_PERCENT_RATIO = 0.2;
 const ONE_POINT_FIVE_RATIO = 1.5;
 const NEGATIVE_ONE = -1;
 
@@ -141,10 +140,10 @@ export struct AtomicServiceNavigation {
     let grad2 = context.createLinearGradient(this.screenWidth * ONE_POINT_FIVE_RATIO, this.screenHeight,
       this.screenWidth * HALF_RATIO, 0);
     grad1.addColorStop(0, primaryColor.toString());
-    grad1.addColorStop(0, primaryColor.toString());
+    grad1.addColorStop(HALF_RATIO, primaryColor.toString());
     grad1.addColorStop(1, secondColor.toString());
     grad2.addColorStop(0, primaryColor.toString());
-    grad2.addColorStop(TWENTY_PERCENT_RATIO, primaryColor.toString());
+    grad2.addColorStop(HALF_RATIO, primaryColor.toString());
     grad2.addColorStop(1, secondColor.toString());
     context.fillStyle = grad1;
     context.fillRect(0, 0, this.screenWidth * HALF_RATIO, this.screenHeight);
