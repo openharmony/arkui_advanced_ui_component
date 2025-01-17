@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,6 +51,8 @@ export class AtomicServiceTabs extends ViewPU {
         this.__tabPadding = new ObservedPropertySimplePU(MARGIN_VERTICAL_VP, this, "tabPadding");
         this.isIconAndText = false;
         this.barHeight = undefined;
+        this.isListener = false;
+        this.isFold = false;
         this.listener = this.getUIContext().getMediaQuery().matchMediaSync('(orientation: landscape)');
         this.setInitiallyProvidedValue(params);
         this.finalizeConstruction();
@@ -116,6 +117,12 @@ export class AtomicServiceTabs extends ViewPU {
         }
         if (params.barHeight !== undefined) {
             this.barHeight = params.barHeight;
+        }
+        if (params.isListener !== undefined) {
+            this.isListener = params.isListener;
+        }
+        if (params.isFold !== undefined) {
+            this.isFold = params.isFold;
         }
         if (params.listener !== undefined) {
             this.listener = params.listener;
@@ -250,12 +257,17 @@ export class AtomicServiceTabs extends ViewPU {
     aboutToAppear() {
         this.initBarModeAndHeight();
         if (this.isIconAndText && this.layoutMode === LayoutMode.AUTO && this.tabBarPosition === TabBarPosition.BOTTOM) {
+            this.isListener = true;
             this.startListener();
         }
     }
     aboutToDisappear() {
-        this.listener.off('change');
-        display.off('foldDisplayModeChange');
+        if (this.isListener) {
+            this.listener.off('change');
+            if (this.isFold) {
+                display.off('foldDisplayModeChange');
+            }
+        }
     }
     initBarModeAndHeight() {
         this.isHorizontal = (this.layoutMode === LayoutMode.HORIZONTAL) ? true : false;
@@ -269,10 +281,13 @@ export class AtomicServiceTabs extends ViewPU {
         this.buildTab();
     }
     startListener() {
-        if (display.isFoldable()) {
-            display.on('foldDisplayModeChange', (data) => {
-                this.initLayoutStatus();
-            });
+        if (canIUse('SystemCapability.Window.SessionManager')) {
+            if (display.isFoldable()) {
+                this.isFold = true;
+                display.on('foldDisplayModeChange', (data) => {
+                    this.initLayoutStatus();
+                });
+            }
         }
         this.listener.on('change', (mediaQueryResult) => {
             this.initLayoutStatus();
@@ -281,7 +296,6 @@ export class AtomicServiceTabs extends ViewPU {
     initLayoutStatus() {
         const screenWidth = px2vp(display.getDefaultDisplaySync().width);
         const widthFlag = screenWidth / this.tabBarOptionsArray.length > 104 ? true : false;
-        console.log('widthFlag===  ', widthFlag);
         this.isHorizontal = widthFlag ? true : false;
         this.buildTab();
     }
@@ -295,8 +309,8 @@ export class AtomicServiceTabs extends ViewPU {
         }
     }
     getFontSize() {
-        return this.isHorizontal ? { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_button3'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" } :
-            (this.isIconAndText ? { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_caption'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" } : { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_button3'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+        return this.isHorizontal ? { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_button3'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' } :
+            (this.isIconAndText ? { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_caption'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' } : { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_button3'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
     }
     TabBuilder(item, index, parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
