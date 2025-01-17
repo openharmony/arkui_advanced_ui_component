@@ -49,22 +49,29 @@ export struct AtomicServiceTabs {
   @State private tabPadding?: number = MARGIN_VERTICAL_VP;
   private isIconAndText: boolean = false;
   private barHeight?: Length = undefined;
+  private isListener: boolean = false;
+  private isFold: boolean = false;
   listener: mediaquery.MediaQueryListener =
     this.getUIContext().getMediaQuery().matchMediaSync('(orientation: landscape)');
 
-  aboutToAppear() {
-    this.initBarModeAndHeight()
+  aboutToAppear(): void {
+    this.initBarModeAndHeight();
     if (this.isIconAndText && this.layoutMode === LayoutMode.AUTO && this.tabBarPosition === TabBarPosition.BOTTOM) {
+      this.isListener = true;
       this.startListener();
     }
   }
 
   aboutToDisappear(): void {
-    this.listener.off('change');
-    display.off('foldDisplayModeChange');
+    if (this.isListener) {
+      this.listener.off('change');
+      if (this.isFold) {
+        display.off('foldDisplayModeChange');
+      }
+    }
   }
 
-  initBarModeAndHeight() {
+  initBarModeAndHeight(): void {
     this.isHorizontal = (this.layoutMode === LayoutMode.HORIZONTAL) ? true : false;
     if (this.tabBarOptionsArray[0].icon && this.tabBarOptionsArray[0].text) {
       this.isIconAndText = true;
@@ -76,26 +83,28 @@ export struct AtomicServiceTabs {
     this.buildTab();
   }
 
-  startListener() {
-    if (display.isFoldable()) {
-      display.on('foldDisplayModeChange', (data: display.FoldDisplayMode) => {
-        this.initLayoutStatus();
-      });
+  startListener(): void {
+    if (canIUse('SystemCapability.Window.SessionManager')) {
+      if (display.isFoldable()) {
+        this.isFold = true;
+        display.on('foldDisplayModeChange', (data: display.FoldDisplayMode) => {
+          this.initLayoutStatus();
+        });
+      }
     }
     this.listener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
       this.initLayoutStatus();
     });
   }
 
-  initLayoutStatus() {
+  initLayoutStatus(): void {
     const screenWidth = px2vp(display.getDefaultDisplaySync().width);
     const widthFlag = screenWidth / this.tabBarOptionsArray.length > 104 ? true : false;
-    console.log('widthFlag===  ', widthFlag)
     this.isHorizontal = widthFlag ? true : false;
     this.buildTab();
   }
 
-  buildTab() {
+  buildTab(): void {
     this.directionStatus = this.isHorizontal ? FlexDirection.Row : FlexDirection.Column;
     if (this.isIconAndText) {
       this.textMarginTop = this.isHorizontal ? undefined : MARGIN_VERTICAL_VP;
