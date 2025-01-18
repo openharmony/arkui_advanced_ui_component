@@ -217,11 +217,11 @@ export class AtomicServiceNavigation extends ViewPU {
                     }
                     else if (mixMode === MixMode.CROSS) {
                         //第一种双色渐变三七分
-                        this.drawGradientCanvasPrefer(this.context, primaryColor, secondColor);
+                        this.drawGradientCanvasCross(this.context, primaryColor, secondColor);
                     }
                     else if (mixMode === MixMode.TOWARDS) {
                         //第二种双色渐变三七分
-                        this.drawGradientCanvasPrefer1(this.context, primaryColor, secondColor);
+                        this.drawGradientCanvasTowards(this.context, primaryColor, secondColor);
                     }
                     this.drawTransparentGradient(this.context);
                 }
@@ -250,9 +250,10 @@ export class AtomicServiceNavigation extends ViewPU {
             Navigation.onNavigationModeChange(this.modeChangeCallback);
             Navigation.backgroundColor(DEAULT_COLOR);
             Navigation.background({ builder: () => {
-                    this.BackgroundBuilder.call(this, this.gradientBackground?.primaryColor,
-                        this.gradientBackground?.secondColor, this.gradientBackground?.mixMode, this.gradientBackground?.alpha);
-                } });
+                this.BackgroundBuilder.call(this, this.gradientBackground?.primaryColor,
+                    this.gradientBackground?.secondColor, this.gradientBackground?.mixMode,
+                    this.gradientBackground?.alpha);
+            } });
         }, Navigation);
         this.observeComponentCreation2((c, d) => {
             If.create();
@@ -277,8 +278,10 @@ export class AtomicServiceNavigation extends ViewPU {
      */
     drawGradientCanvasHalf(context, primaryColor, secondColor) {
         this.screenHeight = this.screenHeight * RATIO_THREE_TENTHS;
-        let grad1 = context.createLinearGradient(NEGATIVE_ONE * this.screenWidth * HALF_RATIO, this.screenHeight, this.screenWidth * HALF_RATIO, 0);
-        let grad2 = context.createLinearGradient(this.screenWidth * ONE_POINT_FIVE_RATIO, this.screenHeight, this.screenWidth * HALF_RATIO, 0);
+        let grad1 = context.createLinearGradient(NEGATIVE_ONE * this.screenWidth * HALF_RATIO, this.screenHeight,
+            this.screenWidth * HALF_RATIO, 0);
+        let grad2 = context.createLinearGradient(this.screenWidth * ONE_POINT_FIVE_RATIO, this.screenHeight,
+            this.screenWidth * HALF_RATIO, 0);
         grad1.addColorStop(0, primaryColor.toString());
         grad1.addColorStop(HALF_RATIO, primaryColor.toString());
         grad1.addColorStop(1, secondColor.toString());
@@ -296,7 +299,7 @@ export class AtomicServiceNavigation extends ViewPU {
      * @param primaryColor
      * @param secondColor
      */
-    drawGradientCanvasPrefer(context, primaryColor, secondColor) {
+    drawGradientCanvasCross(context, primaryColor, secondColor) {
         this.screenHeight = this.screenHeight * RATIO_THREE_TENTHS;
         let grad1 = context.createLinearGradient(0, 0, SEVENTY_PERCENT_RATIO * this.screenWidth, 0);
         grad1.addColorStop(0, primaryColor.toString());
@@ -304,23 +307,30 @@ export class AtomicServiceNavigation extends ViewPU {
         grad1.addColorStop(1, secondColor.toString());
         context.fillStyle = grad1;
         context.fillRect(0, 0, SEVENTY_PERCENT_RATIO * this.screenWidth, this.screenHeight);
-        let y1 = (HALF_RATIO * this.screenHeight - RATIO_THREE_TENTHS * this.screenWidth) > 0 ? HALF_RATIO * this.screenHeight - RATIO_THREE_TENTHS * this.screenWidth : 0;
-        let grad2 = context.createLinearGradient(SEVENTY_PERCENT_RATIO * this.screenWidth, y1, this.screenWidth, this.screenHeight * HALF_RATIO);
+        let y1 = (HALF_RATIO * this.screenHeight - RATIO_THREE_TENTHS * this.screenWidth) > 0 ?
+            HALF_RATIO * this.screenHeight - RATIO_THREE_TENTHS * this.screenWidth : 0;
+        let grad2 = context.createLinearGradient(SEVENTY_PERCENT_RATIO * this.screenWidth, y1, this.screenWidth,
+            this.screenHeight * HALF_RATIO);
         grad2.addColorStop(0, secondColor.toString());
         grad2.addColorStop(FOURTY_PERCENT_RATIO, secondColor.toString());
         grad2.addColorStop(1, primaryColor.toString());
         context.fillStyle = grad2;
         context.strokeStyle = primaryColor.toString();
-        context.strokeRect(SEVENTY_PERCENT_RATIO * this.screenWidth, 0, this.screenWidth * RATIO_THREE_TENTHS, this.screenHeight * HALF_RATIO);
-        context.fillRect(SEVENTY_PERCENT_RATIO * this.screenWidth - OFFSET_ONE, 0, this.screenWidth * RATIO_THREE_TENTHS + OFFSET_ONE, this.screenHeight * HALF_RATIO + OFFSET_ONE);
-        let y2 = (HALF_RATIO * this.screenHeight - RATIO_THREE_TENTHS * this.screenWidth) > 0 ? HALF_RATIO * this.screenHeight + RATIO_THREE_TENTHS * this.screenWidth :
-            this.screenHeight;
-        let grad3 = context.createLinearGradient(SEVENTY_PERCENT_RATIO * this.screenWidth, y2, this.screenWidth, this.screenHeight * HALF_RATIO);
+        context.strokeRect(SEVENTY_PERCENT_RATIO * this.screenWidth, 0, this.screenWidth * RATIO_THREE_TENTHS,
+            this.screenHeight * HALF_RATIO);
+        context.fillRect(SEVENTY_PERCENT_RATIO * this.screenWidth - OFFSET_ONE, 0,
+            this.screenWidth * RATIO_THREE_TENTHS + OFFSET_ONE, this.screenHeight * HALF_RATIO + OFFSET_ONE);
+        let y2 = (HALF_RATIO * this.screenHeight - RATIO_THREE_TENTHS * this.screenWidth) > 0 ?
+            HALF_RATIO * this.screenHeight + RATIO_THREE_TENTHS * this.screenWidth :
+        this.screenHeight;
+        let grad3 = context.createLinearGradient(SEVENTY_PERCENT_RATIO * this.screenWidth, y2, this.screenWidth,
+            this.screenHeight * HALF_RATIO);
         grad3.addColorStop(0, secondColor.toString());
         grad3.addColorStop(FOURTY_PERCENT_RATIO, secondColor.toString());
         grad3.addColorStop(OFFSET_ONE, primaryColor.toString());
         context.fillStyle = grad3;
-        context.fillRect(SEVENTY_PERCENT_RATIO * this.screenWidth - OFFSET_ONE, this.screenHeight * HALF_RATIO, RATIO_THREE_TENTHS * this.screenWidth + OFFSET_ONE, this.screenHeight * HALF_RATIO);
+        context.fillRect(SEVENTY_PERCENT_RATIO * this.screenWidth - OFFSET_ONE, this.screenHeight * HALF_RATIO,
+            RATIO_THREE_TENTHS * this.screenWidth + OFFSET_ONE, this.screenHeight * HALF_RATIO);
     }
     /**
      * 双色渐变的一种实现，从矩形左上角颜色渐变到右下角
@@ -328,7 +338,7 @@ export class AtomicServiceNavigation extends ViewPU {
      * @param primaryColor
      * @param secondColor
      */
-    drawGradientCanvasPrefer1(context, primaryColor, secondColor) {
+    drawGradientCanvasTowards(context, primaryColor, secondColor) {
         this.screenHeight = this.screenHeight * RATIO_THREE_TENTHS;
         let grad = context.createLinearGradient(0, 0, this.screenWidth, this.screenHeight);
         grad.addColorStop(0, primaryColor.toString());
