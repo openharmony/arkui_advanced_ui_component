@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { display } from '@kit.ArkUI';
 import { Callback } from '@ohos.base';
 
@@ -23,6 +24,7 @@ const HALF_RATIO = 0.5;
 const SEVENTY_PERCENT_RATIO = 0.7;
 const FOURTY_PERCENT_RATIO = 0.4;
 const SIXTY_PERCENT_RATIO = 0.6;
+const TWENTY_PERCENT_RATIO = 0.2;
 const ONE_POINT_FIVE_RATIO = 1.5;
 const NEGATIVE_ONE = -1;
 
@@ -89,10 +91,10 @@ export struct AtomicServiceNavigation {
             this.drawGradientCanvasHalf(this.context, primaryColor, secondColor);
           } else if (mixMode === MixMode.CROSS) {
             //第一种双色渐变三七分
-            this.drawGradientCanvasPrefer(this.context, primaryColor, secondColor);
+            this.drawGradientCanvasCross(this.context, primaryColor, secondColor);
           } else if (mixMode === MixMode.TOWARDS) {
             //第二种双色渐变三七分
-            this.drawGradientCanvasPrefer1(this.context, primaryColor, secondColor);
+            this.drawGradientCanvasTowards(this.context, primaryColor, secondColor);
           }
           this.drawTransparentGradient(this.context)
         }
@@ -157,7 +159,7 @@ export struct AtomicServiceNavigation {
    * @param primaryColor
    * @param secondColor
    */
-  drawGradientCanvasPrefer(context: CanvasRenderingContext2D, primaryColor: ResourceColor | String,
+  drawGradientCanvasCross(context: CanvasRenderingContext2D, primaryColor: ResourceColor | String,
     secondColor: ResourceColor | String) {
     this.screenHeight = this.screenHeight * RATIO_THREE_TENTHS;
     let grad1 = context.createLinearGradient(0, 0, SEVENTY_PERCENT_RATIO * this.screenWidth, 0);
@@ -181,7 +183,7 @@ export struct AtomicServiceNavigation {
       this.screenWidth * RATIO_THREE_TENTHS + OFFSET_ONE, this.screenHeight * HALF_RATIO + OFFSET_ONE);
     let y2 =
       (HALF_RATIO * this.screenHeight - RATIO_THREE_TENTHS * this.screenWidth) > 0 ? HALF_RATIO * this.screenHeight + RATIO_THREE_TENTHS * this.screenWidth :
-        this.screenHeight;
+      this.screenHeight;
     let grad3 = context.createLinearGradient(SEVENTY_PERCENT_RATIO * this.screenWidth, y2,
       this.screenWidth, this.screenHeight * HALF_RATIO);
     grad3.addColorStop(0, secondColor.toString());
@@ -198,7 +200,7 @@ export struct AtomicServiceNavigation {
    * @param primaryColor
    * @param secondColor
    */
-  drawGradientCanvasPrefer1(context: CanvasRenderingContext2D, primaryColor: ResourceColor | String,
+  drawGradientCanvasTowards(context: CanvasRenderingContext2D, primaryColor: ResourceColor | String,
     secondColor: ResourceColor | String) {
     this.screenHeight = this.screenHeight * RATIO_THREE_TENTHS;
     let grad = context.createLinearGradient(0, 0, this.screenWidth, this.screenHeight);
@@ -243,13 +245,11 @@ export interface TitleOptions {
   barStyle?: BarStyle
 }
 
-
 export interface GradientBackground {
   primaryColor?: ResourceColor | String,
   secondColor?: ResourceColor | String,
   mixMode?: MixMode,
   alpha?: GradientAlpha
 }
-
 
 export type NavDestinationBuilder = (name: string, param?: Object) => void;
