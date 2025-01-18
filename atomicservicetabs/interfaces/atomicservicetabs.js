@@ -315,8 +315,8 @@ export class AtomicServiceTabs extends ViewPU {
         }
     }
     getFontSize() {
-        return this.isHorizontal ? { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_button3'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" } :
-            (this.isIconAndText ? { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_caption'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" } : { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_button3'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+        return this.isHorizontal ? { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_button3'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' } :
+            (this.isIconAndText ? { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_caption'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' } : { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_button3'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
     }
     TabBuilder(item, index, parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
