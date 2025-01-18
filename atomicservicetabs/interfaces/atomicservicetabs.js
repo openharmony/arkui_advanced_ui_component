@@ -6,7 +6,7 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to  in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -17,6 +17,7 @@ if (!("finalizeConstruction" in ViewPU.prototype)) {
     Reflect.set(ViewPU.prototype, "finalizeConstruction", () => { });
 }
 const display = requireNapi('display');
+const hilog = requireNapi('hilog');
 const DEFAULT_BAR_WIDTH = 96;
 const DEFAULT_BAR_HEIGHT = 48;
 const TEXT_WIDTH_HEIGHT_SIZE = 24;
@@ -282,11 +283,16 @@ export class AtomicServiceTabs extends ViewPU {
     }
     startListener() {
         if (canIUse('SystemCapability.Window.SessionManager')) {
-            if (display.isFoldable()) {
-                this.isFold = true;
-                display.on('foldDisplayModeChange', (data) => {
-                    this.initLayoutStatus();
-                });
+            try {
+                this.isFold = display.isFoldable();
+                if (this.isFold) {
+                    display.on('foldDisplayModeChange', (data) => {
+                        this.initLayoutStatus();
+                    });
+                }
+            }
+            catch (err) {
+                hilog.error(0x0000, 'AtomicServiceTabs', 'fail to get display isFoldable', JSON.stringify(err));
             }
         }
         this.listener.on('change', (mediaQueryResult) => {
@@ -309,8 +315,8 @@ export class AtomicServiceTabs extends ViewPU {
         }
     }
     getFontSize() {
-        return this.isHorizontal ? { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_button3'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' } :
-            (this.isIconAndText ? { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_caption'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' } : { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_button3'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+        return this.isHorizontal ? { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_button3'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" } :
+            (this.isIconAndText ? { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_caption'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" } : { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_button3'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
     }
     TabBuilder(item, index, parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -464,6 +470,7 @@ export class TabBarOptions {
         this.selectedColor = selectedColor;
     }
 }
+
 export var TabBarPosition;
 (function (TabBarPosition) {
     TabBarPosition[TabBarPosition["LEFT"] = 0] = "LEFT";
