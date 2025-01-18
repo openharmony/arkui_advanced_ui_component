@@ -282,18 +282,16 @@ export class AtomicServiceTabs extends ViewPU {
         this.buildTab();
     }
     startListener() {
-        if (canIUse('SystemCapability.Window.SessionManager')) {
-            try {
-                this.isFold = display.isFoldable();
-                if (this.isFold) {
-                    display.on('foldDisplayModeChange', (data) => {
-                        this.initLayoutStatus();
-                    });
-                }
+        try {
+            this.isFold = canIUse('SystemCapability.Window.SessionManager') ? display.isFoldable() : false;
+            if (this.isFold) {
+                display.on('foldDisplayModeChange', (data) => {
+                    this.initLayoutStatus();
+                });
             }
-            catch (err) {
-                hilog.error(0x0000, 'AtomicServiceTabs', 'fail to get display isFoldable', JSON.stringify(err));
-            }
+        }
+        catch (err) {
+            hilog.error(0x0000, 'AtomicServiceTabs', 'fail to get display isFoldable', JSON.stringify(err));
         }
         this.listener.on('change', (mediaQueryResult) => {
             this.initLayoutStatus();
