@@ -86,17 +86,15 @@ export struct AtomicServiceTabs {
   }
 
   startListener(): void {
-    if (canIUse('SystemCapability.Window.SessionManager')) {
-      try {
-        this.isFold = display.isFoldable();
-        if (this.isFold) {
-          display.on('foldDisplayModeChange', (data: display.FoldDisplayMode) => {
-            this.initLayoutStatus();
-          });
-        }
-      } catch (err) {
-        hilog.error(0x0000, 'AtomicServiceTabs', 'fail to get display isFoldable', JSON.stringify(err));
+    try {
+      this.isFold = canIUse('SystemCapability.Window.SessionManager') ? display.isFoldable() : false;
+      if (this.isFold) {
+        display.on('foldDisplayModeChange', (data: display.FoldDisplayMode) => {
+          this.initLayoutStatus();
+        });
       }
+    } catch (err) {
+      hilog.error(0x0000, 'AtomicServiceTabs', 'fail to get display isFoldable', JSON.stringify(err));
     }
     this.listener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
       this.initLayoutStatus();
