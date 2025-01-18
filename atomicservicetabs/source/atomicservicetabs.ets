@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 import { display, mediaquery } from "@kit.ArkUI";
+import hilog from '@ohos.hilog';
 
 const DEFAULT_BAR_WIDTH: number = 96;
 const DEFAULT_BAR_HEIGHT: number = 48;
@@ -21,6 +22,7 @@ const TEXT_FONT_WEIGHT: number = 500;
 const TEXT_LIGHT_HEIGHT: number = 14;
 const MARGIN_HORIZONTAL_VP: number = 8
 const MARGIN_VERTICAL_VP: number = 4;
+
 
 @Component
 export struct AtomicServiceTabs {
@@ -85,11 +87,15 @@ export struct AtomicServiceTabs {
 
   startListener(): void {
     if (canIUse('SystemCapability.Window.SessionManager')) {
-      if (display.isFoldable()) {
-        this.isFold = true;
-        display.on('foldDisplayModeChange', (data: display.FoldDisplayMode) => {
-          this.initLayoutStatus();
-        });
+      try {
+        this.isFold = display.isFoldable();
+        if (this.isFold) {
+          display.on('foldDisplayModeChange', (data: display.FoldDisplayMode) => {
+            this.initLayoutStatus();
+          });
+        }
+      } catch (err) {
+        hilog.error(0x0000, 'AtomicServiceTabs', 'fail to get display isFoldable', JSON.stringify(err));
       }
     }
     this.listener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
@@ -227,5 +233,4 @@ export enum TabBarPosition {
 }
 
 export type TabContentBuilder = () => void;
-
 export type OnContentWillChangeCallback = (currentIndex: number, comingIndex: number) => boolean;
