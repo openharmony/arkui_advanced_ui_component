@@ -19,14 +19,14 @@ if (!("finalizeConstruction" in ViewPU.prototype)) {
 const display = requireNapi('display');
 const DEAULT_COLOR = '#F1F3F5';
 const transparencyMapArray = [0.15, 0.15, 0.4, 0.6, 0.8];
-const RATIO_THREE_TENTHS = 0.3;
-const OFFSET_ONE = 1;
-const HALF_RATIO = 0.5;
-const SEVENTY_PERCENT_RATIO = 0.7;
-const FOURTY_PERCENT_RATIO = 0.4;
-const SIXTY_PERCENT_RATIO = 0.6;
-const ONE_POINT_FIVE_RATIO = 1.5;
-const NEGATIVE_ONE = -1;
+const COLOR_RATIO_THIRTY_PERCENT = 0.3;
+const RECTANGLE_OUTSIDE_OFFSET_ONE = 1;
+const COLOR_RATIO_FIFTY_PERCENT = 0.5;
+const COLOR_RATIO_SEVENTY_PERCENT = 0.7;
+const COLOR_RATIO_FORTY_PERCENT = 0.4;
+const COLOR_RATIO_SIXTY_PERCENT = 0.6;
+const COLOR_RATIO_ONE_FIFTY_PERCENT = 1.5;
+const COORDINATE_NEGATIVE_ONE = -1;
 export let GradientAlpha;
 (function (GradientAlpha) {
     GradientAlpha.LEVEL1 = 1;
@@ -272,99 +272,98 @@ export class AtomicServiceNavigation extends ViewPU {
     }
     /**
      * 双色渐变下两种颜色各占50%的实现，把整个画布区域分为两个一样的矩形在绘制
-     * @param context
-     * @param primaryColor
-     * @param secondColor
+     * @param context 画布上下文
+     * @param primaryColor 第一种颜色
+     * @param secondColor 第二种颜色
      */
     drawGradientCanvasHalf(context, primaryColor, secondColor) {
-        this.screenHeight = this.screenHeight * RATIO_THREE_TENTHS;
-        let grad1 = context.createLinearGradient(NEGATIVE_ONE * this.screenWidth * HALF_RATIO, this.screenHeight,
-            this.screenWidth * HALF_RATIO, 0);
-        let grad2 = context.createLinearGradient(this.screenWidth * ONE_POINT_FIVE_RATIO, this.screenHeight,
-            this.screenWidth * HALF_RATIO, 0);
+        this.screenHeight = this.screenHeight * COLOR_RATIO_THIRTY_PERCENT;
+        let grad1 = context.createLinearGradient(COORDINATE_NEGATIVE_ONE * this.screenWidth * COLOR_RATIO_FIFTY_PERCENT, this.screenHeight,
+            this.screenWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
+        let grad2 = context.createLinearGradient(this.screenWidth * COLOR_RATIO_ONE_FIFTY_PERCENT, this.screenHeight,
+            this.screenWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
         grad1.addColorStop(0, primaryColor.toString());
-        grad1.addColorStop(HALF_RATIO, primaryColor.toString());
+        grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, primaryColor.toString());
         grad1.addColorStop(1, secondColor.toString());
         grad2.addColorStop(0, primaryColor.toString());
-        grad2.addColorStop(HALF_RATIO, primaryColor.toString());
+        grad2.addColorStop(COLOR_RATIO_FIFTY_PERCENT, primaryColor.toString());
         grad2.addColorStop(1, secondColor.toString());
         context.fillStyle = grad1;
-        context.fillRect(0, 0, this.screenWidth * HALF_RATIO, this.screenHeight);
+        context.fillRect(0, 0, this.screenWidth * COLOR_RATIO_FIFTY_PERCENT, this.screenHeight);
         context.fillStyle = grad2;
-        context.fillRect(this.screenWidth * HALF_RATIO, 0, this.screenWidth, this.screenHeight);
+        context.fillRect(this.screenWidth * COLOR_RATIO_FIFTY_PERCENT, 0, this.screenWidth, this.screenHeight);
     }
     /**
-     * 双色渐变下颜色分别占70%和30%的实现，实现逻辑为把画布先分为两个大矩形，再把其中一个矩形分为两个小矩形
-     * @param context
-     * @param primaryColor
-     * @param secondColor
+     * 双色渐变的一种实现，把画布先分为两个大矩形，再把其中一个矩形分为两个小矩形
+     * @param context 画布上下文
+     * @param primaryColor 第一种颜色
+     * @param secondColor 第二种颜色
      */
     drawGradientCanvasCross(context, primaryColor, secondColor) {
-        this.screenHeight = this.screenHeight * RATIO_THREE_TENTHS;
-        let grad1 = context.createLinearGradient(0, 0, SEVENTY_PERCENT_RATIO * this.screenWidth, 0);
+        this.screenHeight = this.screenHeight * COLOR_RATIO_THIRTY_PERCENT;
+        let grad1 = context.createLinearGradient(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth, 0);
         grad1.addColorStop(0, primaryColor.toString());
-        grad1.addColorStop(HALF_RATIO, primaryColor.toString());
+        grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, primaryColor.toString());
         grad1.addColorStop(1, secondColor.toString());
         context.fillStyle = grad1;
-        context.fillRect(0, 0, SEVENTY_PERCENT_RATIO * this.screenWidth, this.screenHeight);
-        let y1 = (HALF_RATIO * this.screenHeight - RATIO_THREE_TENTHS * this.screenWidth) > 0 ?
-            HALF_RATIO * this.screenHeight - RATIO_THREE_TENTHS * this.screenWidth : 0;
-        let grad2 = context.createLinearGradient(SEVENTY_PERCENT_RATIO * this.screenWidth, y1, this.screenWidth,
-            this.screenHeight * HALF_RATIO);
+        context.fillRect(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth, this.screenHeight);
+        let y1 = (COLOR_RATIO_FIFTY_PERCENT * this.screenHeight - COLOR_RATIO_THIRTY_PERCENT * this.screenWidth) > 0 ?
+            COLOR_RATIO_FIFTY_PERCENT * this.screenHeight - COLOR_RATIO_THIRTY_PERCENT * this.screenWidth : 0;
+        let grad2 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth, y1, this.screenWidth,
+            this.screenHeight * COLOR_RATIO_FIFTY_PERCENT);
         grad2.addColorStop(0, secondColor.toString());
-        grad2.addColorStop(FOURTY_PERCENT_RATIO, secondColor.toString());
+        grad2.addColorStop(COLOR_RATIO_FORTY_PERCENT, secondColor.toString());
         grad2.addColorStop(1, primaryColor.toString());
         context.fillStyle = grad2;
         context.strokeStyle = primaryColor.toString();
-        context.strokeRect(SEVENTY_PERCENT_RATIO * this.screenWidth, 0, this.screenWidth * RATIO_THREE_TENTHS,
-            this.screenHeight * HALF_RATIO);
-        context.fillRect(SEVENTY_PERCENT_RATIO * this.screenWidth - OFFSET_ONE, 0,
-            this.screenWidth * RATIO_THREE_TENTHS + OFFSET_ONE, this.screenHeight * HALF_RATIO + OFFSET_ONE);
-        let y2 = (HALF_RATIO * this.screenHeight - RATIO_THREE_TENTHS * this.screenWidth) > 0 ?
-            HALF_RATIO * this.screenHeight + RATIO_THREE_TENTHS * this.screenWidth :
+        context.strokeRect(COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth, 0, this.screenWidth * COLOR_RATIO_THIRTY_PERCENT,
+            this.screenHeight * COLOR_RATIO_FIFTY_PERCENT);
+        context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0,
+            this.screenWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE, this.screenHeight * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
+        let y2 = (COLOR_RATIO_FIFTY_PERCENT * this.screenHeight - COLOR_RATIO_THIRTY_PERCENT * this.screenWidth) > 0 ?
+            COLOR_RATIO_FIFTY_PERCENT * this.screenHeight + COLOR_RATIO_THIRTY_PERCENT * this.screenWidth :
         this.screenHeight;
-        let grad3 = context.createLinearGradient(SEVENTY_PERCENT_RATIO * this.screenWidth, y2, this.screenWidth,
-            this.screenHeight * HALF_RATIO);
+        let grad3 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth, y2, this.screenWidth,
+            this.screenHeight * COLOR_RATIO_FIFTY_PERCENT);
         grad3.addColorStop(0, secondColor.toString());
-        grad3.addColorStop(FOURTY_PERCENT_RATIO, secondColor.toString());
-        grad3.addColorStop(OFFSET_ONE, primaryColor.toString());
+        grad3.addColorStop(COLOR_RATIO_FORTY_PERCENT, secondColor.toString());
+        grad3.addColorStop(RECTANGLE_OUTSIDE_OFFSET_ONE, primaryColor.toString());
         context.fillStyle = grad3;
-        context.fillRect(SEVENTY_PERCENT_RATIO * this.screenWidth - OFFSET_ONE, this.screenHeight * HALF_RATIO,
-            RATIO_THREE_TENTHS * this.screenWidth + OFFSET_ONE, this.screenHeight * HALF_RATIO);
+        context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, this.screenHeight * COLOR_RATIO_FIFTY_PERCENT,
+            COLOR_RATIO_THIRTY_PERCENT * this.screenWidth + RECTANGLE_OUTSIDE_OFFSET_ONE, this.screenHeight * COLOR_RATIO_FIFTY_PERCENT);
     }
     /**
      * 双色渐变的一种实现，从矩形左上角颜色渐变到右下角
-     * @param context
-     * @param primaryColor
-     * @param secondColor
+     * @param context 画布上下文
+     * @param primaryColor 第一种颜色
+     * @param secondColor 第二种颜色
      */
     drawGradientCanvasTowards(context, primaryColor, secondColor) {
-        this.screenHeight = this.screenHeight * RATIO_THREE_TENTHS;
+        this.screenHeight = this.screenHeight * COLOR_RATIO_THIRTY_PERCENT;
         let grad = context.createLinearGradient(0, 0, this.screenWidth, this.screenHeight);
         grad.addColorStop(0, primaryColor.toString());
-        grad.addColorStop(FOURTY_PERCENT_RATIO, primaryColor.toString());
+        grad.addColorStop(COLOR_RATIO_FORTY_PERCENT, primaryColor.toString());
         grad.addColorStop(1, secondColor.toString());
         context.fillStyle = grad;
         context.fillRect(0, 0, this.screenWidth, this.screenHeight);
     }
     /**
      * 双色渐变下透明效果的实现
-     * @param context
+     * @param context 画布上下文
      */
     drawTransparentGradient(context) {
         let grad = context.createLinearGradient(0, 0, 0, this.screenHeight);
         grad.addColorStop(0, 'rgba(241,242, 243, 0)');
         grad.addColorStop(1, 'rgba(241,242, 243, 1)');
         context.fillStyle = grad;
-        context.fillRect(0, 0, this.screenWidth + OFFSET_ONE, this.screenHeight + OFFSET_ONE);
+        context.fillRect(0, 0, this.screenWidth + RECTANGLE_OUTSIDE_OFFSET_ONE, this.screenHeight + RECTANGLE_OUTSIDE_OFFSET_ONE);
     }
     /**
      * 单色渐变：
-     * @param createLinearGradient初始颜色为primaryColor，结束颜色为底色
-     * @param primaryColor
+     * @param primaryColor createLinearGradient初始颜色为primaryColor，结束颜色为底色
      */
     drawSingleGradient(context, primaryColor) {
-        this.screenHeight = this.screenHeight * SIXTY_PERCENT_RATIO;
+        this.screenHeight = this.screenHeight * COLOR_RATIO_SIXTY_PERCENT;
         let grad1 = context.createLinearGradient(0, 0, 0, this.screenHeight);
         grad1.addColorStop(0, primaryColor.toString());
         grad1.addColorStop(1, DEAULT_COLOR);
