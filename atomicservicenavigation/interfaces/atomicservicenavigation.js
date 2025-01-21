@@ -19,25 +19,61 @@ if (!("finalizeConstruction" in ViewPU.prototype)) {
 const display = requireNapi('display');
 const DEAULT_COLOR = '#F1F3F5';
 const transparencyMapArray = [0.15, 0.15, 0.4, 0.6, 0.8];
-const COLOR_RATIO_THIRTY_PERCENT = 0.3;
 const RECTANGLE_OUTSIDE_OFFSET_ONE = 1;
+const COLOR_RATIO_THIRTY_PERCENT = 0.3;
 const COLOR_RATIO_FIFTY_PERCENT = 0.5;
 const COLOR_RATIO_SEVENTY_PERCENT = 0.7;
 const COLOR_RATIO_FORTY_PERCENT = 0.4;
 const COLOR_RATIO_SIXTY_PERCENT = 0.6;
 const COLOR_RATIO_ONE_FIFTY_PERCENT = 1.5;
 const COORDINATE_NEGATIVE_ONE = -1;
+const BLUR_CONSTANT = 500;
+let navigationWidth = 0;
+let navigationHeight = 0;
+/**
+ * 背景颜色的不透明度的枚举类型
+ *
+ * @enum { number }.
+ */
 export let GradientAlpha;
 (function (GradientAlpha) {
+    /**
+     * 不透明度为0.2
+     *
+     */
     GradientAlpha.LEVEL1 = 1;
+    /**
+     * 不透明度为0.6
+     *
+     */
     GradientAlpha.LEVEL2 = 2;
+    /**
+     * 不透明度为0.8
+     */
     GradientAlpha.LEVEL3 = 3;
+    /**
+     * 不透明度为1.0
+     */
     GradientAlpha.LEVEL4 = 4;
 })(GradientAlpha || (GradientAlpha = {}));
+/**
+ * 背景颜色融合方式
+ *
+ * @enum { number }.
+ */
 export let MixMode;
 (function (MixMode) {
+    /**
+     * 两种颜色所占比例相同
+     */
     MixMode.AVERAGE = 1;
+    /**
+     * 一种颜色穿过另一种颜色
+     */
     MixMode.CROSS = 2;
+    /**
+     * 一种颜色渐渐转变为另一种颜色
+     */
     MixMode.TOWARDS = 3;
 })(MixMode || (MixMode = {}));
 export class AtomicServiceNavigation extends ViewPU {
@@ -100,10 +136,10 @@ export class AtomicServiceNavigation extends ViewPU {
             this.context = v.context;
         }
         if (v.screenWidth !== undefined) {
-            this.screenWidth = params.screenWidth;
+            this.screenWidth = v.screenWidth;
         }
         if (v.screenHeight !== undefined) {
-            this.screenHeight = params.screenHeight;
+            this.screenHeight = v.screenHeight;
         }
     }
     updateStateVars(u) {
@@ -200,12 +236,10 @@ export class AtomicServiceNavigation extends ViewPU {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Canvas.create(this.context);
             Canvas.opacity(transparencyMapArray[(alpha === undefined) ? GradientAlpha.LEVEL4 : alpha]);
-            Canvas.blur(500);
+            Canvas.blur(BLUR_CONSTANT);
             Canvas.onReady(() => {
-                let displayClass = null;
-                displayClass = display.getDefaultDisplaySync();
-                this.screenWidth = px2vp(displayClass.width);
-                this.screenHeight = px2vp(displayClass.height);
+                this.screenWidth = navigationWidth;
+                this.screenHeight = navigationHeight;
                 if (primaryColor !== undefined && secondColor === undefined) {
                     //单色渐变
                     this.drawSingleGradient(this.context, primaryColor);
@@ -250,10 +284,12 @@ export class AtomicServiceNavigation extends ViewPU {
             Navigation.onNavigationModeChange(this.modeChangeCallback);
             Navigation.backgroundColor(DEAULT_COLOR);
             Navigation.background({ builder: () => {
-                this.BackgroundBuilder.call(this, this.gradientBackground?.primaryColor,
-                    this.gradientBackground?.secondColor, this.gradientBackground?.mixMode,
-                    this.gradientBackground?.alpha);
-            } });
+                    this.BackgroundBuilder.call(this, this.gradientBackground?.primaryColor, this.gradientBackground?.secondColor, this.gradientBackground?.mixMode, this.gradientBackground?.alpha);
+                } });
+            Navigation.onAreaChange((oldValue, newValue) => {
+                navigationWidth = new Number(newValue.width).valueOf();
+                navigationHeight = new Number(newValue.height).valueOf();
+            });
         }, Navigation);
         this.observeComponentCreation2((c, d) => {
             If.create();
@@ -322,12 +358,12 @@ export class AtomicServiceNavigation extends ViewPU {
             this.screenWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE, this.screenHeight * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
         let y2 = (COLOR_RATIO_FIFTY_PERCENT * this.screenHeight - COLOR_RATIO_THIRTY_PERCENT * this.screenWidth) > 0 ?
             COLOR_RATIO_FIFTY_PERCENT * this.screenHeight + COLOR_RATIO_THIRTY_PERCENT * this.screenWidth :
-        this.screenHeight;
+            this.screenHeight;
         let grad3 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth, y2, this.screenWidth,
             this.screenHeight * COLOR_RATIO_FIFTY_PERCENT);
         grad3.addColorStop(0, secondColor.toString());
         grad3.addColorStop(COLOR_RATIO_FORTY_PERCENT, secondColor.toString());
-        grad3.addColorStop(RECTANGLE_OUTSIDE_OFFSET_ONE, primaryColor.toString());
+        grad3.addColorStop(1, primaryColor.toString());
         context.fillStyle = grad3;
         context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, this.screenHeight * COLOR_RATIO_FIFTY_PERCENT,
             COLOR_RATIO_THIRTY_PERCENT * this.screenWidth + RECTANGLE_OUTSIDE_OFFSET_ONE, this.screenHeight * COLOR_RATIO_FIFTY_PERCENT);
