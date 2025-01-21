@@ -32,11 +32,11 @@ export struct AtomicServiceTabs {
     TabContentBuilder?,
     TabContentBuilder?];
   @Prop tabBarOptionsArray: [TabBarOptions, TabBarOptions, TabBarOptions?, TabBarOptions?, TabBarOptions?];
-  @Prop tabBarPosition?: TabBarPosition = TabBarPosition.BOTTOM;
+  @Prop @Watch('tabBarPositionWatch') tabBarPosition?: TabBarPosition = TabBarPosition.BOTTOM;
   @Prop barBackgroundColor?: ResourceColor = Color.Transparent;
   @Prop index?: number | undefined = 0;
   @Prop barOverlap?: boolean = true;
-  @Prop layoutMode?: LayoutMode = LayoutMode.VERTICAL;
+  @Prop @Watch('layoutModeWatch') layoutMode?: LayoutMode = LayoutMode.VERTICAL;
   controller?: TabsController = new TabsController();
   onChange?: Callback<number>;
   onTabBarClick?: Callback<number>;
@@ -44,13 +44,12 @@ export struct AtomicServiceTabs {
   @State private selectedIndex: number = 0;
   @State private isHorizontal: boolean = false;
   @State private barModeStatus: BarMode = BarMode.Fixed;
-  @State private directionStatus: FlexDirection = FlexDirection.Column;
   @State private textMarginTop?: number = undefined;
   @State private textMarginLeft?: number = undefined;
   @State private tabMargin?: number = undefined;
   @State private tabPadding?: number = MARGIN_VERTICAL_VP;
+  @State private barHeight?: Length = undefined;
   private isIconAndText: boolean = false;
-  private barHeight?: Length = undefined;
   private isListener: boolean = false;
   private isFold: boolean = false;
   listener: mediaquery.MediaQueryListener =
@@ -70,6 +69,26 @@ export struct AtomicServiceTabs {
       if (this.isFold) {
         display.off('foldDisplayModeChange');
       }
+    }
+  }
+
+  tabBarPositionWatch(): void {
+    if (this.tabBarPosition === TabBarPosition.BOTTOM) {
+      this.barModeStatus = BarMode.Fixed;
+      this.barHeight = undefined;
+    } else {
+      this.barModeStatus = BarMode.Scrollable;
+      this.barHeight = (50 / this.tabBarOptionsArray.length + '%');
+    }
+    this.buildTab();
+  }
+
+  layoutModeWatch(): void {
+    if (this.layoutMode === LayoutMode.AUTO) {
+      this.initLayoutStatus();
+    } else {
+      this.isHorizontal = (this.layoutMode === LayoutMode.HORIZONTAL) ? true : false;
+      this.buildTab();
     }
   }
 
@@ -109,7 +128,6 @@ export struct AtomicServiceTabs {
   }
 
   buildTab(): void {
-    this.directionStatus = this.isHorizontal ? FlexDirection.Row : FlexDirection.Column;
     if (this.isIconAndText) {
       this.textMarginTop = this.isHorizontal ? undefined : MARGIN_VERTICAL_VP;
       this.textMarginLeft = this.isHorizontal ? MARGIN_HORIZONTAL_VP : undefined;
@@ -125,9 +143,9 @@ export struct AtomicServiceTabs {
   }
 
   @Builder
-  TabBuilder(item: TabBarOptions, index: number) {
+  TabBuilder(item: TabBarOptions, index: number, flex: FlexDirection) {
     Flex({
-      direction: this.directionStatus,
+      direction: flex,
       alignItems: ItemAlign.Center,
       justifyContent: FlexAlign.Center
     }) {
@@ -177,7 +195,8 @@ export struct AtomicServiceTabs {
             }
           }
           .tabBar(
-            this.TabBuilder(item, index)
+            this.isHorizontal ? this.TabBuilder(item, index, FlexDirection.Row) :
+            this.TabBuilder(item, index, FlexDirection.Column)
           )
           .width((!this.tabContents && this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%')
           .height((!this.tabContents && this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%')
@@ -231,4 +250,5 @@ export enum TabBarPosition {
 }
 
 export type TabContentBuilder = () => void;
+
 export type OnContentWillChangeCallback = (currentIndex: number, comingIndex: number) => boolean;
