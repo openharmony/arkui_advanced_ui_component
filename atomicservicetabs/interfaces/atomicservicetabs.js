@@ -268,6 +268,22 @@ export class AtomicServiceTabs extends ViewPU {
             }
         }
     }
+    /**
+     * 初始化 图文布局状态值，barheight高度
+     */
+    initBarModeAndHeight() {
+        if (this.tabBarOptionsArray[0].icon && this.tabBarOptionsArray[0].text) {
+            this.isIconAndText = true;
+        }
+        if (this.tabBarPosition === TabBarPosition.LEFT) {
+            this.barModeStatus = BarMode.Scrollable;
+            this.barHeight = (50 / this.tabBarOptionsArray.length + '%');
+        }
+        this.buildTab();
+    }
+    /**
+     * 监听折叠展开和屏幕旋转事件影响 图文布局样式
+     */
     tabBarPositionWatch() {
         if (this.tabBarPosition === TabBarPosition.BOTTOM) {
             this.barModeStatus = BarMode.Fixed;
@@ -280,23 +296,6 @@ export class AtomicServiceTabs extends ViewPU {
         this.buildTab();
     }
     layoutModeWatch() {
-        if (this.layoutMode === LayoutMode.AUTO) {
-            this.initLayoutStatus();
-        }
-        else {
-            this.isHorizontal = (this.layoutMode === LayoutMode.HORIZONTAL) ? true : false;
-            this.buildTab();
-        }
-    }
-    initBarModeAndHeight() {
-        this.isHorizontal = (this.layoutMode === LayoutMode.HORIZONTAL) ? true : false;
-        if (this.tabBarOptionsArray[0].icon && this.tabBarOptionsArray[0].text) {
-            this.isIconAndText = true;
-        }
-        if (this.tabBarPosition === TabBarPosition.LEFT) {
-            this.barModeStatus = BarMode.Scrollable;
-            this.barHeight = (50 / this.tabBarOptionsArray.length + '%');
-        }
         this.buildTab();
     }
     startListener() {
@@ -304,7 +303,7 @@ export class AtomicServiceTabs extends ViewPU {
             this.isFold = canIUse('SystemCapability.Window.SessionManager') ? display.isFoldable() : false;
             if (this.isFold) {
                 display.on('foldDisplayModeChange', (data) => {
-                    this.initLayoutStatus();
+                    this.buildTab();
                 });
             }
         }
@@ -312,16 +311,21 @@ export class AtomicServiceTabs extends ViewPU {
             hilog.error(0x0000, 'AtomicServiceTabs', 'fail to get display isFoldable', JSON.stringify(err));
         }
         this.listener.on('change', (mediaQueryResult) => {
-            this.initLayoutStatus();
+            this.buildTab();
         });
     }
-    initLayoutStatus() {
-        const screenWidth = px2vp(display.getDefaultDisplaySync().width);
-        const widthFlag = screenWidth / this.tabBarOptionsArray.length > 104 ? true : false;
-        this.isHorizontal = widthFlag ? true : false;
-        this.buildTab();
-    }
+    /**
+     * 构建组件尺寸参数
+     */
     buildTab() {
+        if (this.layoutMode === LayoutMode.AUTO) {
+            const screenWidth = px2vp(display.getDefaultDisplaySync().width);
+            this.isHorizontal =
+                this.tabBarPosition == TabBarPosition.LEFT ? false : screenWidth / this.tabBarOptionsArray.length > 104;
+        }
+        else {
+            this.isHorizontal = this.layoutMode === LayoutMode.HORIZONTAL;
+        }
         if (this.isIconAndText) {
             this.textMarginTop = this.isHorizontal ? undefined : MARGIN_VERTICAL_VP;
             this.textMarginLeft = this.isHorizontal ? MARGIN_HORIZONTAL_VP : undefined;
@@ -487,7 +491,6 @@ export class TabBarOptions {
         this.selectedColor = selectedColor;
     }
 }
-
 export var TabBarPosition;
 (function (TabBarPosition) {
     TabBarPosition[TabBarPosition["LEFT"] = 0] = "LEFT";
