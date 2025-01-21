@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import { display } from '@kit.ArkUI';
 import { Callback } from '@ohos.base';
 
 const DEAULT_COLOR = '#F1F3F5';
@@ -26,18 +25,52 @@ const COLOR_RATIO_FORTY_PERCENT = 0.4;
 const COLOR_RATIO_SIXTY_PERCENT = 0.6;
 const COLOR_RATIO_ONE_FIFTY_PERCENT = 1.5;
 const COORDINATE_NEGATIVE_ONE = -1;
-
+const BLUR_CONSTANT = 500;
+let navigationWidth = 0;
+let navigationHeight = 0;
+/**
+ * 背景颜色的不透明度的枚举类型
+ *
+ * @enum { number }.
+ */
 export enum GradientAlpha {
+  /**
+   * 不透明度为0.2
+   *
+   */
   LEVEL1 = 1,
+  /**
+   * 不透明度为0.6
+   *
+   */
   LEVEL2 = 2,
+  /**
+   * 不透明度为0.8
+   */
   LEVEL3 = 3,
+  /**
+   * 不透明度为1.0
+   */
   LEVEL4 = 4
 }
-
+/**
+ * 背景颜色融合方式
+ *
+ * @enum { number }.
+ */
 export enum MixMode {
+  /**
+   * 两种颜色所占比例相同
+   */
   AVERAGE = 1,
+  /**
+   * 一种颜色穿过另一种颜色
+   */
   CROSS = 2,
-  TOWARDS = 3,
+  /**
+   * 一种颜色渐渐转变为另一种颜色
+   */
+  TOWARDS = 3
 }
 
 @Component
@@ -75,12 +108,10 @@ export struct AtomicServiceNavigation {
 
     Canvas(this.context)
       .opacity(transparencyMapArray[(alpha === undefined) ? GradientAlpha.LEVEL4 : alpha])
-      .blur(500)
+      .blur(BLUR_CONSTANT)
       .onReady(() => {
-        let displayClass: display.Display | null = null;
-        displayClass = display.getDefaultDisplaySync();
-        this.screenWidth = px2vp(displayClass.width);
-        this.screenHeight = px2vp(displayClass.height);
+        this.screenWidth = navigationWidth;
+        this.screenHeight = navigationHeight;
         if (primaryColor !== undefined && secondColor === undefined) {
           //单色渐变
           this.drawSingleGradient(this.context, primaryColor);
@@ -125,6 +156,10 @@ export struct AtomicServiceNavigation {
     .backgroundColor(DEAULT_COLOR)
     .background(this.BackgroundBuilder(this.gradientBackground?.primaryColor, this.gradientBackground?.secondColor,
       this.gradientBackground?.mixMode, this.gradientBackground?.alpha))
+    .onAreaChange((oldValue: Area, newValue: Area) => {
+      navigationWidth = new Number(newValue.width).valueOf()
+      navigationHeight = new Number(newValue.height).valueOf()
+    })
   }
 
   /**
@@ -168,7 +203,8 @@ export struct AtomicServiceNavigation {
     context.fillStyle = grad1;
     context.fillRect(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth, this.screenHeight);
     let y1 =
-      (COLOR_RATIO_FIFTY_PERCENT * this.screenHeight - COLOR_RATIO_THIRTY_PERCENT * this.screenWidth) > 0 ? COLOR_RATIO_FIFTY_PERCENT * this.screenHeight - COLOR_RATIO_THIRTY_PERCENT * this.screenWidth : 0;
+      (COLOR_RATIO_FIFTY_PERCENT * this.screenHeight - COLOR_RATIO_THIRTY_PERCENT * this.screenWidth) > 0 ?
+        COLOR_RATIO_FIFTY_PERCENT * this.screenHeight - COLOR_RATIO_THIRTY_PERCENT * this.screenWidth : 0;
     let grad2 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth, y1, this.screenWidth,
       this.screenHeight * COLOR_RATIO_FIFTY_PERCENT);
     grad2.addColorStop(0, secondColor.toString());
@@ -179,9 +215,11 @@ export struct AtomicServiceNavigation {
     context.strokeRect(COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth, 0, this.screenWidth * COLOR_RATIO_THIRTY_PERCENT,
       this.screenHeight * COLOR_RATIO_FIFTY_PERCENT);
     context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0,
-      this.screenWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE, this.screenHeight * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
+      this.screenWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE,
+      this.screenHeight * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
     let y2 =
-      (COLOR_RATIO_FIFTY_PERCENT * this.screenHeight - COLOR_RATIO_THIRTY_PERCENT * this.screenWidth) > 0 ? COLOR_RATIO_FIFTY_PERCENT * this.screenHeight + COLOR_RATIO_THIRTY_PERCENT * this.screenWidth :
+      (COLOR_RATIO_FIFTY_PERCENT * this.screenHeight - COLOR_RATIO_THIRTY_PERCENT * this.screenWidth) > 0 ?
+        COLOR_RATIO_FIFTY_PERCENT * this.screenHeight + COLOR_RATIO_THIRTY_PERCENT * this.screenWidth :
       this.screenHeight;
     let grad3 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth, y2,
       this.screenWidth, this.screenHeight * COLOR_RATIO_FIFTY_PERCENT);
