@@ -284,7 +284,8 @@ export class AtomicServiceNavigation extends ViewPU {
             Navigation.onNavigationModeChange(this.modeChangeCallback);
             Navigation.backgroundColor(DEAULT_COLOR);
             Navigation.background({ builder: () => {
-                    this.BackgroundBuilder.call(this, this.gradientBackground?.primaryColor, this.gradientBackground?.secondColor, this.gradientBackground?.mixMode, this.gradientBackground?.alpha);
+                    this.BackgroundBuilder.call(this, this.gradientBackground?.primaryColor, this.gradientBackground?.secondColor, 
+                    this.gradientBackground?.mixMode, this.gradientBackground?.alpha);
                 } });
             Navigation.onAreaChange((oldValue, newValue) => {
                 navigationWidth = new Number(newValue.width).valueOf();
@@ -355,7 +356,8 @@ export class AtomicServiceNavigation extends ViewPU {
         context.strokeRect(COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth, 0, this.screenWidth * COLOR_RATIO_THIRTY_PERCENT,
             this.screenHeight * COLOR_RATIO_FIFTY_PERCENT);
         context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.screenWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0,
-            this.screenWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE, this.screenHeight * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
+            this.screenWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE, 
+            this.screenHeight * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
         let y2 = (COLOR_RATIO_FIFTY_PERCENT * this.screenHeight - COLOR_RATIO_THIRTY_PERCENT * this.screenWidth) > 0 ?
             COLOR_RATIO_FIFTY_PERCENT * this.screenHeight + COLOR_RATIO_THIRTY_PERCENT * this.screenWidth :
             this.screenHeight;
