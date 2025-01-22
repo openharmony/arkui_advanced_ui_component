@@ -53,6 +53,7 @@ export class AtomicServiceTabs extends ViewPU {
         this.isIconAndText = false;
         this.isListener = false;
         this.isFold = false;
+        this.screenWidth = 0;
         this.listener = this.getUIContext().getMediaQuery().matchMediaSync('(orientation: landscape)');
         this.setInitiallyProvidedValue(params);
         this.declareWatch("tabBarPosition", this.tabBarPositionWatch);
@@ -122,6 +123,9 @@ export class AtomicServiceTabs extends ViewPU {
         }
         if (params.isFold !== undefined) {
             this.isFold = params.isFold;
+        }
+        if (params.screenWidth !== undefined) {
+            this.screenWidth = params.screenWidth;
         }
         if (params.listener !== undefined) {
             this.listener = params.listener;
@@ -256,7 +260,6 @@ export class AtomicServiceTabs extends ViewPU {
     aboutToAppear() {
         this.initBarModeAndHeight();
         if (this.isIconAndText && this.layoutMode === LayoutMode.AUTO && this.tabBarPosition === TabBarPosition.BOTTOM) {
-            this.isListener = true;
             this.startListener();
         }
     }
@@ -299,6 +302,7 @@ export class AtomicServiceTabs extends ViewPU {
         this.buildTab();
     }
     startListener() {
+        this.isListener = true;
         try {
             this.isFold = canIUse('SystemCapability.Window.SessionManager') ? display.isFoldable() : false;
             if (this.isFold) {
@@ -319,9 +323,9 @@ export class AtomicServiceTabs extends ViewPU {
      */
     buildTab() {
         if (this.layoutMode === LayoutMode.AUTO) {
-            const screenWidth = px2vp(display.getDefaultDisplaySync().width);
+            this.screenWidth = px2vp(display.getDefaultDisplaySync().width);
             this.isHorizontal =
-                this.tabBarPosition == TabBarPosition.LEFT ? false : screenWidth / this.tabBarOptionsArray.length > 104;
+                this.tabBarPosition == TabBarPosition.LEFT ? false : this.screenWidth / this.tabBarOptionsArray.length > 104;
         }
         else {
             this.isHorizontal = this.layoutMode === LayoutMode.HORIZONTAL;
@@ -491,6 +495,7 @@ export class TabBarOptions {
         this.selectedColor = selectedColor;
     }
 }
+
 export var TabBarPosition;
 (function (TabBarPosition) {
     TabBarPosition[TabBarPosition["LEFT"] = 0] = "LEFT";
