@@ -52,13 +52,13 @@ export struct AtomicServiceTabs {
   private isIconAndText: boolean = false;
   private isListener: boolean = false;
   private isFold: boolean = false;
+  private screenWidth: number = 0;
   listener: mediaquery.MediaQueryListener =
     this.getUIContext().getMediaQuery().matchMediaSync('(orientation: landscape)');
 
   aboutToAppear(): void {
     this.initBarModeAndHeight();
     if (this.isIconAndText && this.layoutMode === LayoutMode.AUTO && this.tabBarPosition === TabBarPosition.BOTTOM) {
-      this.isListener = true;
       this.startListener();
     }
   }
@@ -105,6 +105,7 @@ export struct AtomicServiceTabs {
   }
 
   startListener(): void {
+    this.isListener = true;
     try {
       this.isFold = canIUse('SystemCapability.Window.SessionManager') ? display.isFoldable() : false;
       if (this.isFold) {
@@ -118,6 +119,7 @@ export struct AtomicServiceTabs {
     this.listener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
       this.buildTab();
     });
+
   }
 
   /**
@@ -125,9 +127,9 @@ export struct AtomicServiceTabs {
    */
   buildTab(): void {
     if (this.layoutMode === LayoutMode.AUTO) {
-      const screenWidth = px2vp(display.getDefaultDisplaySync().width);
+      this.screenWidth = px2vp(display.getDefaultDisplaySync().width);
       this.isHorizontal =
-        this.tabBarPosition == TabBarPosition.LEFT ? false : screenWidth / this.tabBarOptionsArray.length > 104;
+        this.tabBarPosition == TabBarPosition.LEFT ? false : this.screenWidth / this.tabBarOptionsArray.length > 104;
     } else {
       this.isHorizontal = this.layoutMode === LayoutMode.HORIZONTAL;
     }
@@ -253,5 +255,4 @@ export enum TabBarPosition {
 }
 
 export type TabContentBuilder = () => void;
-
 export type OnContentWillChangeCallback = (currentIndex: number, comingIndex: number) => boolean;
