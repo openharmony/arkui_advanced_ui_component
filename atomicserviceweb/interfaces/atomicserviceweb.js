@@ -32,7 +32,7 @@ if (!("finalizeConstruction" in ViewPU.prototype)) {
     Reflect.set(ViewPU.prototype, "finalizeConstruction", () => {
     });
 }
-const web_webview = requireNapi('web.webview');
+const webView = requireNapi('web.webview');
 const router = requireNapi('router');
 const deviceInfo = requireNapi('deviceInfo');
 const geoLocationManager = requireNapi('geoLocationManager');
@@ -47,7 +47,25 @@ const filePreview = globalThis.requireNapi('filemanagement.filepreview', false, 
 const fileUri = requireNapi('file.fileuri');
 const picker = requireNapi('multimedia.cameraPicker');
 const filePicker = requireNapi('file.picker');
+const call = requireNapi('telephony.call');
 const atomicServiceWebNapi = requireInternal('atomicservice.AtomicServiceWeb');
+
+let atomicBasicEngine = null;
+
+function loadAtomicBasicEngine() {
+    try {
+        import('@hms:atomicservicedistribution.atomicbasicengine').then((z10) => {
+            console.log('AtomicServiceWeb loadAtomicBasicEngine success');
+            atomicBasicEngine = z10;
+        }).catch((y10) => {
+            console.error('AtomicServiceWeb loadAtomicBasicEngine error, message: ' + y10.message);
+        });
+    } catch (x10) {
+        console.error('AtomicServiceWeb loadAtomicBasicEngine error, message: ' + x10.message);
+    }
+}
+
+loadAtomicBasicEngine();
 
 class AsError {
     constructor(m11, n11) {
@@ -77,6 +95,10 @@ const registerJsApi = (u11, v11, w11, x11, y11) => {
 const MAX_VERSION = '99.99.99';
 const ATOMIC_SERVICE_JS_SDK_CURRENT_VERSION = '1.0.0';
 const PERMISSION_APPROXIMATELY_LOCATION = 'ohos.permission.APPROXIMATELY_LOCATION';
+const TEL_PROTOCOL = 'tel:';
+const MAILTO_PROTOCOL = 'mailto:';
+const WANT_ACTION_SEND_TO_DATA = 'ohos.want.action.sendToData';
+const RESOURCE_RAWFILE = 'resource://rawfile';
 const SYSTEM_INTERNAL_ERROR = new AsError(500, 'System internal error.');
 const JS_API_INVALID_INVOKE_ERROR = new AsError(200001, 'Invalid invoke.');
 const PARAM_REQUIRED_ERROR_CODE = 200002;
@@ -125,7 +147,6 @@ export class AtomicServiceWeb extends ViewPU {
         this.__mixedMode = new SynchedPropertySimpleOneWayPU(t10.mixedMode, this, "mixedMode");
         this.__darkMode = new SynchedPropertySimpleOneWayPU(t10.darkMode, this, "darkMode");
         this.__forceDarkAccess = new SynchedPropertySimpleOneWayPU(t10.forceDarkAccess, this, "forceDarkAccess");
-        this.__nestedScroll = new SynchedPropertyObjectOneWayPU(t10.nestedScroll, this, 'nestedScroll');
         this.__controller = new SynchedPropertyNesedObjectPU(t10.controller, this, "controller");
         this.onMessage = () => {
         };
@@ -142,8 +163,8 @@ export class AtomicServiceWeb extends ViewPU {
         this.onControllerAttached = undefined;
         this.onLoadIntercept = undefined;
         this.context = this.getUIContext().getHostContext();
-        this.webViewController = new web_webview.WebviewController();
-        this.schemeHandler = new web_webview.WebSchemeHandler();
+        this.webViewController = new webView.WebviewController();
+        this.schemeHandler = new webView.WebSchemeHandler();
         this.atomicService = undefined;
         this.atomicServiceProxy = undefined;
         this.setInitiallyProvidedValue(t10);
@@ -203,7 +224,6 @@ export class AtomicServiceWeb extends ViewPU {
         this.__mixedMode.reset(q10.mixedMode);
         this.__darkMode.reset(q10.darkMode);
         this.__forceDarkAccess.reset(q10.forceDarkAccess);
-        this.__nestedScroll.reset(q10.nestedScroll);
         this.__controller.set(q10.controller);
     }
 
@@ -211,7 +231,6 @@ export class AtomicServiceWeb extends ViewPU {
         this.__mixedMode.purgeDependencyOnElmtId(p10);
         this.__darkMode.purgeDependencyOnElmtId(p10);
         this.__forceDarkAccess.purgeDependencyOnElmtId(p10);
-        this.__nestedScroll.purgeDependencyOnElmtId(p10);
         this.__controller.purgeDependencyOnElmtId(p10);
     }
 
@@ -219,7 +238,6 @@ export class AtomicServiceWeb extends ViewPU {
         this.__mixedMode.aboutToBeDeleted();
         this.__darkMode.aboutToBeDeleted();
         this.__forceDarkAccess.aboutToBeDeleted();
-        this.__nestedScroll.aboutToBeDeleted();
         this.__controller.aboutToBeDeleted();
         SubscriberManager.Get().delete(this.id__());
         this.aboutToBeDeletedInternal();
@@ -249,14 +267,6 @@ export class AtomicServiceWeb extends ViewPU {
         this.__forceDarkAccess.set(r11);
     }
 
-    get nestedScroll() {
-        return this.__nestedScroll.get();
-    }
-
-    set nestedScroll(d9) {
-        this.__nestedScroll.set(d9);
-    }
-
     get controller() {
         return this.__controller.get();
     }
@@ -270,11 +280,12 @@ export class AtomicServiceWeb extends ViewPU {
             let h2 = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
             if (h2?.appInfo?.appProvisionType === 'debug') {
                 console.log(`AtomicServiceWeb setWebDebuggingAccess`);
-                web_webview.WebviewController.setWebDebuggingAccess(true);
+                webView.WebviewController.setWebDebuggingAccess(true);
             }
         } catch (d2) {
             console.error(`AtomicServiceWeb set Web Debug Mode failed, code is ${d2.code}, message is ${d2.message}`);
         }
+        this.initDomainCheckLog();
     }
 
     aboutToDisappear() {
@@ -291,7 +302,6 @@ export class AtomicServiceWeb extends ViewPU {
             Web.mixedMode(this.mixedMode);
             Web.darkMode(this.darkMode);
             Web.forceDarkAccess(this.forceDarkAccess);
-            Web.nestedScroll(ObservedObject.GetRawObject(this.nestedScroll));
             Web.onErrorReceive((q11) => this.onCommonCallBack('onErrorReceive', q11, this.onErrorReceive));
             Web.onHttpErrorReceive((p11) => this.onCommonCallBack('onHttpErrorReceive', p11, this.onHttpErrorReceive));
             Web.onPageBegin((l10) => this.onCommonCallBack('onPageBegin', l10, this.onPageBegin));
@@ -300,7 +310,7 @@ export class AtomicServiceWeb extends ViewPU {
             Web.onControllerAttached(() => {
                 this.registerJavaScriptProxy();
                 this.schemeHandler.onRequestStart((z10) => {
-                    return !this.checkUrl(z10.getRequestUrl());
+                    return !this.interceptUrl(z10.getRequestUrl(), z10.isMainFrame(), z10.getRequestResourceType());
                 });
                 this.webViewController.setWebSchemeHandler('https', this.schemeHandler);
                 this.initAtomicServiceWebController();
@@ -313,7 +323,7 @@ export class AtomicServiceWeb extends ViewPU {
                 }
             });
             Web.onOverrideUrlLoading((i10) => {
-                return !this.checkUrl(i10.getRequestUrl());
+                return !this.interceptOverrideUrlLoading(i10.getRequestUrl());
             });
             Web.onLoadIntercept(m7 => {
                 let n7 = !this.checkUrl(m7.data.getRequestUrl());
@@ -377,11 +387,130 @@ export class AtomicServiceWeb extends ViewPU {
             let t1 = 'webView';
             q1 = this.cutUrl(q1);
             let res = atomicServiceWebNapi.checkUrl(w1, t1, q1);
+            console.debug(`AtomicServiceWeb checkUrl ret=${res === 0} url=${q1}`);
             return res === 0;
         } catch (j2) {
             let n2 = j2;
             console.error(`AtomicServiceWeb checkUrl failed, code is ${n2.code}, message is ${n2.message}`);
             return false;
+        }
+    }
+
+    initDomainCheckLog() {
+        try {
+            let a9 = this.getAppId();
+            let b9 = this.isCheckDomainBlockListAvailable();
+            console.debug('AtomicServiceWeb initDomainCheckLog appId=' + a9 + ' checkDomainBlockListAvailable=' + b9);
+        } catch (z8) {
+            console.error('AtomicServiceWeb initDomainCheckLog error, message: ' + z8.message);
+        }
+    }
+
+    getAppId() {
+        let x8 = this.context.abilityInfo.bundleName;
+        if (!x8) {
+            return null;
+        }
+        let y8 = x8.split('.');
+        if (!y8 || y8.length <= 0) {
+            return null;
+        }
+        return y8[y8.length - 1];
+    }
+
+    isMainPageOrIframeRequest(v8, w8) {
+        if (v8) {
+            return true;
+        }
+        if (w8 === webView.WebResourceType.MAIN_FRAME ||
+            w8 === webView.WebResourceType.SUB_FRAME) {
+            return true;
+        }
+        return false;
+    }
+
+    isCheckDomainBlockListAvailable() {
+        if (!atomicBasicEngine || !atomicBasicEngine.default) {
+            return false;
+        }
+        return typeof atomicBasicEngine.default.checkDomainBlockList === 'function';
+    }
+
+    interceptUrl(s8, t8, u8) {
+        if (!s8) {
+            return false;
+        }
+        if (s8.startsWith(RESOURCE_RAWFILE)) {
+            return true;
+        }
+        if (this.isMainPageOrIframeRequest(t8, u8)) {
+            return this.checkUrl(s8);
+        }
+        if (this.isCheckDomainBlockListAvailable()) {
+            return this.checkUrlNew(s8);
+        }
+        return true;
+    }
+
+    checkUrlNew(n8) {
+        let o8 = this.getAppId();
+        if (!o8) {
+            console.error('AtomicServiceWeb checkUrlNew error, appId is invalid');
+            return false;
+        }
+        try {
+            let q8 = this.cutUrl(n8);
+            let r8 = atomicBasicEngine.default.checkDomainBlockList(q8, o8);
+            console.debug(`AtomicServiceWeb checkUrlNew ret=${!r8} url=${q8}`);
+            return !r8;
+        } catch (p8) {
+            console.error(`AtomicServiceWeb checkUrlNew error, code: ${p8.code}, message: ${p8.message}`);
+            return true;
+        }
+    }
+
+    interceptOverrideUrlLoading(m8) {
+        if (!m8) {
+            return false;
+        }
+        if (m8.startsWith(TEL_PROTOCOL)) {
+            this.openMakeCall(m8);
+            return false;
+        }
+        if (m8.startsWith(MAILTO_PROTOCOL)) {
+            this.openSendMail(m8);
+            return false;
+        }
+        return this.checkUrl(m8);
+    }
+
+    openMakeCall(i8) {
+        if (!i8 || !i8.startsWith(TEL_PROTOCOL)) {
+            return;
+        }
+        try {
+            let k8 = i8.substring(TEL_PROTOCOL.length);
+            call.makeCall(k8).catch((l8) => {
+                console.error(`AtomicServiceWeb openMakeCall error, code: ${l8.code}, message: ${l8.message}`);
+            });
+        } catch (j8) {
+            console.error(`AtomicServiceWeb openMakeCall error, code: ${j8.code}, message: ${j8.message}`);
+        }
+    }
+
+    openSendMail(f8) {
+        if (!f8 || !f8.startsWith(MAILTO_PROTOCOL)) {
+            return;
+        }
+        try {
+            this.context.startAbility({
+                action: WANT_ACTION_SEND_TO_DATA,
+                uri: f8
+            }).catch((h8) => {
+                console.error(`AtomicServiceWeb openSendMail error, code: ${h8.code}, message: ${h8.message}`);
+            });
+        } catch (g8) {
+            console.error(`AtomicServiceWeb openSendMail error, code: ${g8.code}, message: ${g8.message}`);
         }
     }
 
@@ -1051,7 +1180,7 @@ class AtomicServiceApi extends AtomicService {
             background: false
         }).then((t2) => {
             t2.on('complete', () => {
-                this.success(new DownloadFileResult(p2), m2);
+                    this.success(new DownloadFileResult(p2), m2);
             });
             t2.on('fail', w2 => {
                 this.errorWithCodeAndMsg(new AsError(w2, 'File download fail.'), m2);
