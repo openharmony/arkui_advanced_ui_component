@@ -325,7 +325,7 @@ export class AtomicServiceTabs extends ViewPU {
         if (this.layoutMode === LayoutMode.AUTO) {
             this.screenWidth = px2vp(display.getDefaultDisplaySync().width);
             this.isHorizontal =
-                this.tabBarPosition == TabBarPosition.LEFT ? false : this.screenWidth / this.tabBarOptionsArray.length > 104;
+                this.tabBarPosition === TabBarPosition.LEFT ? false : this.screenWidth / this.tabBarOptionsArray.length > 104;
         }
         else {
             this.isHorizontal = this.layoutMode === LayoutMode.HORIZONTAL;
