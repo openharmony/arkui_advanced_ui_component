@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import web_webview from '@ohos.web.webview';
+import webView from '@ohos.web.webview';
 import router from '@ohos.router';
 import deviceInfo from '@ohos.deviceInfo';
 import common from '@ohos.app.ability.common';
@@ -30,6 +30,27 @@ import fileUri from '@ohos.file.fileuri';
 import picker from '@ohos.multimedia.cameraPicker';
 import filePicker from '@ohos.file.picker';
 import { BusinessError } from '@ohos.base';
+import { call } from '@kit.TelephonyKit';
+
+let atomicBasicEngine: ESObject | null = null;
+
+/**
+ * 初始化加载atomicbasicengine
+ */
+function loadAtomicBasicEngine(): void {
+  try {
+    import('@hms.atomicservicedistribution.atomicbasicengine').then((ns: ESObject) => {
+      console.log('AtomicServiceWeb loadAtomicBasicEngine success');
+      atomicBasicEngine = ns;
+    }).catch((err: BusinessError) => {
+      console.error('AtomicServiceWeb loadAtomicBasicEngine error, message: ' + err.message);
+    });
+  } catch (err) {
+    console.error('AtomicServiceWeb loadAtomicBasicEngine error, message: ' + err.message);
+  }
+}
+
+loadAtomicBasicEngine();
 
 class AsError {
   public code: number;
@@ -68,6 +89,10 @@ const registerJsApi = (apiNameAlias: string, apiName: string, minVersion: string
 const MAX_VERSION = '99.99.99';
 const ATOMIC_SERVICE_JS_SDK_CURRENT_VERSION = '1.0.0';
 const PERMISSION_APPROXIMATELY_LOCATION: Permissions = 'ohos.permission.APPROXIMATELY_LOCATION';
+const TEL_PROTOCOL: string = 'tel:';
+const MAILTO_PROTOCOL: string = 'mailto:';
+const WANT_ACTION_SEND_TO_DATA: string = 'ohos.want.action.sendToData';
+const RESOURCE_RAWFILE: string = 'resource://rawfile';
 
 const SYSTEM_INTERNAL_ERROR: AsError = new AsError(500, 'System internal error.');
 const JS_API_INVALID_INVOKE_ERROR: AsError = new AsError(200001, 'Invalid invoke.');
@@ -130,8 +155,8 @@ export struct AtomicServiceWeb {
   public onControllerAttached?: VoidCallback;
   public onLoadIntercept?: Callback<OnLoadInterceptEvent, boolean>;
   private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
-  private webViewController: web_webview.WebviewController = new web_webview.WebviewController();
-  private schemeHandler: web_webview.WebSchemeHandler = new web_webview.WebSchemeHandler();
+  private webViewController: webView.WebviewController = new webView.WebviewController();
+  private schemeHandler: webView.WebSchemeHandler = new webView.WebSchemeHandler();
   private atomicService?: AtomicService;
   private atomicServiceProxy?: AtomicServiceProxy;
 
@@ -146,11 +171,13 @@ export struct AtomicServiceWeb {
         bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
       if (bundleInfo?.appInfo?.appProvisionType === 'debug') {
         console.log(`AtomicServiceWeb setWebDebuggingAccess`);
-        web_webview.WebviewController.setWebDebuggingAccess(true);
+        webView.WebviewController.setWebDebuggingAccess(true);
       }
     } catch (err) {
       console.error(`AtomicServiceWeb set Web Debug Mode failed, code is ${err.code}, message is ${err.message}`);
     }
+
+    this.initDomainCheckLog();
   }
 
   aboutToDisappear(): void {
@@ -177,9 +204,10 @@ export struct AtomicServiceWeb {
         this.onProgressChange))
       .onControllerAttached(() => {
         this.registerJavaScriptProxy();
-        this.schemeHandler.onRequestStart((request: web_webview.WebSchemeHandlerRequest) => {
-          return !this.checkUrl(request.getRequestUrl());
+        this.schemeHandler.onRequestStart((request: webView.WebSchemeHandlerRequest) => {
+          return !this.interceptUrl(request.getRequestUrl(), request.isMainFrame(), request.getRequestResourceType());
         });
+        this.webViewController.setWebSchemeHandler('http', this.schemeHandler);
         this.webViewController.setWebSchemeHandler('https', this.schemeHandler);
         this.initAtomicServiceWebController();
         if (this.onControllerAttached) {
@@ -191,7 +219,7 @@ export struct AtomicServiceWeb {
         }
       })
       .onOverrideUrlLoading((webResourceRequest: WebResourceRequest) => {
-        return !this.checkUrl(webResourceRequest.getRequestUrl());
+        return !this.interceptOverrideUrlLoading(webResourceRequest.getRequestUrl());
       })
       .onLoadIntercept(event => {
         let checkResult = !this.checkUrl(event.data.getRequestUrl());
@@ -203,7 +231,7 @@ export struct AtomicServiceWeb {
             return true;
           }
         }
-        return checkResult
+        return checkResult;
       })
   }
 
@@ -252,13 +280,165 @@ export struct AtomicServiceWeb {
     url = this.cutUrl(url);
     return true;
   }
+
+  /**
+   * 初始化域名校验日志
+   */
+  initDomainCheckLog(): void {
+    try {
+      let appId: string | null = this.getAppId();
+      let checkDomainBlockListAvailable: boolean = this.isCheckDomainBlockListAvailable();
+      console.debug('AtomicServiceWeb initDomainCheckLog appId=' + appId + ' checkDomainBlockListAvailable=' +
+        checkDomainBlockListAvailable);
+    } catch (err) {
+      console.error('AtomicServiceWeb initDomainCheckLog error, message: ' + err.message);
+    }
+  }
+
+  /**
+   * 获取appid
+   */
+  getAppId(): string | null {
+    let bundleName: string = this.context.abilityInfo.bundleName;
+    if (!bundleName) {
+      return null;
+    }
+    let strArray: string[] = bundleName.split('.');
+    if (!strArray || strArray.length <= 0) {
+      return null;
+    }
+    return strArray[strArray.length - 1];
+  }
+
+  /**
+   * 是否主页面或iframe页面请求
+   */
+  isMainPageOrIframeRequest(isMainFrame: boolean, requestResourceType: number): boolean {
+    if (isMainFrame) {
+      return true;
+    }
+    if (requestResourceType === webView.WebResourceType.MAIN_FRAME ||
+      requestResourceType === webView.WebResourceType.SUB_FRAME) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * 检查checkDomainBlockList接口是否可用
+   */
+  isCheckDomainBlockListAvailable(): boolean {
+    if (!atomicBasicEngine || !atomicBasicEngine.default) {
+      return false;
+    }
+    return typeof atomicBasicEngine.default.checkDomainBlockList === 'function';
+  }
+
+  /**
+   * 拦截url请求
+   */
+  interceptUrl(url: string, isMainFrame: boolean, requestResourceType: number): boolean {
+    if (!url) {
+      return false;
+    }
+    if (url.startsWith(RESOURCE_RAWFILE)) {
+      return true;
+    }
+    // 主页面或iframe页面，走域名白名单校验
+    if (this.isMainPageOrIframeRequest(isMainFrame, requestResourceType)) {
+      return this.checkUrl(url);
+    }
+    // 非主页面或iframe页面，atomicBasicEngine可用，走域名黑名单校验
+    if (this.isCheckDomainBlockListAvailable()) {
+      return this.checkUrlNew(url);
+    }
+    // 非主页面或iframe页面，atomicBasicEngine不可用，放通管控
+    return true;
+  }
+
+  /**
+   * 域名黑名单校验
+   */
+  checkUrlNew(url: string): boolean {
+    let appId: string | null = this.getAppId();
+    if (!appId) {
+      console.error('AtomicServiceWeb checkUrlNew error, appId is invalid');
+      return false;
+    }
+    try {
+      let shortUrl: string = this.cutUrl(url);
+      let isInDomainBlockList: boolean = atomicBasicEngine.default.checkDomainBlockList(shortUrl, appId);
+      console.debug(`AtomicServiceWeb checkUrlNew ret=${!isInDomainBlockList} url=${shortUrl}`);
+      return !isInDomainBlockList;
+    } catch (err) {
+      console.error(`AtomicServiceWeb checkUrlNew error, code: ${err.code}, message: ${err.message}`);
+      // 黑名单接口调用失败，放通管控
+      return true;
+    }
+  }
+
+  /**
+   * 拦截url跳转
+   */
+  interceptOverrideUrlLoading(url: string): boolean {
+    if (!url) {
+      return false;
+    }
+    // 处理tel:协议
+    if (url.startsWith(TEL_PROTOCOL)) {
+      this.openMakeCall(url);
+      return false;
+    }
+    // 处理mailto:协议
+    if (url.startsWith(MAILTO_PROTOCOL)) {
+      this.openSendMail(url);
+      return false;
+    }
+    return this.checkUrl(url);
+  }
+
+  /**
+   * 拉起打电话
+   */
+  openMakeCall(url: string): void {
+    if (!url || !url.startsWith(TEL_PROTOCOL)) {
+      return;
+    }
+    try {
+      let phoneNumber: string = url.substring(TEL_PROTOCOL.length);
+      call.makeCall(phoneNumber).catch((err: BusinessError) => {
+        console.error(`AtomicServiceWeb openMakeCall error, code: ${err.code}, message: ${err.message}`);
+      });
+    } catch (err) {
+      console.error(`AtomicServiceWeb openMakeCall error, code: ${err.code}, message: ${err.message}`);
+    }
+  }
+
+  /**
+   * 拉起发邮件
+   */
+  openSendMail(url: string): void {
+    if (!url || !url.startsWith(MAILTO_PROTOCOL)) {
+      return;
+    }
+    try {
+      this.context.startAbility({
+        action: WANT_ACTION_SEND_TO_DATA,
+        uri: url
+      }).catch((err: BusinessError) => {
+        console.error(`AtomicServiceWeb openSendMail error, code: ${err.code}, message: ${err.message}`);
+      });
+    } catch (err) {
+      console.error(`AtomicServiceWeb openSendMail error, code: ${err.code}, message: ${err.message}`);
+    }
+  }
 }
 
 @Observed
 export class AtomicServiceWebController {
-  private webViewController?: web_webview.WebviewController;
+  private webViewController?: webView.WebviewController;
 
-  setWebviewController(webViewController: web_webview.WebviewController): void {
+  setWebviewController(webViewController: webView.WebviewController): void {
     this.webViewController = webViewController;
   }
 
