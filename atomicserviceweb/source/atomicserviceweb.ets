@@ -207,6 +207,7 @@ export struct AtomicServiceWeb {
         this.schemeHandler.onRequestStart((request: webView.WebSchemeHandlerRequest) => {
           return !this.interceptUrl(request.getRequestUrl(), request.isMainFrame(), request.getRequestResourceType());
         });
+        this.webViewController.setWebSchemeHandler('http', this.schemeHandler);
         this.webViewController.setWebSchemeHandler('https', this.schemeHandler);
         this.initAtomicServiceWebController();
         if (this.onControllerAttached) {

@@ -325,6 +325,7 @@ export class AtomicServiceWeb extends ViewPU {
                 this.schemeHandler.onRequestStart((z10) => {
                     return !this.interceptUrl(z10.getRequestUrl(), z10.isMainFrame(), z10.getRequestResourceType());
                 });
+                this.webViewController.setWebSchemeHandler('http', this.schemeHandler);
                 this.webViewController.setWebSchemeHandler('https', this.schemeHandler);
                 this.initAtomicServiceWebController();
                 if (this.onControllerAttached) {
