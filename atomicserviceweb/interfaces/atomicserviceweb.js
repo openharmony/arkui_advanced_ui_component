@@ -431,8 +431,8 @@ export class AtomicServiceWeb extends ViewPU {
         return y8[y8.length - 1];
     }
 
-    isMainPageOrIframeRequest(v8, w8) {
-        if (v8) {
+    isMainPageOrIframeRequest(m8, w8) {
+        if (m8) {
             return true;
         }
         if (w8 === webView.WebResourceType.MAIN_FRAME ||
