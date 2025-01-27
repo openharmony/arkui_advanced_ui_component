@@ -63,7 +63,6 @@ export interface OnSearchEvent {
   onDidDelete?: Callback<DeleteValue>;
 }
 
-
 @Component
 export struct AtomicServiceSearch {
   @State private isFunction1Pressed: boolean = false;
@@ -120,12 +119,12 @@ export struct AtomicServiceSearch {
   renderSelect() {
     if (typeof this.select !== 'undefined' && this.select.options.length !== 0) {
       Row() {
-        Select(this.select?.options)// 下拉选项内容
-          .value(this.select?.value)// 下拉按钮本身的文本内容
-          .selected(this.select?.selected)// 设置下拉菜单初始选项的索引
-          .onSelect(this.select?.onSelect)// 下拉菜单选中某一项的回调
-          .font({ size: TEXT_SIZE_BODY1, weight: FONT_WEIGHT_PRIMARY })// 配置文字大小
-          .fontColor(TEXT_COLOR_PRIMARY)// 配置文字颜色
+        Select(this.select?.options)
+          .value(this.select?.value)
+          .selected(this.select?.selected)
+          .onSelect(this.select?.onSelect)
+          .font({ size: TEXT_SIZE_BODY1, weight: FONT_WEIGHT_PRIMARY })
+          .fontColor(TEXT_COLOR_PRIMARY)
           .selectedOptionFont({ size: FONT_SIZE, weight: FONT_WEIGHT_DEFAULT })
           .menuAlign(MenuAlignType.START, { dx: MENU_ALIGN_TYPE_START_X, dy: MENU_ALIGN_TYPE_START_Y })
           .optionFont({ size: FONT_SIZE, weight: FONT_WEIGHT_DEFAULT })
