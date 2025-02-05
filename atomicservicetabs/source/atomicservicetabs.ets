@@ -19,7 +19,6 @@ const TEXT_WIDTH_HEIGHT_SIZE: number = 24;
 const TEXT_FONT_WEIGHT: number = 500;
 const TEXT_LIGHT_HEIGHT: number = 14;
 
-
 @Component
 export struct AtomicServiceTabs {
   @BuilderParam tabContents?: [TabContentBuilder?,
