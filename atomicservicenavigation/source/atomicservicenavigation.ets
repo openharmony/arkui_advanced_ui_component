@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +16,9 @@
 import { Callback } from '@ohos.base';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
+const backGroundColor: string[] = ['rgb(0,0,0)', 'rgb(241,243,245)', 'rgb(255,255,255)'];
+const backGroundTransparentGradientColor: string[][] = [['rgba(0,0,0,0)', 'rgba(0,0,0,1)'],
+  ['rgba(241,243,245,0)', 'rgba(241,243,245,1)'], ['rgba(255,255,255,0)', 'rgba(255,255,255,1)']];
 const transparencyMapArray: number[] = [0.15, 0.15, 0.4, 0.6, 0.8];
 const RECTANGLE_OUTSIDE_OFFSET_ONE = 1;
 const COLOR_RATIO_THIRTY_PERCENT = 0.3;
@@ -27,6 +29,7 @@ const COLOR_RATIO_SIXTY_PERCENT = 0.6;
 const COLOR_RATIO_ONE_FIFTY_PERCENT = 1.5;
 const COORDINATE_NEGATIVE_ONE = -1;
 const BLUR_CONSTANT = 500;
+
 /**
  * 背景颜色的不透明度的枚举类型
  *
@@ -73,6 +76,26 @@ export enum MixMode {
   TOWARDS = 3
 }
 
+/**
+ * 背景底色
+ *
+ * @enum { number }.
+ */
+export enum BackgroundTheme {
+  /**
+   * 黑色
+   */
+  DARK = 1,
+  /**
+   * 此颜色为rgb(241,243,245)
+   */
+  LIGHT = 2,
+  /**
+   * 白色
+   */
+  DEFAULT = 3
+}
+
 @Component
 export struct AtomicServiceNavigation {
   @State navPathStack?: NavPathStack = new NavPathStack();
@@ -106,26 +129,16 @@ export struct AtomicServiceNavigation {
       .opacity(transparencyMapArray[(gradientBackground.alpha === undefined) ? GradientAlpha.LEVEL1 :
       gradientBackground.alpha])
       .blur(BLUR_CONSTANT)
-      .backgroundColor(gradientBackground.backGroundColor)
+      .backgroundColor(gradientBackground.backGroundTheme === undefined ? backGroundColor[2] :
+      backGroundColor[gradientBackground.backGroundTheme - 1])
       .onReady(() => {
         this.navigationWidth = this.navigationWidthOnChange;
         this.navigationHeight = this.navigationHeightOnChange;
-        if (gradientBackground.primaryColor === undefined) {
-          hilog.error(0x0000, 'AtomicServiceNavigation', 'gradientBackground - primaryColor parameter is required');
-          return;
-        }
-        if (gradientBackground.backGroundColor === undefined) {
-          hilog.error(0x0000, 'AtomicServiceNavigation', 'gradientBackground - backGroundColor parameter is required');
-          return;
-        }
         if (gradientBackground.secondColor === undefined) {
           //单色渐变
-          if (this.isRgbColor(gradientBackground.backGroundColor) === false) {
-            hilog.error(0x0000, 'AtomicServiceNavigation',
-              'gradientBackground - backGroundColor is invalid');
-          } else {
-            this.drawSingleGradient(this.context, gradientBackground.primaryColor, gradientBackground.backGroundColor);
-          }
+          this.drawSingleGradient(this.context, gradientBackground.primaryColor,
+            gradientBackground.backGroundTheme === undefined ? backGroundColor[2] :
+            backGroundColor[gradientBackground.backGroundTheme - 1]);
         } else if (gradientBackground.secondColor !== undefined) {
           if (gradientBackground.mixMode === MixMode.AVERAGE) {
             //双色渐变五五分
@@ -140,12 +153,9 @@ export struct AtomicServiceNavigation {
           } else {
             hilog.error(0x0000, 'AtomicServiceNavigation', 'gradientBackground - mixMode parameter is required');
           }
-          if (this.isRgbColor(gradientBackground.backGroundColor) === false) {
-            hilog.error(0x0000, 'AtomicServiceNavigation',
-              'gradientBackground - backGroundColor is invalid');
-          } else {
-            this.drawTransparentGradient(this.context, gradientBackground.backGroundColor);
-          }
+          this.drawTransparentGradient(this.context,
+            gradientBackground.backGroundTheme === undefined ? BackgroundTheme.DEFAULT :
+            gradientBackground.backGroundTheme);
         }
       })
   }
@@ -173,10 +183,11 @@ export struct AtomicServiceNavigation {
     .onNavBarStateChange(this.stateChangeCallback)
     .onNavigationModeChange(this.modeChangeCallback)
     .background(this.BackgroundBuilder({
-      primaryColor: this.gradientBackground?.primaryColor,
+      primaryColor: this.gradientBackground?.primaryColor === undefined ? 'rgb(255,255,255)' :
+      this.gradientBackground.primaryColor,
       secondColor: this.gradientBackground?.secondColor,
-      backGroundColor: this.gradientBackground?.backGroundColor === undefined ? 'rgb(255,255,255)' :
-      this.gradientBackground.backGroundColor,
+      backGroundTheme: this.gradientBackground?.backGroundTheme === undefined ? BackgroundTheme.DEFAULT :
+      this.gradientBackground.backGroundTheme,
       mixMode: this.gradientBackground?.mixMode === undefined ? MixMode.TOWARDS : this.gradientBackground.mixMode,
       alpha: this.gradientBackground?.alpha === undefined ? GradientAlpha.LEVEL1 : this.gradientBackground.alpha
     }))
@@ -280,10 +291,10 @@ export struct AtomicServiceNavigation {
    * 双色渐变下透明效果的实现
    * @param context 画布上下文
    */
-  drawTransparentGradient(context: CanvasRenderingContext2D, backGroundColor: string): void {
+  drawTransparentGradient(context: CanvasRenderingContext2D, backgroundTheme: BackgroundTheme): void {
     let grad = context.createLinearGradient(0, 0, 0, this.navigationHeight);
-    grad.addColorStop(0, this.rgbToRgba(backGroundColor)[0]);
-    grad.addColorStop(1, this.rgbToRgba(backGroundColor)[1]);
+    grad.addColorStop(0, backGroundTransparentGradientColor[backgroundTheme - 1][0]);
+    grad.addColorStop(1, backGroundTransparentGradientColor[backgroundTheme - 1][1]);
     context.fillStyle = grad;
     context.fillRect(0, 0, this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE,
       this.navigationHeight + RECTANGLE_OUTSIDE_OFFSET_ONE);
@@ -302,51 +313,6 @@ export struct AtomicServiceNavigation {
     context.fillStyle = grad1;
     context.fillRect(0, 0, this.navigationWidth, this.navigationHeight);
   }
-
-  /**
-   * 判断一个字符串是否是rgb形式
-   * @param str 字符串
-   */
-  isRgbColor(str?: string): boolean {
-    if (str === undefined) {
-      return false;
-    }
-    const rgbPattern = /^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$/;
-    const match = str.match(rgbPattern);
-    if (!match) {
-      return false;
-    }
-    for (let i = 1; i <= 3; i++) {
-      const value = parseInt(match[i], 10);
-      if (value < 0 || value > 255) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   *  将rgb形式的颜色字符串转变为rgba形式
-   * @param rgbStr
-   * @returns
-   */
-  rgbToRgba(rgbStr: string): [string, string] {
-    const regex = /^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$/;
-    const match = rgbStr.match(regex);
-    if (!match) {
-      hilog.error(0x0000, 'AtomicServiceNavigation', 'backGroundColor is invalid RGB format');
-      return ['rgba(255,255,255,0)', 'rgba(255,255,255,0)'];
-    }
-    const r = parseInt(match[1], 10);
-    const g = parseInt(match[2], 10);
-    const b = parseInt(match[3], 10);
-    if (isNaN(r) || isNaN(g) || isNaN(b)) {
-      throw new Error('Invalid RGB values');
-    }
-    const rgba1 = `rgba(${r}, ${g}, ${b}, 1)`;
-    const rgba0 = `rgba(${r}, ${g}, ${b}, 0)`;
-    return [rgba0, rgba1];
-  }
 }
 
 export interface TitleOptions {
@@ -356,9 +322,9 @@ export interface TitleOptions {
 }
 
 export interface GradientBackground {
-  primaryColor?: ResourceColor,
+  primaryColor: ResourceColor,
   secondColor?: ResourceColor,
-  backGroundColor?: string,
+  backGroundTheme?: BackgroundTheme,
   mixMode?: MixMode,
   alpha?: GradientAlpha
 }
