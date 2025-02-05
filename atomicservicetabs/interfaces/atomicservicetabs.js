@@ -6,7 +6,7 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to  in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -16,15 +16,12 @@
 if (!("finalizeConstruction" in ViewPU.prototype)) {
     Reflect.set(ViewPU.prototype, "finalizeConstruction", () => { });
 }
-const display = requireNapi('display');
-const hilog = requireNapi('hilog');
 const DEFAULT_BAR_WIDTH = 96;
 const DEFAULT_BAR_HEIGHT = 48;
 const TEXT_WIDTH_HEIGHT_SIZE = 24;
 const TEXT_FONT_WEIGHT = 500;
 const TEXT_LIGHT_HEIGHT = 14;
-const MARGIN_HORIZONTAL_VP = 8;
-const MARGIN_VERTICAL_VP = 4;
+const TEXT_FONT_SIZE = { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_button3'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
 export class AtomicServiceTabs extends ViewPU {
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
         super(parent, __localStorage, elmtId, extraInfo);
@@ -43,21 +40,11 @@ export class AtomicServiceTabs extends ViewPU {
         this.onTabBarClick = undefined;
         this.onContentWillChange = undefined;
         this.__selectedIndex = new ObservedPropertySimplePU(0, this, "selectedIndex");
-        this.__isHorizontal = new ObservedPropertySimplePU(false, this, "isHorizontal");
         this.__barModeStatus = new ObservedPropertySimplePU(BarMode.Fixed, this, "barModeStatus");
-        this.__textMarginTop = new ObservedPropertySimplePU(undefined, this, "textMarginTop");
-        this.__textMarginLeft = new ObservedPropertySimplePU(undefined, this, "textMarginLeft");
-        this.__tabMargin = new ObservedPropertySimplePU(undefined, this, "tabMargin");
-        this.__tabPadding = new ObservedPropertySimplePU(MARGIN_VERTICAL_VP, this, "tabPadding");
-        this.__barHeight = new ObservedPropertyObjectPU(undefined, this, "barHeight");
-        this.isIconAndText = false;
-        this.isListener = false;
-        this.isFold = false;
-        this.screenWidth = 0;
-        this.listener = this.getUIContext().getMediaQuery().matchMediaSync('(orientation: landscape)');
+        this.__tabBarHeight = new ObservedPropertyObjectPU(undefined, this, "tabBarHeight");
+        this.isIconTextExist = false;
         this.setInitiallyProvidedValue(params);
         this.declareWatch("tabBarPosition", this.tabBarPositionWatch);
-        this.declareWatch("layoutMode", this.layoutModeWatch);
         this.finalizeConstruction();
     }
     setInitiallyProvidedValue(params) {
@@ -94,41 +81,14 @@ export class AtomicServiceTabs extends ViewPU {
         if (params.selectedIndex !== undefined) {
             this.selectedIndex = params.selectedIndex;
         }
-        if (params.isHorizontal !== undefined) {
-            this.isHorizontal = params.isHorizontal;
-        }
         if (params.barModeStatus !== undefined) {
             this.barModeStatus = params.barModeStatus;
         }
-        if (params.textMarginTop !== undefined) {
-            this.textMarginTop = params.textMarginTop;
+        if (params.tabBarHeight !== undefined) {
+            this.tabBarHeight = params.tabBarHeight;
         }
-        if (params.textMarginLeft !== undefined) {
-            this.textMarginLeft = params.textMarginLeft;
-        }
-        if (params.tabMargin !== undefined) {
-            this.tabMargin = params.tabMargin;
-        }
-        if (params.tabPadding !== undefined) {
-            this.tabPadding = params.tabPadding;
-        }
-        if (params.barHeight !== undefined) {
-            this.barHeight = params.barHeight;
-        }
-        if (params.isIconAndText !== undefined) {
-            this.isIconAndText = params.isIconAndText;
-        }
-        if (params.isListener !== undefined) {
-            this.isListener = params.isListener;
-        }
-        if (params.isFold !== undefined) {
-            this.isFold = params.isFold;
-        }
-        if (params.screenWidth !== undefined) {
-            this.screenWidth = params.screenWidth;
-        }
-        if (params.listener !== undefined) {
-            this.listener = params.listener;
+        if (params.isIconTextExist !== undefined) {
+            this.isIconTextExist = params.isIconTextExist;
         }
     }
     updateStateVars(params) {
@@ -147,13 +107,8 @@ export class AtomicServiceTabs extends ViewPU {
         this.__barOverlap.purgeDependencyOnElmtId(rmElmtId);
         this.__layoutMode.purgeDependencyOnElmtId(rmElmtId);
         this.__selectedIndex.purgeDependencyOnElmtId(rmElmtId);
-        this.__isHorizontal.purgeDependencyOnElmtId(rmElmtId);
         this.__barModeStatus.purgeDependencyOnElmtId(rmElmtId);
-        this.__textMarginTop.purgeDependencyOnElmtId(rmElmtId);
-        this.__textMarginLeft.purgeDependencyOnElmtId(rmElmtId);
-        this.__tabMargin.purgeDependencyOnElmtId(rmElmtId);
-        this.__tabPadding.purgeDependencyOnElmtId(rmElmtId);
-        this.__barHeight.purgeDependencyOnElmtId(rmElmtId);
+        this.__tabBarHeight.purgeDependencyOnElmtId(rmElmtId);
     }
     aboutToBeDeleted() {
         this.__tabBarOptionsArray.aboutToBeDeleted();
@@ -163,13 +118,8 @@ export class AtomicServiceTabs extends ViewPU {
         this.__barOverlap.aboutToBeDeleted();
         this.__layoutMode.aboutToBeDeleted();
         this.__selectedIndex.aboutToBeDeleted();
-        this.__isHorizontal.aboutToBeDeleted();
         this.__barModeStatus.aboutToBeDeleted();
-        this.__textMarginTop.aboutToBeDeleted();
-        this.__textMarginLeft.aboutToBeDeleted();
-        this.__tabMargin.aboutToBeDeleted();
-        this.__tabPadding.aboutToBeDeleted();
-        this.__barHeight.aboutToBeDeleted();
+        this.__tabBarHeight.aboutToBeDeleted();
         SubscriberManager.Get().delete(this.id__());
         this.aboutToBeDeletedInternal();
     }
@@ -215,143 +165,45 @@ export class AtomicServiceTabs extends ViewPU {
     set selectedIndex(newValue) {
         this.__selectedIndex.set(newValue);
     }
-    get isHorizontal() {
-        return this.__isHorizontal.get();
-    }
-    set isHorizontal(newValue) {
-        this.__isHorizontal.set(newValue);
-    }
     get barModeStatus() {
         return this.__barModeStatus.get();
     }
     set barModeStatus(newValue) {
         this.__barModeStatus.set(newValue);
     }
-    get textMarginTop() {
-        return this.__textMarginTop.get();
+    get tabBarHeight() {
+        return this.__tabBarHeight.get();
     }
-    set textMarginTop(newValue) {
-        this.__textMarginTop.set(newValue);
-    }
-    get textMarginLeft() {
-        return this.__textMarginLeft.get();
-    }
-    set textMarginLeft(newValue) {
-        this.__textMarginLeft.set(newValue);
-    }
-    get tabMargin() {
-        return this.__tabMargin.get();
-    }
-    set tabMargin(newValue) {
-        this.__tabMargin.set(newValue);
-    }
-    get tabPadding() {
-        return this.__tabPadding.get();
-    }
-    set tabPadding(newValue) {
-        this.__tabPadding.set(newValue);
-    }
-    get barHeight() {
-        return this.__barHeight.get();
-    }
-    set barHeight(newValue) {
-        this.__barHeight.set(newValue);
+    set tabBarHeight(newValue) {
+        this.__tabBarHeight.set(newValue);
     }
     aboutToAppear() {
-        this.initBarModeAndHeight();
-        if (this.isIconAndText && this.layoutMode === LayoutMode.AUTO && this.tabBarPosition === TabBarPosition.BOTTOM) {
-            this.startListener();
-        }
-    }
-    aboutToDisappear() {
-        if (this.isListener) {
-            this.listener.off('change');
-            if (this.isFold) {
-                display.off('foldDisplayModeChange');
-            }
-        }
-    }
-    /**
-     * 初始化 图文布局状态值，barheight高度
-     */
-    initBarModeAndHeight() {
         if (this.tabBarOptionsArray[0].icon && this.tabBarOptionsArray[0].text) {
-            this.isIconAndText = true;
+            this.barModeStatus = undefined;
+            this.isIconTextExist = true;
         }
-        if (this.tabBarPosition === TabBarPosition.LEFT) {
-            this.barModeStatus = BarMode.Scrollable;
-            this.barHeight = (50 / this.tabBarOptionsArray.length + '%');
-        }
-        this.buildTab();
+        this.tabBarPositionWatch();
     }
     /**
-     * 监听折叠展开和屏幕旋转事件影响 图文布局样式
+     * 监听位置变化影响tabbar侧边高度 布局样式
      */
     tabBarPositionWatch() {
-        if (this.tabBarPosition === TabBarPosition.BOTTOM) {
-            this.barModeStatus = BarMode.Fixed;
-            this.barHeight = undefined;
-        }
-        else {
-            this.barModeStatus = BarMode.Scrollable;
-            this.barHeight = (50 / this.tabBarOptionsArray.length + '%');
-        }
-        this.buildTab();
-    }
-    layoutModeWatch() {
-        this.buildTab();
-    }
-    startListener() {
-        this.isListener = true;
-        try {
-            this.isFold = canIUse('SystemCapability.Window.SessionManager') ? display.isFoldable() : false;
-            if (this.isFold) {
-                display.on('foldDisplayModeChange', (data) => {
-                    this.buildTab();
-                });
+        if (!this.isIconTextExist) {
+            if (this.tabBarPosition === TabBarPosition.LEFT) {
+                this.tabBarHeight = (50 / this.tabBarOptionsArray.length + '%');
+                this.barModeStatus = BarMode.Scrollable;
+            }
+            else {
+                this.barModeStatus = BarMode.Fixed;
+                this.tabBarHeight = undefined;
             }
         }
-        catch (err) {
-            hilog.error(0x0000, 'AtomicServiceTabs', 'fail to get display isFoldable', JSON.stringify(err));
-        }
-        this.listener.on('change', (mediaQueryResult) => {
-            this.buildTab();
-        });
     }
-    /**
-     * 构建组件尺寸参数
-     */
-    buildTab() {
-        if (this.layoutMode === LayoutMode.AUTO) {
-            this.screenWidth = px2vp(display.getDefaultDisplaySync().width);
-            this.isHorizontal =
-                this.tabBarPosition === TabBarPosition.LEFT ? false : this.screenWidth / this.tabBarOptionsArray.length > 104;
-        }
-        else {
-            this.isHorizontal = this.layoutMode === LayoutMode.HORIZONTAL;
-        }
-        if (this.isIconAndText) {
-            this.textMarginTop = this.isHorizontal ? undefined : MARGIN_VERTICAL_VP;
-            this.textMarginLeft = this.isHorizontal ? MARGIN_HORIZONTAL_VP : undefined;
-            this.tabPadding = this.isHorizontal ? undefined : MARGIN_VERTICAL_VP;
-            this.tabMargin = this.isHorizontal ? MARGIN_HORIZONTAL_VP : undefined;
-        }
-    }
-    getFontSize() {
-        return this.isHorizontal ? { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_button3'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' } :
-            (this.isIconAndText ? { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_caption'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' } : { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_button3'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
-    }
-    TabBuilder(item, index, flex, parent = null) {
+    TabBuilder(item, index, parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Flex.create({
-                direction: flex,
-                alignItems: ItemAlign.Center,
-                justifyContent: FlexAlign.Center
-            });
-            Flex.padding({ left: this.tabPadding, right: this.tabPadding });
-            Flex.margin({ left: this.tabMargin, right: this.tabMargin });
-            Flex.height(ObservedObject.GetRawObject(this.barHeight));
-        }, Flex);
+            Column.create();
+            Column.height(ObservedObject.GetRawObject(this.tabBarHeight));
+        }, Column);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
             if (item.icon) {
@@ -369,41 +221,25 @@ export class AtomicServiceTabs extends ViewPU {
             }
             else {
                 this.ifElseBranchUpdateFunction(1, () => {
-                });
-            }
-        }, If);
-        If.pop();
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            If.create();
-            if (item.text) {
-                this.ifElseBranchUpdateFunction(0, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Text.create(item.text);
                         Text.textOverflow({ overflow: TextOverflow.Ellipsis });
                         Text.maxLines(1);
                         Text.fontColor(this.selectedIndex === index ? item.selectedColor : item.unselectedColor);
-                        Text.maxFontSize(this.getFontSize());
+                        Text.maxFontSize(TEXT_FONT_SIZE);
                         Text.minFontSize(9);
                         Text.fontWeight(TEXT_FONT_WEIGHT);
                         Text.lineHeight(TEXT_LIGHT_HEIGHT);
                         Text.textAlign(TextAlign.Center);
                         Text.focusOnTouch(true);
                         Text.backgroundColor(Color.Transparent);
-                        Text.margin({
-                            top: this.textMarginTop,
-                            left: this.textMarginLeft
-                        });
                     }, Text);
                     Text.pop();
                 });
             }
-            else {
-                this.ifElseBranchUpdateFunction(1, () => {
-                });
-            }
         }, If);
         If.pop();
-        Flex.pop();
+        Column.pop();
     }
     initialRender() {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -431,8 +267,8 @@ export class AtomicServiceTabs extends ViewPU {
             });
             Tabs.onTabBarClick(this.onTabBarClick);
             Tabs.onContentWillChange(this.onContentWillChange);
-            Tabs.barWidth((this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%');
-            Tabs.barHeight((this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%');
+            Tabs.barWidth(this.isIconTextExist ? undefined : (this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%');
+            Tabs.barHeight(this.isIconTextExist ? undefined : (this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%');
             Tabs.width((!this.tabContents && this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%');
             Tabs.height((!this.tabContents && this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%');
         }, Tabs);
@@ -460,10 +296,10 @@ export class AtomicServiceTabs extends ViewPU {
                                     }, If);
                                     If.pop();
                                 });
-                                TabContent.tabBar(this.isHorizontal ? { builder: () => {
-                                        this.TabBuilder.call(this, item, index, FlexDirection.Row);
-                                    } } : { builder: () => {
-                                        this.TabBuilder.call(this, item, index, FlexDirection.Column);
+                                TabContent.tabBar(this.isIconTextExist ? BottomTabBarStyle.of(item.icon, item.text).layoutMode(this.layoutMode)
+                                    .labelStyle({ unselectedColor: item.unselectedColor, selectedColor: item.selectedColor })
+                                    .iconStyle({ unselectedColor: item.unselectedColor, selectedColor: item.selectedColor }) : { builder: () => {
+                                        this.TabBuilder.call(this, item, index);
                                     } });
                                 TabContent.width((!this.tabContents && this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%');
                                 TabContent.height((!this.tabContents && this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%');
