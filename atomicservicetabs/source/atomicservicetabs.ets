@@ -18,7 +18,6 @@ const DEFAULT_BAR_HEIGHT: number = 48;
 const TEXT_WIDTH_HEIGHT_SIZE: number = 24;
 const TEXT_FONT_WEIGHT: number = 500;
 const TEXT_LIGHT_HEIGHT: number = 14;
-const TEXT_FONT_SIZE  = $r('sys.float.ohos_id_text_size_button3');
 
 
 @Component
@@ -29,7 +28,7 @@ export struct AtomicServiceTabs {
                               TabContentBuilder?,
                               TabContentBuilder?];
   @Prop tabBarOptionsArray: [TabBarOptions, TabBarOptions, TabBarOptions?, TabBarOptions?, TabBarOptions?];
-  @Prop @Watch('tabBarPositionWatch') tabBarPosition?: TabBarPosition = TabBarPosition.BOTTOM;
+  @Prop @Watch('barPositionChangeBySingleMode') tabBarPosition?: TabBarPosition = TabBarPosition.BOTTOM;
   @Prop barBackgroundColor?: ResourceColor = Color.Transparent;
   @Prop index?: number | undefined = 0;
   @Prop barOverlap?: boolean = true;
@@ -45,24 +44,24 @@ export struct AtomicServiceTabs {
 
   aboutToAppear(): void {
     if (this.tabBarOptionsArray[0].icon && this.tabBarOptionsArray[0].text) {
-      this.barModeStatus = undefined;
       this.isIconTextExist = true;
     }
-    this.tabBarPositionWatch();
+    this.barPositionChangeBySingleMode();
   }
 
   /**
-   * 监听位置变化影响tabbar侧边高度 布局样式
+   *单图标或文本场景下监听位置变化影响tabbar高度布局样式
    */
-  tabBarPositionWatch(): void {
-    if( !this.isIconTextExist ){
-      if (this.tabBarPosition === TabBarPosition.LEFT) {
-        this.tabBarHeight = (50 / this.tabBarOptionsArray.length + '%');
-        this.barModeStatus = BarMode.Scrollable;
-      }else {
-        this.barModeStatus = BarMode.Fixed;
-        this.tabBarHeight = undefined;
-      }
+  barPositionChangeBySingleMode(): void {
+    if (this.isIconTextExist) {
+      return;
+    }
+    if (this.tabBarPosition === TabBarPosition.LEFT) {
+      this.tabBarHeight = (50 / this.tabBarOptionsArray.length + '%');
+      this.barModeStatus = BarMode.Scrollable;
+    } else {
+      this.barModeStatus = BarMode.Fixed;
+      this.tabBarHeight = undefined;
     }
   }
 
@@ -82,7 +81,7 @@ export struct AtomicServiceTabs {
           .textOverflow({ overflow: TextOverflow.Ellipsis })
           .maxLines(1)
           .fontColor(this.selectedIndex === index ? item.selectedColor : item.unselectedColor)
-          .maxFontSize(TEXT_FONT_SIZE)
+          .maxFontSize($r('sys.float.ohos_id_text_size_button3'))
           .minFontSize(9)
           .fontWeight(TEXT_FONT_WEIGHT)
           .lineHeight(TEXT_LIGHT_HEIGHT)
@@ -120,9 +119,10 @@ export struct AtomicServiceTabs {
       })
     }
     .safeAreaPadding({
+      // barHeight设置具体高度时，tabBar的背景色不会延伸到底部安全区，需要新增该属性值使tabBar和安全区背景色一致
       bottom: 0
     })
-    .animationDuration(0)
+    .animationDuration(0) // 切换页签时，tabBar有默认的动画效果，设置该属性取消动画效果
     .barBackgroundColor(this.barBackgroundColor)
     .divider(null)
     .barMode(this.barModeStatus)
@@ -138,8 +138,10 @@ export struct AtomicServiceTabs {
     })
     .onTabBarClick(this.onTabBarClick)
     .onContentWillChange(this.onContentWillChange)
-    .barWidth( this.isIconTextExist? undefined: (this.tabBarPosition === TabBarPosition.LEFT ) ? DEFAULT_BAR_WIDTH : '100%')
-    .barHeight(this.isIconTextExist? undefined:(this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%')
+    .barWidth(this.isIconTextExist ? undefined :
+      (this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%')
+    .barHeight(this.isIconTextExist ? undefined :
+      (this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%')
     .width((!this.tabContents && this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%')
     .height((!this.tabContents && this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%')
   }
