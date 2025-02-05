@@ -113,10 +113,8 @@ export struct AtomicServiceNavigation {
   modeChangeCallback?: Callback<NavigationMode>;
   private settings: RenderingContextSettings = new RenderingContextSettings(true);
   private context: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.settings);
-  private navigationWidth: number = 0;
-  private navigationHeight: number = 0;
-  private navigationWidthOnChange: number = 0;
-  private navigationHeightOnChange: number = 0;
+  private  navigationWidth: number = 0;
+  private  navigationHeight: number = 0;
 
   @Builder
   defaultNavDestinationBuilder(name: string, param?: Object) {
@@ -132,8 +130,6 @@ export struct AtomicServiceNavigation {
       .backgroundColor(gradientBackground.backGroundTheme === undefined ? backGroundColor[2] :
       backGroundColor[gradientBackground.backGroundTheme - 1])
       .onReady(() => {
-        this.navigationWidth = this.navigationWidthOnChange;
-        this.navigationHeight = this.navigationHeightOnChange;
         if (gradientBackground.secondColor === undefined) {
           //单色渐变
           this.drawSingleGradient(this.context, gradientBackground.primaryColor,
@@ -192,8 +188,8 @@ export struct AtomicServiceNavigation {
       alpha: this.gradientBackground?.alpha === undefined ? GradientAlpha.LEVEL1 : this.gradientBackground.alpha
     }))
     .onSizeChange((oldValue: SizeOptions, newValue: SizeOptions) => {
-      this.navigationWidthOnChange = newValue.width as number;
-      this.navigationHeightOnChange = newValue.height as number;
+      this.navigationWidth = newValue.width as number;
+      this.navigationHeight = newValue.height as number;
     })
   }
 
@@ -205,12 +201,12 @@ export struct AtomicServiceNavigation {
    */
   drawGradientCanvasHalf(context: CanvasRenderingContext2D, primaryColor: ResourceColor | String,
     secondColor: ResourceColor | String): void {
-    this.navigationHeight = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
+    let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
     let grad1 = context.createLinearGradient(COORDINATE_NEGATIVE_ONE * this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT,
-      this.navigationHeight,
+      height,
       this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
     let grad2 = context.createLinearGradient(this.navigationWidth * COLOR_RATIO_ONE_FIFTY_PERCENT,
-      this.navigationHeight, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
+      height, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
     grad1.addColorStop(0, primaryColor.toString());
     grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, primaryColor.toString());
     grad1.addColorStop(1, secondColor.toString());
@@ -218,9 +214,9 @@ export struct AtomicServiceNavigation {
     grad2.addColorStop(COLOR_RATIO_FIFTY_PERCENT, primaryColor.toString());
     grad2.addColorStop(1, secondColor.toString());
     context.fillStyle = grad1;
-    context.fillRect(0, 0, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, this.navigationHeight);
+    context.fillRect(0, 0, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, height);
     context.fillStyle = grad2;
-    context.fillRect(this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0, this.navigationWidth, this.navigationHeight);
+    context.fillRect(this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0, this.navigationWidth, height);
   }
 
   /**
@@ -231,18 +227,18 @@ export struct AtomicServiceNavigation {
    */
   drawGradientCanvasCross(context: CanvasRenderingContext2D, primaryColor: ResourceColor | String,
     secondColor: ResourceColor | String): void {
-    this.navigationHeight = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
+    let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
     let grad1 = context.createLinearGradient(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, 0);
     grad1.addColorStop(0, primaryColor.toString());
     grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, primaryColor.toString());
     grad1.addColorStop(1, secondColor.toString());
     context.fillStyle = grad1;
-    context.fillRect(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, this.navigationHeight);
+    context.fillRect(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, height);
     let y1 =
-      (COLOR_RATIO_FIFTY_PERCENT * this.navigationHeight - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
-        COLOR_RATIO_FIFTY_PERCENT * this.navigationHeight - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth : 0;
+      (COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
+        COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth : 0;
     let grad2 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y1,
-      this.navigationWidth, this.navigationHeight * COLOR_RATIO_FIFTY_PERCENT);
+      this.navigationWidth, height * COLOR_RATIO_FIFTY_PERCENT);
     grad2.addColorStop(0, secondColor.toString());
     grad2.addColorStop(COLOR_RATIO_FORTY_PERCENT, secondColor.toString());
     grad2.addColorStop(1, primaryColor.toString());
@@ -250,24 +246,24 @@ export struct AtomicServiceNavigation {
     context.strokeStyle = primaryColor.toString();
     context.strokeRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, 0,
       this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT,
-      this.navigationHeight * COLOR_RATIO_FIFTY_PERCENT);
+      height * COLOR_RATIO_FIFTY_PERCENT);
     context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0,
       this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE,
-      this.navigationHeight * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
+      height * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
     let y2 =
-      (COLOR_RATIO_FIFTY_PERCENT * this.navigationHeight - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
-        COLOR_RATIO_FIFTY_PERCENT * this.navigationHeight + COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth :
-      this.navigationHeight;
+      (COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
+        COLOR_RATIO_FIFTY_PERCENT * height + COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth :
+        height;
     let grad3 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y2,
-      this.navigationWidth, this.navigationHeight * COLOR_RATIO_FIFTY_PERCENT);
+      this.navigationWidth, height * COLOR_RATIO_FIFTY_PERCENT);
     grad3.addColorStop(0, secondColor.toString());
     grad3.addColorStop(COLOR_RATIO_FORTY_PERCENT, secondColor.toString());
     grad3.addColorStop(1, primaryColor.toString());
     context.fillStyle = grad3;
     context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE,
-      this.navigationHeight * COLOR_RATIO_FIFTY_PERCENT,
+      height * COLOR_RATIO_FIFTY_PERCENT,
       COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE,
-      this.navigationHeight * COLOR_RATIO_FIFTY_PERCENT);
+      height * COLOR_RATIO_FIFTY_PERCENT);
   }
 
   /**
@@ -278,13 +274,13 @@ export struct AtomicServiceNavigation {
    */
   drawGradientCanvasTowards(context: CanvasRenderingContext2D, primaryColor: ResourceColor | String,
     secondColor: ResourceColor | String): void {
-    this.navigationHeight = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
-    let grad = context.createLinearGradient(0, 0, this.navigationWidth, this.navigationHeight);
+    let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
+    let grad = context.createLinearGradient(0, 0, this.navigationWidth, height);
     grad.addColorStop(0, primaryColor.toString());
     grad.addColorStop(COLOR_RATIO_FORTY_PERCENT, primaryColor.toString());
     grad.addColorStop(1, secondColor.toString());
     context.fillStyle = grad;
-    context.fillRect(0, 0, this.navigationWidth, this.navigationHeight);
+    context.fillRect(0, 0, this.navigationWidth, height);
   }
 
   /**
@@ -292,12 +288,13 @@ export struct AtomicServiceNavigation {
    * @param context 画布上下文
    */
   drawTransparentGradient(context: CanvasRenderingContext2D, backgroundTheme: BackgroundTheme): void {
-    let grad = context.createLinearGradient(0, 0, 0, this.navigationHeight);
+    let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
+    let grad = context.createLinearGradient(0, 0, 0, height);
     grad.addColorStop(0, backGroundTransparentGradientColor[backgroundTheme - 1][0]);
     grad.addColorStop(1, backGroundTransparentGradientColor[backgroundTheme - 1][1]);
     context.fillStyle = grad;
     context.fillRect(0, 0, this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE,
-      this.navigationHeight + RECTANGLE_OUTSIDE_OFFSET_ONE);
+      height  + RECTANGLE_OUTSIDE_OFFSET_ONE);
   }
 
   /**
@@ -306,12 +303,12 @@ export struct AtomicServiceNavigation {
    */
   drawSingleGradient(context: CanvasRenderingContext2D,
     primaryColor: ResourceColor | String, backgroundColor: string): void {
-    this.navigationHeight = this.navigationHeight * COLOR_RATIO_SIXTY_PERCENT;
-    let grad1 = context.createLinearGradient(0, 0, 0, this.navigationHeight);
+    let height = this.navigationHeight * COLOR_RATIO_SIXTY_PERCENT;
+    let grad1 = context.createLinearGradient(0, 0, 0, height);
     grad1.addColorStop(0, primaryColor.toString());
     grad1.addColorStop(1, backgroundColor);
     context.fillStyle = grad1;
-    context.fillRect(0, 0, this.navigationWidth, this.navigationHeight);
+    context.fillRect(0, 0, this.navigationWidth, height);
   }
 }
 
