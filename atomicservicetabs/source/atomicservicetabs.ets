@@ -12,148 +12,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { display, mediaquery } from "@kit.ArkUI";
-import hilog from '@ohos.hilog';
 
 const DEFAULT_BAR_WIDTH: number = 96;
 const DEFAULT_BAR_HEIGHT: number = 48;
 const TEXT_WIDTH_HEIGHT_SIZE: number = 24;
 const TEXT_FONT_WEIGHT: number = 500;
 const TEXT_LIGHT_HEIGHT: number = 14;
-const MARGIN_HORIZONTAL_VP: number = 8
-const MARGIN_VERTICAL_VP: number = 4;
+const TEXT_FONT_SIZE  = $r('sys.float.ohos_id_text_size_button3');
 
 
 @Component
 export struct AtomicServiceTabs {
   @BuilderParam tabContents?: [TabContentBuilder?,
-    TabContentBuilder?,
-    TabContentBuilder?,
-    TabContentBuilder?,
-    TabContentBuilder?];
+                              TabContentBuilder?,
+                              TabContentBuilder?,
+                              TabContentBuilder?,
+                              TabContentBuilder?];
   @Prop tabBarOptionsArray: [TabBarOptions, TabBarOptions, TabBarOptions?, TabBarOptions?, TabBarOptions?];
   @Prop @Watch('tabBarPositionWatch') tabBarPosition?: TabBarPosition = TabBarPosition.BOTTOM;
   @Prop barBackgroundColor?: ResourceColor = Color.Transparent;
   @Prop index?: number | undefined = 0;
   @Prop barOverlap?: boolean = true;
-  @Prop @Watch('layoutModeWatch') layoutMode?: LayoutMode = LayoutMode.VERTICAL;
+  @Prop layoutMode?: LayoutMode = LayoutMode.VERTICAL;
   controller?: TabsController = new TabsController();
   onChange?: Callback<number>;
   onTabBarClick?: Callback<number>;
   onContentWillChange?: OnContentWillChangeCallback;
   @State private selectedIndex: number = 0;
-  @State private isHorizontal: boolean = false;
-  @State private barModeStatus: BarMode = BarMode.Fixed;
-  @State private textMarginTop?: number = undefined;
-  @State private textMarginLeft?: number = undefined;
-  @State private tabMargin?: number = undefined;
-  @State private tabPadding?: number = MARGIN_VERTICAL_VP;
-  @State private barHeight?: Length = undefined;
-  private isIconAndText: boolean = false;
-  private isListener: boolean = false;
-  private isFold: boolean = false;
-  private screenWidth: number = 0;
-  listener: mediaquery.MediaQueryListener =
-    this.getUIContext().getMediaQuery().matchMediaSync('(orientation: landscape)');
+  @State private barModeStatus?: BarMode = BarMode.Fixed;
+  @State private tabBarHeight?: Length = undefined;
+  private isIconTextExist: boolean = false;
 
   aboutToAppear(): void {
-    this.initBarModeAndHeight();
-    if (this.isIconAndText && this.layoutMode === LayoutMode.AUTO && this.tabBarPosition === TabBarPosition.BOTTOM) {
-      this.startListener();
-    }
-  }
-
-  aboutToDisappear(): void {
-    if (this.isListener) {
-      this.listener.off('change');
-      if (this.isFold) {
-        display.off('foldDisplayModeChange');
-      }
-    }
-  }
-
-  /**
-   * 初始化 图文布局状态值，barheight高度
-   */
-  initBarModeAndHeight(): void {
     if (this.tabBarOptionsArray[0].icon && this.tabBarOptionsArray[0].text) {
-      this.isIconAndText = true;
+      this.barModeStatus = undefined;
+      this.isIconTextExist = true;
     }
-    if (this.tabBarPosition === TabBarPosition.LEFT) {
-      this.barModeStatus = BarMode.Scrollable;
-      this.barHeight = (50 / this.tabBarOptionsArray.length + '%');
-    }
-    this.buildTab();
+    this.tabBarPositionWatch();
   }
 
   /**
-   * 监听折叠展开和屏幕旋转事件影响 图文布局样式
+   * 监听位置变化影响tabbar侧边高度 布局样式
    */
   tabBarPositionWatch(): void {
-    if (this.tabBarPosition === TabBarPosition.BOTTOM) {
-      this.barModeStatus = BarMode.Fixed;
-      this.barHeight = undefined;
-    } else {
-      this.barModeStatus = BarMode.Scrollable;
-      this.barHeight = (50 / this.tabBarOptionsArray.length + '%');
-    }
-    this.buildTab();
-  }
-
-  layoutModeWatch(): void {
-    this.buildTab();
-  }
-
-  startListener(): void {
-    this.isListener = true;
-    try {
-      this.isFold = canIUse('SystemCapability.Window.SessionManager') ? display.isFoldable() : false;
-      if (this.isFold) {
-        display.on('foldDisplayModeChange', (data: display.FoldDisplayMode) => {
-          this.buildTab();
-        });
+    if( !this.isIconTextExist ){
+      if (this.tabBarPosition === TabBarPosition.LEFT) {
+        this.tabBarHeight = (50 / this.tabBarOptionsArray.length + '%');
+        this.barModeStatus = BarMode.Scrollable;
+      }else {
+        this.barModeStatus = BarMode.Fixed;
+        this.tabBarHeight = undefined;
       }
-    } catch (err) {
-      hilog.error(0x0000, 'AtomicServiceTabs', 'fail to get display isFoldable', JSON.stringify(err));
     }
-    this.listener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
-      this.buildTab();
-    });
-
-  }
-
-  /**
-   * 构建组件尺寸参数
-   */
-  buildTab(): void {
-    if (this.layoutMode === LayoutMode.AUTO) {
-      this.screenWidth = px2vp(display.getDefaultDisplaySync().width);
-      this.isHorizontal =
-        this.tabBarPosition === TabBarPosition.LEFT ? false : this.screenWidth / this.tabBarOptionsArray.length > 104;
-    } else {
-      this.isHorizontal = this.layoutMode === LayoutMode.HORIZONTAL;
-    }
-    if (this.isIconAndText) {
-      this.textMarginTop = this.isHorizontal ? undefined : MARGIN_VERTICAL_VP;
-      this.textMarginLeft = this.isHorizontal ? MARGIN_HORIZONTAL_VP : undefined;
-      this.tabPadding = this.isHorizontal ? undefined : MARGIN_VERTICAL_VP;
-      this.tabMargin = this.isHorizontal ? MARGIN_HORIZONTAL_VP : undefined;
-    }
-  }
-
-  getFontSize(): Resource {
-    return this.isHorizontal ? $r('sys.float.ohos_id_text_size_button3') :
-      (this.isIconAndText ? $r('sys.float.ohos_id_text_size_caption') :
-      $r('sys.float.ohos_id_text_size_button3'));
   }
 
   @Builder
-  TabBuilder(item: TabBarOptions, index: number, flex: FlexDirection) {
-    Flex({
-      direction: flex,
-      alignItems: ItemAlign.Center,
-      justifyContent: FlexAlign.Center
-    }) {
+  TabBuilder(item: TabBarOptions, index: number) {
+    Column() {
       if (item.icon) {
         Image(item.icon as ResourceStr)
           .width(TEXT_WIDTH_HEIGHT_SIZE)
@@ -162,28 +77,21 @@ export struct AtomicServiceTabs {
           .fillColor(this.selectedIndex === index ? item.selectedColor : item.unselectedColor)
           .backgroundColor(Color.Transparent)
           .flexShrink(0)
-      }
-      if (item.text) {
+      } else {
         Text(item.text)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
           .maxLines(1)
           .fontColor(this.selectedIndex === index ? item.selectedColor : item.unselectedColor)
-          .maxFontSize(this.getFontSize())
+          .maxFontSize(TEXT_FONT_SIZE)
           .minFontSize(9)
           .fontWeight(TEXT_FONT_WEIGHT)
           .lineHeight(TEXT_LIGHT_HEIGHT)
           .textAlign(TextAlign.Center)
           .focusOnTouch(true)
           .backgroundColor(Color.Transparent)
-          .margin({
-            top: this.textMarginTop,
-            left: this.textMarginLeft
-          })
       }
     }
-    .padding({ left: this.tabPadding, right: this.tabPadding })
-    .margin({ left: this.tabMargin, right: this.tabMargin })
-    .height(this.barHeight)
+    .height(this.tabBarHeight)
   }
 
   build() {
@@ -200,8 +108,11 @@ export struct AtomicServiceTabs {
             }
           }
           .tabBar(
-            this.isHorizontal ? this.TabBuilder(item, index, FlexDirection.Row) :
-            this.TabBuilder(item, index, FlexDirection.Column)
+            this.isIconTextExist ?
+            BottomTabBarStyle.of(item.icon, item.text).layoutMode(this.layoutMode)
+              .labelStyle({ unselectedColor: item.unselectedColor, selectedColor: item.selectedColor })
+              .iconStyle({ unselectedColor: item.unselectedColor, selectedColor: item.selectedColor }) :
+            this.TabBuilder(item, index)
           )
           .width((!this.tabContents && this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%')
           .height((!this.tabContents && this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%')
@@ -227,8 +138,8 @@ export struct AtomicServiceTabs {
     })
     .onTabBarClick(this.onTabBarClick)
     .onContentWillChange(this.onContentWillChange)
-    .barWidth((this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%')
-    .barHeight((this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%')
+    .barWidth( this.isIconTextExist? undefined: (this.tabBarPosition === TabBarPosition.LEFT ) ? DEFAULT_BAR_WIDTH : '100%')
+    .barHeight(this.isIconTextExist? undefined:(this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%')
     .width((!this.tabContents && this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%')
     .height((!this.tabContents && this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%')
   }
@@ -241,7 +152,7 @@ export class TabBarOptions {
   public selectedColor?: ResourceColor;
 
   constructor(icon: ResourceStr | TabBarSymbol, text: ResourceStr,
-    unselectedColor?: ResourceColor, selectedColor?: ResourceColor) {
+              unselectedColor?: ResourceColor, selectedColor?: ResourceColor) {
     this.icon = icon;
     this.text = text;
     this.unselectedColor = unselectedColor;
