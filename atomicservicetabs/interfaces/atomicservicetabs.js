@@ -6,7 +6,7 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to  in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -21,7 +21,6 @@ const DEFAULT_BAR_HEIGHT = 48;
 const TEXT_WIDTH_HEIGHT_SIZE = 24;
 const TEXT_FONT_WEIGHT = 500;
 const TEXT_LIGHT_HEIGHT = 14;
-const TEXT_FONT_SIZE = { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_button3'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
 export class AtomicServiceTabs extends ViewPU {
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
         super(parent, __localStorage, elmtId, extraInfo);
@@ -44,7 +43,7 @@ export class AtomicServiceTabs extends ViewPU {
         this.__tabBarHeight = new ObservedPropertyObjectPU(undefined, this, "tabBarHeight");
         this.isIconTextExist = false;
         this.setInitiallyProvidedValue(params);
-        this.declareWatch("tabBarPosition", this.tabBarPositionWatch);
+        this.declareWatch("tabBarPosition", this.barPositionChangeBySingleMode);
         this.finalizeConstruction();
     }
     setInitiallyProvidedValue(params) {
@@ -179,24 +178,24 @@ export class AtomicServiceTabs extends ViewPU {
     }
     aboutToAppear() {
         if (this.tabBarOptionsArray[0].icon && this.tabBarOptionsArray[0].text) {
-            this.barModeStatus = undefined;
             this.isIconTextExist = true;
         }
-        this.tabBarPositionWatch();
+        this.barPositionChangeBySingleMode();
     }
     /**
-     * 监听位置变化影响tabbar侧边高度 布局样式
+     *单图标或文本场景下监听位置变化影响tabbar高度布局样式
      */
-    tabBarPositionWatch() {
-        if (!this.isIconTextExist) {
-            if (this.tabBarPosition === TabBarPosition.LEFT) {
-                this.tabBarHeight = (50 / this.tabBarOptionsArray.length + '%');
-                this.barModeStatus = BarMode.Scrollable;
-            }
-            else {
-                this.barModeStatus = BarMode.Fixed;
-                this.tabBarHeight = undefined;
-            }
+    barPositionChangeBySingleMode() {
+        if (this.isIconTextExist) {
+            return;
+        }
+        if (this.tabBarPosition === TabBarPosition.LEFT) {
+            this.tabBarHeight = (50 / this.tabBarOptionsArray.length + '%');
+            this.barModeStatus = BarMode.Scrollable;
+        }
+        else {
+            this.barModeStatus = BarMode.Fixed;
+            this.tabBarHeight = undefined;
         }
     }
     TabBuilder(item, index, parent = null) {
@@ -226,7 +225,7 @@ export class AtomicServiceTabs extends ViewPU {
                         Text.textOverflow({ overflow: TextOverflow.Ellipsis });
                         Text.maxLines(1);
                         Text.fontColor(this.selectedIndex === index ? item.selectedColor : item.unselectedColor);
-                        Text.maxFontSize(TEXT_FONT_SIZE);
+                        Text.maxFontSize({ "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_button3'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
                         Text.minFontSize(9);
                         Text.fontWeight(TEXT_FONT_WEIGHT);
                         Text.lineHeight(TEXT_LIGHT_HEIGHT);
@@ -249,6 +248,7 @@ export class AtomicServiceTabs extends ViewPU {
                 controller: this.controller
             });
             Tabs.safeAreaPadding({
+                // barHeight设置具体高度时，tabBar的背景色不会延伸到底部安全区，需要新增该属性值使tabBar和安全区背景色一致
                 bottom: 0
             });
             Tabs.animationDuration(0);
@@ -267,8 +267,10 @@ export class AtomicServiceTabs extends ViewPU {
             });
             Tabs.onTabBarClick(this.onTabBarClick);
             Tabs.onContentWillChange(this.onContentWillChange);
-            Tabs.barWidth(this.isIconTextExist ? undefined : (this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%');
-            Tabs.barHeight(this.isIconTextExist ? undefined : (this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%');
+            Tabs.barWidth(this.isIconTextExist ? undefined :
+                (this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%');
+            Tabs.barHeight(this.isIconTextExist ? undefined :
+                (this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%');
             Tabs.width((!this.tabContents && this.tabBarPosition === TabBarPosition.LEFT) ? DEFAULT_BAR_WIDTH : '100%');
             Tabs.height((!this.tabContents && this.tabBarPosition === TabBarPosition.BOTTOM) ? DEFAULT_BAR_HEIGHT : '100%');
         }, Tabs);
@@ -331,7 +333,6 @@ export class TabBarOptions {
         this.selectedColor = selectedColor;
     }
 }
-
 export var TabBarPosition;
 (function (TabBarPosition) {
     TabBarPosition[TabBarPosition["LEFT"] = 0] = "LEFT";
