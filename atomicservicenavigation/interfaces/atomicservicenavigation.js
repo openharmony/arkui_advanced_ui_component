@@ -1,18 +1,3 @@
-/*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to  in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 if (!("finalizeConstruction" in ViewPU.prototype)) {
     Reflect.set(ViewPU.prototype, "finalizeConstruction", () => { });
 }
@@ -119,8 +104,6 @@ export class AtomicServiceNavigation extends ViewPU {
         this.context = new CanvasRenderingContext2D(this.settings);
         this.navigationWidth = 0;
         this.navigationHeight = 0;
-        this.navigationWidthOnChange = 0;
-        this.navigationHeightOnChange = 0;
         this.setInitiallyProvidedValue(x);
         this.finalizeConstruction();
     }
@@ -154,12 +137,6 @@ export class AtomicServiceNavigation extends ViewPU {
         }
         if (v.navigationHeight !== undefined) {
             this.navigationHeight = v.navigationHeight;
-        }
-        if (v.navigationWidthOnChange !== undefined) {
-            this.navigationWidthOnChange = v.navigationWidthOnChange;
-        }
-        if (v.navigationHeightOnChange !== undefined) {
-            this.navigationHeightOnChange = v.navigationHeightOnChange;
         }
     }
     updateStateVars(u) {
@@ -261,11 +238,10 @@ export class AtomicServiceNavigation extends ViewPU {
             Canvas.backgroundColor(gradientBackground.backGroundTheme === undefined ? backGroundColor[2] :
             backGroundColor[gradientBackground.backGroundTheme - 1]);
             Canvas.onReady(() => {
-                this.navigationWidth = this.navigationWidthOnChange;
-                this.navigationHeight = this.navigationHeightOnChange;
                 if (gradientBackground.secondColor === undefined) {
                     //单色渐变
-                    this.drawSingleGradient(this.context, gradientBackground.primaryColor, gradientBackground.backGroundTheme === undefined ? backGroundColor[2] :
+                    this.drawSingleGradient(this.context, gradientBackground.primaryColor,
+                        gradientBackground.backGroundTheme === undefined ? backGroundColor[2] :
                     backGroundColor[gradientBackground.backGroundTheme - 1]);
                 }
                 else if (gradientBackground.secondColor !== undefined) {
@@ -311,13 +287,18 @@ export class AtomicServiceNavigation extends ViewPU {
             Navigation.onNavBarStateChange(this.stateChangeCallback);
             Navigation.onNavigationModeChange(this.modeChangeCallback);
             Navigation.background({ builder: () => {
-                this.BackgroundBuilder.call(this, makeBuilderParameterProxy("BackgroundBuilder", { primaryColor: () => this.gradientBackground?.primaryColor === undefined ? 'rgb(255,255,255)' :
-                this.gradientBackground.primaryColor, secondColor: () => this.gradientBackground?.secondColor, backGroundTheme: () => this.gradientBackground?.backGroundTheme === undefined ? BackgroundTheme.DEFAULT :
-                this.gradientBackground.backGroundTheme, mixMode: () => this.gradientBackground?.mixMode === undefined ? MixMode.TOWARDS : this.gradientBackground.mixMode, alpha: () => this.gradientBackground?.alpha === undefined ? GradientAlpha.LEVEL1 : this.gradientBackground.alpha }));
+                this.BackgroundBuilder.call(this, makeBuilderParameterProxy('BackgroundBuilder',
+                    { primaryColor: () => this.gradientBackground?.primaryColor === undefined ? 'rgb(255,255,255)' :
+                this.gradientBackground.primaryColor,
+                        secondColor: () => this.gradientBackground?.secondColor,
+                        backGroundTheme: () => this.gradientBackground?.backGroundTheme === undefined ? BackgroundTheme.DEFAULT :
+                this.gradientBackground.backGroundTheme,
+                        mixMode: () => this.gradientBackground?.mixMode === undefined ? MixMode.TOWARDS : this.gradientBackground.mixMode,
+                        alpha: () => this.gradientBackground?.alpha === undefined ? GradientAlpha.LEVEL1 : this.gradientBackground.alpha }));
             } });
             Navigation.onSizeChange((oldValue, newValue) => {
-                this.navigationWidthOnChange = newValue.width;
-                this.navigationHeightOnChange = newValue.height;
+                this.navigationWidth = newValue.width;
+                this.navigationHeight = newValue.height;
             });
         }, Navigation);
         this.observeComponentCreation2((c, d) => {
@@ -342,10 +323,10 @@ export class AtomicServiceNavigation extends ViewPU {
      * @param secondColor 第二种颜色
      */
     drawGradientCanvasHalf(context, primaryColor, secondColor) {
-        this.navigationHeight = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
+        let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
         let grad1 = context.createLinearGradient(COORDINATE_NEGATIVE_ONE * this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT,
-            this.navigationHeight, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
-        let grad2 = context.createLinearGradient(this.navigationWidth * COLOR_RATIO_ONE_FIFTY_PERCENT, this.navigationHeight,
+            height, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
+        let grad2 = context.createLinearGradient(this.navigationWidth * COLOR_RATIO_ONE_FIFTY_PERCENT, height,
             this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
         grad1.addColorStop(0, primaryColor.toString());
         grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, primaryColor.toString());
@@ -354,9 +335,9 @@ export class AtomicServiceNavigation extends ViewPU {
         grad2.addColorStop(COLOR_RATIO_FIFTY_PERCENT, primaryColor.toString());
         grad2.addColorStop(1, secondColor.toString());
         context.fillStyle = grad1;
-        context.fillRect(0, 0, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, this.navigationHeight);
+        context.fillRect(0, 0, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, height);
         context.fillStyle = grad2;
-        context.fillRect(this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0, this.navigationWidth, this.navigationHeight);
+        context.fillRect(this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0, this.navigationWidth, height);
     }
     /**
      * 双色渐变的一种实现，把画布先分为两个大矩形，再把其中一个矩形分为两个小矩形
@@ -365,39 +346,39 @@ export class AtomicServiceNavigation extends ViewPU {
      * @param secondColor 第二种颜色
      */
     drawGradientCanvasCross(context, primaryColor, secondColor) {
-        this.navigationHeight = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
+        let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
         let grad1 = context.createLinearGradient(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, 0);
         grad1.addColorStop(0, primaryColor.toString());
         grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, primaryColor.toString());
         grad1.addColorStop(1, secondColor.toString());
         context.fillStyle = grad1;
-        context.fillRect(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, this.navigationHeight);
-        let y1 = (COLOR_RATIO_FIFTY_PERCENT * this.navigationHeight - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
-            COLOR_RATIO_FIFTY_PERCENT * this.navigationHeight - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth : 0;
+        context.fillRect(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, height);
+        let y1 = (COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
+            COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth : 0;
         let grad2 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y1, this.navigationWidth,
-            this.navigationHeight * COLOR_RATIO_FIFTY_PERCENT);
+            height * COLOR_RATIO_FIFTY_PERCENT);
         grad2.addColorStop(0, secondColor.toString());
         grad2.addColorStop(COLOR_RATIO_FORTY_PERCENT, secondColor.toString());
         grad2.addColorStop(1, primaryColor.toString());
         context.fillStyle = grad2;
         context.strokeStyle = primaryColor.toString();
         context.strokeRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, 0, this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT,
-            this.navigationHeight * COLOR_RATIO_FIFTY_PERCENT);
+            height * COLOR_RATIO_FIFTY_PERCENT);
         context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0,
             this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE,
-            this.navigationHeight * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
-        let y2 = (COLOR_RATIO_FIFTY_PERCENT * this.navigationHeight - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
-            COLOR_RATIO_FIFTY_PERCENT * this.navigationHeight + COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth :
-        this.navigationHeight;
+            height * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
+        let y2 = (COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
+            COLOR_RATIO_FIFTY_PERCENT * height + COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth :
+            height;
         let grad3 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y2,
-            this.navigationWidth, this.navigationHeight * COLOR_RATIO_FIFTY_PERCENT);
+            this.navigationWidth, height * COLOR_RATIO_FIFTY_PERCENT);
         grad3.addColorStop(0, secondColor.toString());
         grad3.addColorStop(COLOR_RATIO_FORTY_PERCENT, secondColor.toString());
         grad3.addColorStop(1, primaryColor.toString());
         context.fillStyle = grad3;
         context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE,
-            this.navigationHeight * COLOR_RATIO_FIFTY_PERCENT,
-            COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE, this.navigationHeight * COLOR_RATIO_FIFTY_PERCENT);
+            height * COLOR_RATIO_FIFTY_PERCENT, COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE,
+            height * COLOR_RATIO_FIFTY_PERCENT);
     }
     /**
      * 双色渐变的一种实现，从矩形左上角颜色渐变到右下角
@@ -406,36 +387,37 @@ export class AtomicServiceNavigation extends ViewPU {
      * @param secondColor 第二种颜色
      */
     drawGradientCanvasTowards(context, primaryColor, secondColor) {
-        this.navigationHeight = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
-        let grad = context.createLinearGradient(0, 0, this.navigationWidth, this.navigationHeight);
+        let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
+        let grad = context.createLinearGradient(0, 0, this.navigationWidth, height);
         grad.addColorStop(0, primaryColor.toString());
         grad.addColorStop(COLOR_RATIO_FORTY_PERCENT, primaryColor.toString());
         grad.addColorStop(1, secondColor.toString());
         context.fillStyle = grad;
-        context.fillRect(0, 0, this.navigationWidth, this.navigationHeight);
+        context.fillRect(0, 0, this.navigationWidth, height);
     }
     /**
      * 双色渐变下透明效果的实现
      * @param context 画布上下文
      */
     drawTransparentGradient(context, backgroundTheme) {
-        let grad = context.createLinearGradient(0, 0, 0, this.navigationHeight);
+        let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
+        let grad = context.createLinearGradient(0, 0, 0, height);
         grad.addColorStop(0, backGroundTransparentGradientColor[backgroundTheme - 1][0]);
         grad.addColorStop(1, backGroundTransparentGradientColor[backgroundTheme - 1][1]);
         context.fillStyle = grad;
-        context.fillRect(0, 0, this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE, this.navigationHeight + RECTANGLE_OUTSIDE_OFFSET_ONE);
+        context.fillRect(0, 0, this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE, height + RECTANGLE_OUTSIDE_OFFSET_ONE);
     }
     /**
      * 单色渐变：
      * @param primaryColor createLinearGradient初始颜色为primaryColor，结束颜色为底色
      */
     drawSingleGradient(context, primaryColor, backgroundColor) {
-        this.navigationHeight = this.navigationHeight * COLOR_RATIO_SIXTY_PERCENT;
-        let grad1 = context.createLinearGradient(0, 0, 0, this.navigationHeight);
+        let height = this.navigationHeight * COLOR_RATIO_SIXTY_PERCENT;
+        let grad1 = context.createLinearGradient(0, 0, 0, height);
         grad1.addColorStop(0, primaryColor.toString());
         grad1.addColorStop(1, backgroundColor);
         context.fillStyle = grad1;
-        context.fillRect(0, 0, this.navigationWidth, this.navigationHeight);
+        context.fillRect(0, 0, this.navigationWidth, height);
     }
     rerender() {
         this.updateDirtyElements();
