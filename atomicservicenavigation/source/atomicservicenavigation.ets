@@ -98,7 +98,7 @@ export enum BackgroundTheme {
 
 @Component
 export struct AtomicServiceNavigation {
-   @State navPathStack?: NavPathStack = new NavPathStack();
+  @State navPathStack?: NavPathStack = new NavPathStack();
   @BuilderParam navigationContent?: Callback<void>;
   @Prop title?: ResourceStr;
   @Prop titleOptions?: TitleOptions = { isBlurEnabled: true };
