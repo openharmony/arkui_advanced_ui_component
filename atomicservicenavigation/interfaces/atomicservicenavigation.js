@@ -268,7 +268,7 @@ export class AtomicServiceNavigation extends ViewPU {
                         //第一种双色渐变三七分
                         this.drawGradientCanvasCross(this.context, gradientBackground.primaryColor, gradientBackground.secondColor);
                     }
-                    else if (gradientBackground.mixMode === MixMode.TOWARDS || gradientBackground.mixMode === undefined) {
+                    else {
                         //第二种双色渐变三七分
                         this.drawGradientCanvasTowards(this.context, gradientBackground.primaryColor, gradientBackground.secondColor);
                     }
@@ -408,6 +408,7 @@ export class AtomicServiceNavigation extends ViewPU {
     /**
      * 双色渐变下透明效果的实现
      * @param context 画布上下文
+     * @param backgroundTheme 背景色底色
      */
     drawTransparentGradient(context, backgroundTheme) {
         let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
@@ -419,7 +420,9 @@ export class AtomicServiceNavigation extends ViewPU {
     }
     /**
      * 单色渐变：
+     * @param context 画布上下文
      * @param primaryColor createLinearGradient初始颜色为primaryColor，结束颜色为底色
+     * @param backgroundColor 颜色线性渐变的结束颜色
      */
     drawSingleGradient(context, primaryColor, backgroundColor) {
         let height = this.navigationHeight * COLOR_RATIO_SIXTY_PERCENT;
