@@ -259,7 +259,7 @@ export class AtomicServiceNavigation extends ViewPU {
                         gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
                         backGroundColor[gradientBackground.backgroundTheme - 1]);
                 }
-                else if (gradientBackground.secondColor !== undefined) {
+                else {
                     if (gradientBackground.mixMode === MixMode.AVERAGE) {
                         //双色渐变五五分
                         this.drawGradientCanvasHalf(this.context, gradientBackground.primaryColor, gradientBackground.secondColor);
@@ -301,15 +301,13 @@ export class AtomicServiceNavigation extends ViewPU {
             Navigation.minContentWidth(ObservedObject.GetRawObject(this.minContentWidth));
             Navigation.onNavBarStateChange(this.stateChangeCallback);
             Navigation.onNavigationModeChange(this.modeChangeCallback);
-            Navigation.background({ builder: () => {
+            Navigation.background(this.gradientBackground === undefined ? undefined : { builder: () => {
                 this.BackgroundBuilder.call(this, makeBuilderParameterProxy('BackgroundBuilder',
-                    { primaryColor: () => this.gradientBackground?.primaryColor === undefined ? 'rgb(255,255,255)' :
-                    this.gradientBackground.primaryColor,
-                        secondColor: () => this.gradientBackground?.secondColor,
-                        backgroundTheme: () => this.gradientBackground?.backgroundTheme === undefined ? BackgroundTheme.DEFAULT :
-                        this.gradientBackground.backgroundTheme,
-                        mixMode: () => this.gradientBackground?.mixMode === undefined ? MixMode.TOWARDS : this.gradientBackground.mixMode,
-                        alpha: () => this.gradientBackground?.alpha === undefined ? GradientAlpha.LEVEL1 : this.gradientBackground.alpha }));
+                    { primaryColor: () => this.gradientBackground.primaryColor,
+                        secondColor: () => this.gradientBackground.secondColor,
+                        backgroundTheme: () => this.gradientBackground.backgroundTheme,
+                        mixMode: () => this.gradientBackground.mixMode,
+                        alpha: () => this.gradientBackground.alpha }));
             } });
             Navigation.onSizeChange((oldValue, newValue) => {
                 this.navigationWidth = newValue.width;
