@@ -12,14 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 if (!("finalizeConstruction" in ViewPU.prototype)) {
     Reflect.set(ViewPU.prototype, "finalizeConstruction", () => { });
 }
 const hilog = requireNapi('hilog');
-const backGroundColor = ['rgb(0,0,0)', 'rgb(241,243,245)', 'rgb(255,255,255)'];
+const backGroundColor = ['rgb(0,0,0)', 'rgb(255,255,255)', 'rgb(241,243,245)'];
 const backGroundTransparentGradientColor = [['rgba(0,0,0,0)', 'rgba(0,0,0,1)'],
-    ['rgba(241,243,245,0)', 'rgba(241,243,245,1)'], ['rgba(255,255,255,0)', 'rgba(255,255,255,1)']];
+    ['rgba(255,255,255,0)', 'rgba(255,255,255,1)'], ['rgba(241,243,245,0)', 'rgba(241,243,245,1)']];
 const transparencyMapArray = [0.15, 0.15, 0.4, 0.6, 0.8];
 const RECTANGLE_OUTSIDE_OFFSET_ONE = 1;
 const COLOR_RATIO_THIRTY_PERCENT = 0.3;
@@ -88,11 +88,11 @@ export let BackgroundTheme;
      */
     BackgroundTheme.DARK = 1;
     /**
-     * 此颜色为rgb(241,243,245)
+     * 白色
      */
     BackgroundTheme.LIGHT = 2;
     /**
-     * 白色
+     * 颜色值 #F1F3F5
      */
     BackgroundTheme.DEFAULT = 3;
 })(BackgroundTheme || (BackgroundTheme = {}));
@@ -250,14 +250,14 @@ export class AtomicServiceNavigation extends ViewPU {
             Canvas.opacity(transparencyMapArray[(gradientBackground.alpha === undefined) ? GradientAlpha.LEVEL1 :
             gradientBackground.alpha]);
             Canvas.blur(BLUR_CONSTANT);
-            Canvas.backgroundColor(gradientBackground.backGroundTheme === undefined ? backGroundColor[2] :
-            backGroundColor[gradientBackground.backGroundTheme - 1]);
+            Canvas.backgroundColor(gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
+            backGroundColor[gradientBackground.backgroundTheme - 1]);
             Canvas.onReady(() => {
                 if (gradientBackground.secondColor === undefined) {
                     //单色渐变
                     this.drawSingleGradient(this.context, gradientBackground.primaryColor,
-                        gradientBackground.backGroundTheme === undefined ? backGroundColor[2] :
-                    backGroundColor[gradientBackground.backGroundTheme - 1]);
+                        gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
+                        backGroundColor[gradientBackground.backgroundTheme - 1]);
                 }
                 else if (gradientBackground.secondColor !== undefined) {
                     if (gradientBackground.mixMode === MixMode.AVERAGE) {
@@ -275,8 +275,8 @@ export class AtomicServiceNavigation extends ViewPU {
                     else {
                         hilog.error(0x0000, 'AtomicServiceNavigation', 'gradientBackground - mixMode parameter is required');
                     }
-                    this.drawTransparentGradient(this.context, gradientBackground.backGroundTheme === undefined ? BackgroundTheme.DEFAULT :
-                    gradientBackground.backGroundTheme);
+                    this.drawTransparentGradient(this.context, gradientBackground.backgroundTheme === undefined ? BackgroundTheme.DEFAULT :
+                    gradientBackground.backgroundTheme);
                 }
             });
         }, Canvas);
@@ -304,10 +304,10 @@ export class AtomicServiceNavigation extends ViewPU {
             Navigation.background({ builder: () => {
                 this.BackgroundBuilder.call(this, makeBuilderParameterProxy('BackgroundBuilder',
                     { primaryColor: () => this.gradientBackground?.primaryColor === undefined ? 'rgb(255,255,255)' :
-                this.gradientBackground.primaryColor,
+                    this.gradientBackground.primaryColor,
                         secondColor: () => this.gradientBackground?.secondColor,
-                        backGroundTheme: () => this.gradientBackground?.backGroundTheme === undefined ? BackgroundTheme.DEFAULT :
-                this.gradientBackground.backGroundTheme,
+                        backgroundTheme: () => this.gradientBackground?.backgroundTheme === undefined ? BackgroundTheme.DEFAULT :
+                        this.gradientBackground.backgroundTheme,
                         mixMode: () => this.gradientBackground?.mixMode === undefined ? MixMode.TOWARDS : this.gradientBackground.mixMode,
                         alpha: () => this.gradientBackground?.alpha === undefined ? GradientAlpha.LEVEL1 : this.gradientBackground.alpha }));
             } });
