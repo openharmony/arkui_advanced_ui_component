@@ -268,12 +268,9 @@ export class AtomicServiceNavigation extends ViewPU {
                         //第一种双色渐变三七分
                         this.drawGradientCanvasCross(this.context, gradientBackground.primaryColor, gradientBackground.secondColor);
                     }
-                    else if (gradientBackground.mixMode === MixMode.TOWARDS) {
+                    else if (gradientBackground.mixMode === MixMode.TOWARDS || gradientBackground.mixMode === undefined) {
                         //第二种双色渐变三七分
                         this.drawGradientCanvasTowards(this.context, gradientBackground.primaryColor, gradientBackground.secondColor);
-                    }
-                    else {
-                        hilog.error(0x0000, 'AtomicServiceNavigation', 'gradientBackground - mixMode parameter is required');
                     }
                     this.drawTransparentGradient(this.context, gradientBackground.backgroundTheme === undefined ? BackgroundTheme.DEFAULT :
                     gradientBackground.backgroundTheme);
