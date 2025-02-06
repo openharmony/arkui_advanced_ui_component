@@ -134,7 +134,7 @@ export struct AtomicServiceNavigation {
           this.drawSingleGradient(this.context, gradientBackground.primaryColor,
             gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
             backGroundColor[gradientBackground.backgroundTheme - 1]);
-        } else if (gradientBackground.secondColor !== undefined) {
+        } else {
           if (gradientBackground.mixMode === MixMode.AVERAGE) {
             //双色渐变五五分
             this.drawGradientCanvasHalf(this.context, gradientBackground.primaryColor, gradientBackground.secondColor);
@@ -177,14 +177,12 @@ export struct AtomicServiceNavigation {
     .minContentWidth(this.minContentWidth)
     .onNavBarStateChange(this.stateChangeCallback)
     .onNavigationModeChange(this.modeChangeCallback)
-    .background(this.BackgroundBuilder({
-      primaryColor: this.gradientBackground?.primaryColor === undefined ? 'rgb(255,255,255)' :
-      this.gradientBackground.primaryColor,
-      secondColor: this.gradientBackground?.secondColor,
-      backgroundTheme: this.gradientBackground?.backgroundTheme === undefined ? BackgroundTheme.DEFAULT :
-      this.gradientBackground.backgroundTheme,
-      mixMode: this.gradientBackground?.mixMode === undefined ? MixMode.TOWARDS : this.gradientBackground.mixMode,
-      alpha: this.gradientBackground?.alpha === undefined ? GradientAlpha.LEVEL1 : this.gradientBackground.alpha
+    .background(this.gradientBackground === undefined ? undefined:this.BackgroundBuilder({
+      primaryColor: this.gradientBackground.primaryColor ,
+      secondColor: this.gradientBackground.secondColor,
+      backgroundTheme: this.gradientBackground.backgroundTheme,
+      mixMode: this.gradientBackground.mixMode,
+      alpha: this.gradientBackground.alpha
     }))
     .onSizeChange((oldValue: SizeOptions, newValue: SizeOptions) => {
       this.navigationWidth = newValue.width as number;
