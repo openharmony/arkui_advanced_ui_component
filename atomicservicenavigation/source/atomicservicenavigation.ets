@@ -113,8 +113,8 @@ export struct AtomicServiceNavigation {
   modeChangeCallback?: Callback<NavigationMode>;
   private settings: RenderingContextSettings = new RenderingContextSettings(true);
   private context: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.settings);
-  private  navigationWidth: number = 0;
-  private  navigationHeight: number = 0;
+  private navigationWidth: number = 0;
+  private navigationHeight: number = 0;
 
   @Builder
   defaultNavDestinationBuilder(name: string, param?: Object) {
@@ -122,7 +122,6 @@ export struct AtomicServiceNavigation {
 
   @Builder
   BackgroundBuilder(gradientBackground: GradientBackground) {
-
     Canvas(this.context)
       .opacity(transparencyMapArray[(gradientBackground.alpha === undefined) ? GradientAlpha.LEVEL1 :
       gradientBackground.alpha])
