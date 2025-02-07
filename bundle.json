@@ -29,7 +29,9 @@
               "//foundation/arkui/advanced_ui_component/atomicservicetabs/interfaces:atomicservicetabs",
               "//foundation/arkui/advanced_ui_component/atomicserviceweb/interfaces:atomicserviceweb",
               "//foundation/arkui/advanced_ui_component/innerfullscreenlaunchcomponent/interfaces:innerfullscreenlaunchcomponent",
-              "//foundation/arkui/advanced_ui_component/interstitialdialogaction/interfaces:interstitialdialogaction"
+              "//foundation/arkui/advanced_ui_component/interstitialdialogaction/interfaces:interstitialdialogaction",
+              "//foundation/arkui/advanced_ui_component/customappbar/interfaces:custom_app_bar",
+              "//foundation/arkui/advanced_ui_component/halfscreenlaunchcomponent/interfaces:halfscreenlaunchcomponent"
             ],
             "inner_kits": [],
             "test": []
