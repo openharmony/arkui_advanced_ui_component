@@ -12,8 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-​
+ 
 import { OperationType, SelectOptions, OperationOption } from '@ohos.arkui.advanced.SubHeader';
+import { LengthMetrics } from '@kit.ArkUI';
 
 const TEXT_SIZE_BODY1: Resource = $r(`sys.float.ohos_id_text_size_body1`);
 const TEXT_COLOR_SECONDARY = $r(`sys.color.ohos_id_color_text_secondary`);
@@ -44,7 +45,7 @@ const FUNCTION_WIDTH_HEIGHT: number = 36;
 const FLEX_SHRINK: number = 0;
 const INDEPENDENT_FUNCTION_MARGIN: number = 0;
 const FUNCTION_MARGIN_LEFT: number = 8;
-const FUNCTION_MARGIN_right: number = 0;
+const FUNCTION_MARGIN_RIGHT: number = 0;
 const BORDER_RADIUS: number = 20;
 const SEARCH_HEIGHT: number = 40;
 
@@ -65,17 +66,17 @@ export interface OnSearchEvent {
 
 @Component
 export struct AtomicServiceSearch {
+  @Watch('onParamsChange') @Prop changeValue: string = '';
   @State private isFunction1Pressed: boolean = false;
   @State private isFunction2Pressed: boolean = false;
   @State private isSearchPressed: boolean = false;
-  @Watch('onParamsChange') @Prop changeValue: string = '';
   @State private showImage: boolean = true;
   @Prop hint?: ResourceStr = 'Search';
-  select?: SelectOptions;
   @Prop operationType?: OperationType = OperationType.BUTTON;
-  operationItem?: Array<OperationOption>;
-  onSearch?: OnSearchEvent;
   private controller: SearchController = new SearchController();
+  operationItem?: Array<OperationOption>;
+  select?: SelectOptions;
+  onSearch?: OnSearchEvent;
 
   private onParamsChange(): void {
     this.showImage = this.changeValue.length === 0 ? true : false;
@@ -131,8 +132,8 @@ export struct AtomicServiceSearch {
           .backgroundColor(Color.Transparent)
           .arrowPosition(ArrowPosition.END)
           .constraintSize({ minHeight: SELECT_CONSTRAINT_SIZE_MIN_HEIGHT })
-          .padding({ left: SELECT_PADDING_LEFT })
-          .margin({ left: SELECT_MARGIN_LEFT })
+          .padding({ start: LengthMetrics.vp(SELECT_PADDING_LEFT) })
+          .margin({ start: LengthMetrics.vp(SELECT_MARGIN_LEFT) })
           .height(SELECT_HEIGHT)
           .space(SELECT_SPACE)
         this.renderDivider();
@@ -148,7 +149,10 @@ export struct AtomicServiceSearch {
       .height(DIVIDER_HEIGHT)
       .color(Color.Black)
       .opacity(DIVIDER_OPACITY)
-      .margin({ left: DIVIDER_MARGIN_LEFT, right: DIVIDER_MARGIN_RIGHT })
+      .margin({
+        start: LengthMetrics.vp(DIVIDER_MARGIN_LEFT),
+        end: LengthMetrics.vp(DIVIDER_MARGIN_RIGHT)
+      })
   }
 
   @Builder
@@ -161,8 +165,11 @@ export struct AtomicServiceSearch {
         .objectFit(ImageFit.Contain)
     }
     .position(independentOrNot ?
-      { top: INDEPENDENT_FUNCTION_POSITION_OFFSET, right: INDEPENDENT_FUNCTION_POSITION_OFFSET } :
-      { top: FUNCTION_POSITION_OFFSET, right: FUNCTION_POSITION_OFFSET })
+      {
+        top: LengthMetrics.vp(INDEPENDENT_FUNCTION_POSITION_OFFSET),
+        end: LengthMetrics.vp(INDEPENDENT_FUNCTION_POSITION_OFFSET)
+      } :
+      { top: LengthMetrics.vp(FUNCTION_POSITION_OFFSET), end: LengthMetrics.vp(FUNCTION_POSITION_OFFSET) })
     .width(independentOrNot ? INDEPENDENT_FUNCTION_WIDTH_HEIGHT : FUNCTION_WIDTH_HEIGHT)
     .height(independentOrNot ? INDEPENDENT_FUNCTION_WIDTH_HEIGHT : FUNCTION_WIDTH_HEIGHT)
     .flexShrink(FLEX_SHRINK)
@@ -170,8 +177,14 @@ export struct AtomicServiceSearch {
     .onClick(item.action)
     .alignItems(VerticalAlign.Center)
     .justifyContent(FlexAlign.Center)
-    .margin(independentOrNot ? INDEPENDENT_FUNCTION_MARGIN :
-      { left: FUNCTION_MARGIN_LEFT, right: FUNCTION_MARGIN_right })
+    .margin(independentOrNot ?
+      {
+        start: LengthMetrics.vp(INDEPENDENT_FUNCTION_MARGIN),
+      } :
+      {
+        start: LengthMetrics.vp(FUNCTION_MARGIN_LEFT),
+        end: LengthMetrics.vp(FUNCTION_MARGIN_RIGHT)
+      })
     .backgroundColor(independentOrNot ?
       (this.isFunction2Pressed ? EFFECT_COLOR : Color.Transparent) :
       (this.isFunction1Pressed ? EFFECT_COLOR : Color.Transparent)
@@ -203,8 +216,7 @@ export struct AtomicServiceSearch {
         if (typeof this.operationItem === 'undefined' || this.operationItem?.length === 0) {
           this.renderSelect();
           this.renderSearch();
-        }
-        else if (this.operationItem?.length === 1) {
+        } else if (this.operationItem?.length === 1) {
           this.renderSelect();
           Stack() {
             this.renderSearch();
@@ -212,8 +224,7 @@ export struct AtomicServiceSearch {
               this.renderFunction(this.operationItem[0], false);
             }
           }
-        }
-        else if (this.operationItem?.length >= 2) {
+        } else if (this.operationItem?.length >= 2) {
           Flex({
             direction: FlexDirection.Row,
             alignItems: ItemAlign.Center,
@@ -238,7 +249,7 @@ export struct AtomicServiceSearch {
           .height(INDEPENDENT_FUNCTION_WIDTH_HEIGHT)
           .flexShrink(FLEX_SHRINK)
           .borderRadius(BORDER_RADIUS)
-          .margin({ left: FUNCTION_MARGIN_LEFT })
+          .margin({ start: LengthMetrics.vp(FUNCTION_MARGIN_LEFT) })
           .backgroundColor(TEXT_BOX_COLOR)
         }
       }
@@ -249,5 +260,3 @@ export struct AtomicServiceSearch {
     }
   }
 }
-
-​

@@ -13,17 +13,20 @@
  * limitations under the License.
  */
 
-if (!('finalizeConstruction' in ViewPU.prototype)) {
-    Reflect.set(ViewPU.prototype, 'finalizeConstruction', () => { });
+if (!("finalizeConstruction" in ViewPU.prototype)) {
+    Reflect.set(ViewPU.prototype, "finalizeConstruction", () => { });
 }
+
 const OperationType = requireNapi('arkui.advanced.SubHeader');
-const TEXT_SIZE_BODY1 = { 'id': -1, 'type': -1, params: [`sys.float.ohos_id_text_size_body1`], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
-const TEXT_COLOR_SECONDARY = { 'id': -1, 'type': -1, params: [`sys.color.ohos_id_color_text_secondary`], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
-const ICON_COLOR_SECONDARY = { 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_secondary'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
-const TEXT_BOX_COLOR = { 'id': -1, 'type': -1, params: [`sys.color.ohos_id_color_text_field_sub_bg`], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
-const TEXT_COLOR_PRIMARY = { 'id': -1, 'type': -1, params: [`sys.color.ohos_id_color_text_primary`], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
-const FUNCTION_ICON_COLOR = { 'id': -1, 'type': -1, params: [`sys.color.ohos_id_color_primary`], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
-const EFFECT_COLOR = { 'id': -1, 'type': -1, params: [`sys.color.ohos_id_color_click_effect`], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
+const LengthMetrics = requireNapi('arkui.node').LengthMetrics;
+
+const TEXT_SIZE_BODY1 = { "id": -1, "type": -1, params: [`sys.float.ohos_id_text_size_body1`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
+const TEXT_COLOR_SECONDARY = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_text_secondary`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
+const ICON_COLOR_SECONDARY = { "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_secondary'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
+const TEXT_BOX_COLOR = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_text_field_sub_bg`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
+const TEXT_COLOR_PRIMARY = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_text_primary`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
+const FUNCTION_ICON_COLOR = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_primary`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
+const EFFECT_COLOR = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_click_effect`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
 const FONT_WEIGHT_PRIMARY = 500;
 const FONT_WEIGHT_DEFAULT = 400;
 const FONT_SIZE = 16;
@@ -57,23 +60,26 @@ export class AtomicServiceSearch extends ViewPU {
         if (typeof paramsLambda === 'function') {
             this.paramsGenerator_ = paramsLambda;
         }
+        this.__changeValue = new SynchedPropertySimpleOneWayPU(params.changeValue, this, 'changeValue');
         this.__isFunction1Pressed = new ObservedPropertySimplePU(false, this, 'isFunction1Pressed');
         this.__isFunction2Pressed = new ObservedPropertySimplePU(false, this, 'isFunction2Pressed');
         this.__isSearchPressed = new ObservedPropertySimplePU(false, this, 'isSearchPressed');
-        this.__changeValue = new SynchedPropertySimpleOneWayPU(params.changeValue, this, 'changeValue');
         this.__showImage = new ObservedPropertySimplePU(true, this, 'showImage');
         this.__hint = new SynchedPropertyObjectOneWayPU(params.hint, this, 'hint');
-        this.select = undefined;
         this.__operationType = new SynchedPropertySimpleOneWayPU(params.operationType, this, 'operationType');
-        this.operationItem = undefined;
-        this.onSearch = undefined;
         this.controller = new SearchController();
+        this.operationItem = undefined;
+        this.select = undefined;
+        this.onSearch = undefined;
         this.setInitiallyProvidedValue(params);
         this.declareWatch('changeValue', this.onParamsChange);
         this.finalizeConstruction();
     }
-
+    
     setInitiallyProvidedValue(params) {
+        if (params.changeValue === undefined) {
+            this.__changeValue.set('');
+        }
         if (params.isFunction1Pressed !== undefined) {
             this.isFunction1Pressed = params.isFunction1Pressed;
         }
@@ -83,29 +89,26 @@ export class AtomicServiceSearch extends ViewPU {
         if (params.isSearchPressed !== undefined) {
             this.isSearchPressed = params.isSearchPressed;
         }
-        if (params.changeValue === undefined) {
-            this.__changeValue.set('');
-        }
         if (params.showImage !== undefined) {
             this.showImage = params.showImage;
         }
         if (params.hint === undefined) {
             this.__hint.set('Search');
         }
-        if (params.select !== undefined) {
-            this.select = params.select;
-        }
         if (params.operationType === undefined) {
             this.__operationType.set(OperationType.BUTTON);
+        }
+        if (params.controller !== undefined) {
+            this.controller = params.controller;
         }
         if (params.operationItem !== undefined) {
             this.operationItem = params.operationItem;
         }
+        if (params.select !== undefined) {
+            this.select = params.select;
+        }
         if (params.onSearch !== undefined) {
             this.onSearch = params.onSearch;
-        }
-        if (params.controller !== undefined) {
-            this.controller = params.controller;
         }
     }
 
@@ -116,25 +119,33 @@ export class AtomicServiceSearch extends ViewPU {
     }
 
     purgeVariableDependenciesOnElmtId(rmElmtId) {
+        this.__changeValue.purgeDependencyOnElmtId(rmElmtId);
         this.__isFunction1Pressed.purgeDependencyOnElmtId(rmElmtId);
         this.__isFunction2Pressed.purgeDependencyOnElmtId(rmElmtId);
         this.__isSearchPressed.purgeDependencyOnElmtId(rmElmtId);
-        this.__changeValue.purgeDependencyOnElmtId(rmElmtId);
         this.__showImage.purgeDependencyOnElmtId(rmElmtId);
         this.__hint.purgeDependencyOnElmtId(rmElmtId);
         this.__operationType.purgeDependencyOnElmtId(rmElmtId);
     }
 
     aboutToBeDeleted() {
+        this.__changeValue.aboutToBeDeleted();
         this.__isFunction1Pressed.aboutToBeDeleted();
         this.__isFunction2Pressed.aboutToBeDeleted();
         this.__isSearchPressed.aboutToBeDeleted();
-        this.__changeValue.aboutToBeDeleted();
         this.__showImage.aboutToBeDeleted();
         this.__hint.aboutToBeDeleted();
         this.__operationType.aboutToBeDeleted();
         SubscriberManager.Get().delete(this.id__());
         this.aboutToBeDeletedInternal();
+    }
+
+    get changeValue() {
+        return this.__changeValue.get();
+    }
+
+    set changeValue(newValue) {
+        this.__changeValue.set(newValue);
     }
 
     get isFunction1Pressed() {
@@ -159,14 +170,6 @@ export class AtomicServiceSearch extends ViewPU {
 
     set isSearchPressed(newValue) {
         this.__isSearchPressed.set(newValue);
-    }
-
-    get changeValue() {
-        return this.__changeValue.get();
-    }
-
-    set changeValue(newValue) {
-        this.__changeValue.set(newValue);
     }
 
     get showImage() {
@@ -256,8 +259,8 @@ export class AtomicServiceSearch extends ViewPU {
                         Select.backgroundColor(Color.Transparent);
                         Select.arrowPosition(ArrowPosition.END);
                         Select.constraintSize({ minHeight: SELECT_CONSTRAINT_SIZE_MIN_HEIGHT });
-                        Select.padding({ left: SELECT_PADDING_LEFT });
-                        Select.margin({ left: SELECT_MARGIN_LEFT });
+                        Select.padding({ start: LengthMetrics.vp(SELECT_PADDING_LEFT) });
+                        Select.margin({ start: LengthMetrics.vp(SELECT_MARGIN_LEFT) });
                         Select.height(SELECT_HEIGHT);
                         Select.space(SELECT_SPACE);
                     }, Select);
@@ -281,7 +284,10 @@ export class AtomicServiceSearch extends ViewPU {
             Divider.height(DIVIDER_HEIGHT);
             Divider.color(Color.Black);
             Divider.opacity(DIVIDER_OPACITY);
-            Divider.margin({ left: DIVIDER_MARGIN_LEFT, right: DIVIDER_MARGIN_RIGHT });
+            Divider.margin({
+                start: LengthMetrics.vp(DIVIDER_MARGIN_LEFT),
+                end: LengthMetrics.vp(DIVIDER_MARGIN_RIGHT)
+            });
         }, Divider);
     }
 
@@ -289,8 +295,11 @@ export class AtomicServiceSearch extends ViewPU {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Row.create();
             Row.position(independentOrNot ?
-                { top: INDEPENDENT_FUNCTION_POSITION_OFFSET, right: INDEPENDENT_FUNCTION_POSITION_OFFSET } :
-                { top: FUNCTION_POSITION_OFFSET, right: FUNCTION_POSITION_OFFSET });
+                {
+                    top: LengthMetrics.vp(INDEPENDENT_FUNCTION_POSITION_OFFSET),
+                    end: LengthMetrics.vp(INDEPENDENT_FUNCTION_POSITION_OFFSET)
+                } :
+                { top: LengthMetrics.vp(FUNCTION_POSITION_OFFSET), end: LengthMetrics.vp(FUNCTION_POSITION_OFFSET) });
             Row.width(independentOrNot ? INDEPENDENT_FUNCTION_WIDTH_HEIGHT : FUNCTION_WIDTH_HEIGHT);
             Row.height(independentOrNot ? INDEPENDENT_FUNCTION_WIDTH_HEIGHT : FUNCTION_WIDTH_HEIGHT);
             Row.flexShrink(FLEX_SHRINK);
@@ -298,8 +307,14 @@ export class AtomicServiceSearch extends ViewPU {
             Row.onClick(item.action);
             Row.alignItems(VerticalAlign.Center);
             Row.justifyContent(FlexAlign.Center);
-            Row.margin(independentOrNot ? INDEPENDENT_FUNCTION_MARGIN :
-                { left: FUNCTION_MARGIN_LEFT, right: FUNCTION_MARGIN_RIGHT });
+            Row.margin(independentOrNot ?
+                {
+                    start: LengthMetrics.vp(INDEPENDENT_FUNCTION_MARGIN),
+                } :
+                {
+                    start: LengthMetrics.vp(FUNCTION_MARGIN_LEFT),
+                    end: LengthMetrics.vp(FUNCTION_MARGIN_RIGHT)
+                });
             Row.backgroundColor(independentOrNot ?
                 (this.isFunction2Pressed ? EFFECT_COLOR : Color.Transparent) :
                 (this.isFunction1Pressed ? EFFECT_COLOR : Color.Transparent));
@@ -331,7 +346,6 @@ export class AtomicServiceSearch extends ViewPU {
         }, Image);
         Row.pop();
     }
-
     initialRender() {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Row.create();
@@ -414,7 +428,7 @@ export class AtomicServiceSearch extends ViewPU {
                         Row.height(INDEPENDENT_FUNCTION_WIDTH_HEIGHT);
                         Row.flexShrink(FLEX_SHRINK);
                         Row.borderRadius(BORDER_RADIUS);
-                        Row.margin({ left: FUNCTION_MARGIN_LEFT });
+                        Row.margin({ start: LengthMetrics.vp(FUNCTION_MARGIN_LEFT) });
                         Row.backgroundColor(TEXT_BOX_COLOR);
                     }, Row);
                     this.renderFunction.bind(this)(this.operationItem[1], true);
@@ -430,7 +444,7 @@ export class AtomicServiceSearch extends ViewPU {
         Flex.pop();
         Row.pop();
     }
-    
+
     rerender() {
         this.updateDirtyElements();
     }
