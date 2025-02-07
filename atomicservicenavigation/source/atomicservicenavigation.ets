@@ -15,6 +15,7 @@
 
 import { Callback } from '@ohos.base';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 const backGroundColor: string[] = ['rgb(0,0,0)', 'rgb(255,255,255)', 'rgb(241,243,245)'];
 const backGroundTransparentGradientColor: string[][] = [['rgba(0,0,0,0)', 'rgba(0,0,0,1)'],
@@ -129,7 +130,7 @@ export struct AtomicServiceNavigation {
       .backgroundColor(gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
       backGroundColor[gradientBackground.backgroundTheme - 1])
       .onReady(() => {
-        if (gradientBackground.secondColor === undefined) {
+        if (gradientBackground.secondaryColor === undefined) {
           //单色渐变
           this.drawSingleGradient(this.context, gradientBackground.primaryColor,
             gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
@@ -137,14 +138,14 @@ export struct AtomicServiceNavigation {
         } else {
           if (gradientBackground.mixMode === MixMode.AVERAGE) {
             //双色渐变五五分
-            this.drawGradientCanvasHalf(this.context, gradientBackground.primaryColor, gradientBackground.secondColor);
+            this.drawGradientCanvasHalf(this.context, gradientBackground.primaryColor, gradientBackground.secondaryColor);
           } else if (gradientBackground.mixMode === MixMode.CROSS) {
             //第一种双色渐变三七分
-            this.drawGradientCanvasCross(this.context, gradientBackground.primaryColor, gradientBackground.secondColor);
+            this.drawGradientCanvasCross(this.context, gradientBackground.primaryColor, gradientBackground.secondaryColor);
           } else {
             //第二种双色渐变三七分
             this.drawGradientCanvasTowards(this.context, gradientBackground.primaryColor,
-              gradientBackground.secondColor);
+              gradientBackground.secondaryColor);
           }
           this.drawTransparentGradient(this.context,
             gradientBackground.backgroundTheme === undefined ? BackgroundTheme.DEFAULT :
@@ -177,7 +178,7 @@ export struct AtomicServiceNavigation {
     .onNavigationModeChange(this.modeChangeCallback)
     .background(this.gradientBackground === undefined ? undefined : this.BackgroundBuilder({
       primaryColor: this.gradientBackground.primaryColor,
-      secondColor: this.gradientBackground.secondColor,
+      secondaryColor: this.gradientBackground.secondaryColor,
       backgroundTheme: this.gradientBackground.backgroundTheme,
       mixMode: this.gradientBackground.mixMode,
       alpha: this.gradientBackground.alpha
@@ -192,22 +193,22 @@ export struct AtomicServiceNavigation {
    * 双色渐变下两种颜色各占50%的实现，把整个画布区域分为两个一样的矩形在绘制
    * @param context 画布上下文
    * @param primaryColor 第一种颜色
-   * @param secondColor 第二种颜色
+   * @param secondaryColor 第二种颜色
    */
-  drawGradientCanvasHalf(context: CanvasRenderingContext2D, primaryColor: ResourceColor | String,
-    secondColor: ResourceColor | String): void {
+  drawGradientCanvasHalf(context: CanvasRenderingContext2D, primaryColor: ResourceColor,
+    secondaryColor: ResourceColor): void {
     let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
     let grad1 =
       context.createLinearGradient(COORDINATE_NEGATIVE_ONE * this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, height,
         this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
     let grad2 = context.createLinearGradient(this.navigationWidth * COLOR_RATIO_ONE_FIFTY_PERCENT, height,
       this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
-    grad1.addColorStop(0, primaryColor.toString());
-    grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, primaryColor.toString());
-    grad1.addColorStop(1, secondColor.toString());
-    grad2.addColorStop(0, primaryColor.toString());
-    grad2.addColorStop(COLOR_RATIO_FIFTY_PERCENT, primaryColor.toString());
-    grad2.addColorStop(1, secondColor.toString());
+    grad1.addColorStop(0, this.ResourceColorToString(primaryColor));
+    grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.ResourceColorToString(primaryColor));
+    grad1.addColorStop(1, this.ResourceColorToString(secondaryColor));
+    grad2.addColorStop(0, this.ResourceColorToString(primaryColor));
+    grad2.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.ResourceColorToString(primaryColor));
+    grad2.addColorStop(1, this.ResourceColorToString(secondaryColor));
     context.fillStyle = grad1;
     context.fillRect(0, 0, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, height);
     context.fillStyle = grad2;
@@ -218,15 +219,15 @@ export struct AtomicServiceNavigation {
    * 双色渐变的一种实现，把画布先分为两个大矩形，再把其中一个矩形分为两个小矩形
    * @param context 画布上下文
    * @param primaryColor 第一种颜色
-   * @param secondColor 第二种颜色
+   * @param secondaryColor 第二种颜色
    */
-  drawGradientCanvasCross(context: CanvasRenderingContext2D, primaryColor: ResourceColor | String,
-    secondColor: ResourceColor | String): void {
+  drawGradientCanvasCross(context: CanvasRenderingContext2D, primaryColor: ResourceColor,
+    secondaryColor: ResourceColor): void {
     let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
     let grad1 = context.createLinearGradient(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, 0);
-    grad1.addColorStop(0, primaryColor.toString());
-    grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, primaryColor.toString());
-    grad1.addColorStop(1, secondColor.toString());
+    grad1.addColorStop(0, this.ResourceColorToString(primaryColor));
+    grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.ResourceColorToString(primaryColor));
+    grad1.addColorStop(1, this.ResourceColorToString(secondaryColor));
     context.fillStyle = grad1;
     context.fillRect(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, height);
     let y1 = (COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
@@ -234,11 +235,11 @@ export struct AtomicServiceNavigation {
     let grad2 =
       context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y1, this.navigationWidth,
         height * COLOR_RATIO_FIFTY_PERCENT);
-    grad2.addColorStop(0, secondColor.toString());
-    grad2.addColorStop(COLOR_RATIO_FORTY_PERCENT, secondColor.toString());
-    grad2.addColorStop(1, primaryColor.toString());
+    grad2.addColorStop(0, this.ResourceColorToString(secondaryColor));
+    grad2.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.ResourceColorToString(secondaryColor));
+    grad2.addColorStop(1, this.ResourceColorToString(primaryColor));
     context.fillStyle = grad2;
-    context.strokeStyle = primaryColor.toString();
+    context.strokeStyle = this.ResourceColorToString(primaryColor);
     context.strokeRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, 0,
       this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT, height * COLOR_RATIO_FIFTY_PERCENT);
     context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0,
@@ -249,9 +250,9 @@ export struct AtomicServiceNavigation {
     let grad3 =
       context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y2, this.navigationWidth,
         height * COLOR_RATIO_FIFTY_PERCENT);
-    grad3.addColorStop(0, secondColor.toString());
-    grad3.addColorStop(COLOR_RATIO_FORTY_PERCENT, secondColor.toString());
-    grad3.addColorStop(1, primaryColor.toString());
+    grad3.addColorStop(0, this.ResourceColorToString(secondaryColor));
+    grad3.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.ResourceColorToString(secondaryColor));
+    grad3.addColorStop(1, this.ResourceColorToString(primaryColor));
     context.fillStyle = grad3;
     context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE,
       height * COLOR_RATIO_FIFTY_PERCENT,
@@ -263,15 +264,15 @@ export struct AtomicServiceNavigation {
    * 双色渐变的一种实现，从矩形左上角颜色渐变到右下角
    * @param context 画布上下文
    * @param primaryColor 第一种颜色
-   * @param secondColor 第二种颜色
+   * @param secondaryColor 第二种颜色
    */
-  drawGradientCanvasTowards(context: CanvasRenderingContext2D, primaryColor: ResourceColor | String,
-    secondColor: ResourceColor | String): void {
+  drawGradientCanvasTowards(context: CanvasRenderingContext2D, primaryColor: ResourceColor,
+    secondaryColor: ResourceColor): void {
     let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
     let grad = context.createLinearGradient(0, 0, this.navigationWidth, height);
-    grad.addColorStop(0, primaryColor.toString());
-    grad.addColorStop(COLOR_RATIO_FORTY_PERCENT, primaryColor.toString());
-    grad.addColorStop(1, secondColor.toString());
+    grad.addColorStop(0, this.ResourceColorToString(primaryColor));
+    grad.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.ResourceColorToString(primaryColor));
+    grad.addColorStop(1, this.ResourceColorToString(secondaryColor));
     context.fillStyle = grad;
     context.fillRect(0, 0, this.navigationWidth, height);
   }
@@ -297,13 +298,34 @@ export struct AtomicServiceNavigation {
    * @param backgroundColor 颜色线性渐变的结束颜色
    */
   drawSingleGradient(context: CanvasRenderingContext2D,
-    primaryColor: ResourceColor | String, backgroundColor: string): void {
+    primaryColor: ResourceColor, backgroundColor: string): void {
     let height = this.navigationHeight * COLOR_RATIO_SIXTY_PERCENT;
     let grad1 = context.createLinearGradient(0, 0, 0, height);
-    grad1.addColorStop(0, primaryColor.toString());
+    grad1.addColorStop(0, this.ResourceColorToString(primaryColor));
     grad1.addColorStop(1, backgroundColor);
     context.fillStyle = grad1;
     context.fillRect(0, 0, this.navigationWidth, height);
+  }
+
+  /**
+   * ResourceColor转化为能作为addColorStop使用的字符串
+   * @param resource ResourceColor = Color | number | string | Resource,对于Resource转化为直接使用的字符串需要特殊处理
+   * @returns
+   */
+  ResourceColorToString(resource: ResourceColor): string {
+    if (typeof resource === 'object') {
+      try {
+        return getContext(this).resourceManager.getStringSync(resource)
+      } catch (error) {
+        let code = (error as BusinessError).code;
+        let message = (error as BusinessError).message;
+        hilog.error(0x0000, 'AtomicServiceNavigation',
+          `ResourceColorToString - systemResourceManager getStringValue failed, error code: ${code}, message: ${message}.`);
+      }
+      return '';
+    } else {
+      return resource.toString();
+    }
   }
 }
 
@@ -315,7 +337,7 @@ export interface TitleOptions {
 
 export interface GradientBackground {
   primaryColor: ResourceColor,
-  secondColor?: ResourceColor,
+  secondaryColor?: ResourceColor,
   backgroundTheme?: BackgroundTheme,
   mixMode?: MixMode,
   alpha?: GradientAlpha
