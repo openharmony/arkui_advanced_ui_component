@@ -239,9 +239,6 @@ export struct AtomicServiceNavigation {
     grad2.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.ResourceColorToString(secondaryColor));
     grad2.addColorStop(1, this.ResourceColorToString(primaryColor));
     context.fillStyle = grad2;
-    // context.strokeStyle = this.ResourceColorToString(primaryColor);
-    // context.strokeRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, 0,
-    //   this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT, height * COLOR_RATIO_FIFTY_PERCENT);
     context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0,
       this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE,
       height * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
@@ -289,6 +286,10 @@ export struct AtomicServiceNavigation {
     grad.addColorStop(1, backGroundTransparentGradientColor[backgroundTheme - 1][1]);
     context.fillStyle = grad;
     context.fillRect(0, 0, this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE, height + RECTANGLE_OUTSIDE_OFFSET_ONE);
+    if(backgroundTheme === BackgroundTheme.DARK){
+      context.fillStyle = Color.Black;
+      context.fillRect(0, height, this.navigationWidth, this.navigationHeight-height);
+    }
   }
 
   /**
@@ -305,6 +306,11 @@ export struct AtomicServiceNavigation {
     grad1.addColorStop(1, backgroundColor);
     context.fillStyle = grad1;
     context.fillRect(0, 0, this.navigationWidth, height);
+    //当背景为黑色的时候需要特殊处理下
+    if (backgroundColor === backGroundColor[0]) {
+      context.fillStyle = Color.Black
+      context.fillRect(0, height, this.navigationWidth, this.navigationHeight * (1 - COLOR_RATIO_SIXTY_PERCENT));
+    }
   }
 
   /**
