@@ -66,7 +66,10 @@ export struct AtomicServiceTabs {
 
   @Builder
   TabBuilder(item: TabBarOptions, index: number) {
-    Column() {
+    Flex({
+      alignItems: ItemAlign.Center,
+      justifyContent: FlexAlign.Center
+    }){
       if (item.icon) {
         Image(item.icon as ResourceStr)
           .width(TEXT_WIDTH_HEIGHT_SIZE)
