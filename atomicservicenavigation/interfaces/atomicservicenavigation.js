@@ -414,6 +414,10 @@ export class AtomicServiceNavigation extends ViewPU {
         grad.addColorStop(1, backGroundTransparentGradientColor[backgroundTheme - 1][1]);
         context.fillStyle = grad;
         context.fillRect(0, 0, this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE, height + RECTANGLE_OUTSIDE_OFFSET_ONE);
+        if (backgroundTheme === BackgroundTheme.DARK) {
+            context.fillStyle = Color.Black;
+            context.fillRect(0, height, this.navigationWidth, this.navigationHeight - height);
+        }
     }
     /**
      * 单色渐变：
@@ -428,6 +432,11 @@ export class AtomicServiceNavigation extends ViewPU {
         grad1.addColorStop(1, backgroundColor);
         context.fillStyle = grad1;
         context.fillRect(0, 0, this.navigationWidth, height);
+        //当背景为黑色的时候需要特殊处理下
+        if (backgroundColor === backGroundColor[0]) {
+            context.fillStyle = Color.Black;
+            context.fillRect(0, height, this.navigationWidth, this.navigationHeight * (1 - COLOR_RATIO_SIXTY_PERCENT));
+        }
     }
     /**
      * ResourceColor转化为能作为addColorStop使用的字符串
