@@ -229,7 +229,7 @@ export class AtomicServiceTabs extends ViewPU {
                         Text.textOverflow({ overflow: TextOverflow.Ellipsis });
                         Text.maxLines(1);
                         Text.fontColor(this.selectedIndex === index ? item.selectedColor : item.unselectedColor);
-                        Text.maxFontSize({ "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_button3'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+                        Text.maxFontSize({ 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_button3'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                         Text.minFontSize(9);
                         Text.fontWeight(TEXT_FONT_WEIGHT);
                         Text.lineHeight(TEXT_LIGHT_HEIGHT);
