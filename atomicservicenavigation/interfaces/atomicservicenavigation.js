@@ -41,20 +41,20 @@ export let GradientAlpha;
      * 不透明度为0.2
      *
      */
-    GradientAlpha.LEVEL1 = 1;
+    GradientAlpha.OPACITY_20 = 1;
     /**
      * 不透明度为0.6
      *
      */
-    GradientAlpha.LEVEL2 = 2;
+    GradientAlpha.OPACITY_60 = 2;
     /**
      * 不透明度为0.8
      */
-    GradientAlpha.LEVEL3 = 3;
+    GradientAlpha.OPACITY_80 = 3;
     /**
      * 不透明度为1.0
      */
-    GradientAlpha.LEVEL4 = 4;
+    GradientAlpha.OPACITY_100 = 4;
 })(GradientAlpha || (GradientAlpha = {}));
 /**
  * 背景颜色融合方式
@@ -247,7 +247,7 @@ export class AtomicServiceNavigation extends ViewPU {
     BackgroundBuilder(gradientBackground, parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Canvas.create(this.context);
-            Canvas.opacity(transparencyMapArray[(gradientBackground.alpha === undefined) ? GradientAlpha.LEVEL1 :
+            Canvas.opacity(transparencyMapArray[(gradientBackground.alpha === undefined) ? GradientAlpha.OPACITY_20 :
             gradientBackground.alpha]);
             Canvas.blur(BLUR_CONSTANT);
             Canvas.backgroundColor(gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
@@ -371,9 +371,6 @@ export class AtomicServiceNavigation extends ViewPU {
         grad2.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.ResourceColorToString(secondaryColor));
         grad2.addColorStop(1, this.ResourceColorToString(primaryColor));
         context.fillStyle = grad2;
-        context.strokeStyle = this.ResourceColorToString(primaryColor);
-        context.strokeRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, 0, this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT,
-            height * COLOR_RATIO_FIFTY_PERCENT);
         context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0,
             this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE,
             height * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
