@@ -93,6 +93,11 @@ const TEL_PROTOCOL: string = 'tel:';
 const MAILTO_PROTOCOL: string = 'mailto:';
 const WANT_ACTION_SEND_TO_DATA: string = 'ohos.want.action.sendToData';
 const RESOURCE_RAWFILE: string = 'resource://rawfile';
+const TYPE_AS_WEB: string = 'ASWeb';
+const WEB_PERMISSIONS: Record<string, string> = {
+  'TYPE_VIDEO_CAPTURE': 'ohos.permission.CAMERA',
+  'TYPE_AUDIO_CAPTURE': 'ohos.permission.MICROPHONE'
+};
 
 const SYSTEM_INTERNAL_ERROR: AsError = new AsError(500, 'System internal error.');
 const JS_API_INVALID_INVOKE_ERROR: AsError = new AsError(200001, 'Invalid invoke.');
@@ -232,6 +237,9 @@ export struct AtomicServiceWeb {
           }
         }
         return checkResult;
+      })
+      .onPermissionRequest((event: OnPermissionRequestEvent) => {
+        this.handleOnPermissionRequest(event);
       })
   }
 
@@ -430,6 +438,89 @@ export struct AtomicServiceWeb {
       });
     } catch (err) {
       console.error(`AtomicServiceWeb openSendMail error, code: ${err.code}, message: ${err.message}`);
+    }
+  }
+
+  /**
+   * 处理onPermissionRequest回调
+   */
+  private handleOnPermissionRequest(event: OnPermissionRequestEvent): void {
+    if (this.checkPermissionRequest(event)) {
+      event.request.grant(event.request.getAccessibleResource());
+    } else {
+      event.request.deny();
+    }
+  }
+
+  /**
+   * onPermissionRequest权限校验
+   */
+  private checkPermissionRequest(event: OnPermissionRequestEvent): boolean {
+    let accessibleResource: string[] = event.request.getAccessibleResource();
+    if (!accessibleResource || accessibleResource.length <= 0) {
+      return false;
+    }
+    let appId: string | null = this.getAppId();
+    if (!appId) {
+      console.error('AtomicServiceWeb checkPermissionRequest error, appId is invalid');
+      return false;
+    }
+    for (let resource of accessibleResource) {
+      let permission: string = WEB_PERMISSIONS[resource];
+      if (!permission) {
+        console.error('AtomicServiceWeb checkPermissionRequest error, permission is not support');
+        return false;
+      }
+      if (!this.isPermissionUserGranted(permission)) {
+        return false;
+      }
+      if (!this.isPermissionWhiteListAllow(appId, permission)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * 检查用户是否授予权限
+   */
+  private isPermissionUserGranted(permission: string): boolean {
+    try {
+      let bundleInfo: bundleManager.BundleInfo =
+        bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+      if (!bundleInfo?.appInfo?.accessTokenId) {
+        return false;
+      }
+      let tokenId: number = bundleInfo.appInfo.accessTokenId;
+      let grantStatus: abilityAccessCtrl.GrantStatus = abilityAccessCtrl.createAtManager()
+        .checkAccessTokenSync(tokenId, permission as Permissions);
+      if (grantStatus !== abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED) {
+        console.error(`AtomicServiceWeb isPermissionGranted permission ${permission} is not grant`);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error(`AtomicServiceWeb isPermissionGranted error, code: ${err.code}, message: ${err.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * 检查权限白名单是否通过
+   */
+  private isPermissionWhiteListAllow(appId: string, permission: string): boolean {
+    if (!atomicBasicEngine || !atomicBasicEngine.default ||
+      typeof atomicBasicEngine.default.checkAtomicServiceAllow !== 'function') {
+      console.error('AtomicServiceWeb isPermissionRequestAllow error, checkAtomicServiceAllow is not available');
+      return false;
+    }
+    try {
+      let isAllow: boolean = atomicBasicEngine.default.checkAtomicServiceAllow(appId, permission, TYPE_AS_WEB);
+      console.debug(`AtomicServiceWeb isPermissionRequestAllow ret=${isAllow} permission=${permission}`);
+      return isAllow;
+    } catch (err) {
+      console.error(`AtomicServiceWeb isPermissionRequestAllow error, code: ${err.code}, message: ${err.message}`);
+      return false;
     }
   }
 }
