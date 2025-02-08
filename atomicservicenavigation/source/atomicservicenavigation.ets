@@ -41,20 +41,20 @@ export enum GradientAlpha {
    * 不透明度为0.2
    *
    */
-  LEVEL1 = 1,
+  OPACITY_20 = 1,
   /**
    * 不透明度为0.6
    *
    */
-  LEVEL2 = 2,
+  OPACITY_60 = 2,
   /**
    * 不透明度为0.8
    */
-  LEVEL3 = 3,
+  OPACITY_80 = 3,
   /**
    * 不透明度为1.0
    */
-  LEVEL4 = 4
+  OPACITY_100 = 4
 }
 
 /**
@@ -124,7 +124,7 @@ export struct AtomicServiceNavigation {
   @Builder
   BackgroundBuilder(gradientBackground: GradientBackground) {
     Canvas(this.context)
-      .opacity(transparencyMapArray[(gradientBackground.alpha === undefined) ? GradientAlpha.LEVEL1 :
+      .opacity(transparencyMapArray[(gradientBackground.alpha === undefined) ? GradientAlpha.OPACITY_20 :
       gradientBackground.alpha])
       .blur(BLUR_CONSTANT)
       .backgroundColor(gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
@@ -239,9 +239,9 @@ export struct AtomicServiceNavigation {
     grad2.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.ResourceColorToString(secondaryColor));
     grad2.addColorStop(1, this.ResourceColorToString(primaryColor));
     context.fillStyle = grad2;
-    context.strokeStyle = this.ResourceColorToString(primaryColor);
-    context.strokeRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, 0,
-      this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT, height * COLOR_RATIO_FIFTY_PERCENT);
+    // context.strokeStyle = this.ResourceColorToString(primaryColor);
+    // context.strokeRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, 0,
+    //   this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT, height * COLOR_RATIO_FIFTY_PERCENT);
     context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0,
       this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE,
       height * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
