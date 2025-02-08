@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -6,7 +7,7 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to  in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -200,9 +201,12 @@ export class AtomicServiceTabs extends ViewPU {
     }
     TabBuilder(item, index, parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Column.create();
-            Column.height(ObservedObject.GetRawObject(this.tabBarHeight));
-        }, Column);
+            Flex.create({
+                alignItems: ItemAlign.Center,
+                justifyContent: FlexAlign.Center
+            });
+            Flex.height(ObservedObject.GetRawObject(this.tabBarHeight));
+        }, Flex);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
             if (item.icon) {
@@ -238,7 +242,7 @@ export class AtomicServiceTabs extends ViewPU {
             }
         }, If);
         If.pop();
-        Column.pop();
+        Flex.pop();
     }
     initialRender() {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -333,6 +337,7 @@ export class TabBarOptions {
         this.selectedColor = selectedColor;
     }
 }
+
 export var TabBarPosition;
 (function (TabBarPosition) {
     TabBarPosition[TabBarPosition["LEFT"] = 0] = "LEFT";
