@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,26 +24,26 @@ const TEXT_LIGHT_HEIGHT = 14;
 export class AtomicServiceTabs extends ViewPU {
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
         super(parent, __localStorage, elmtId, extraInfo);
-        if (typeof paramsLambda === "function") {
+        if (typeof paramsLambda === 'function') {
             this.paramsGenerator_ = paramsLambda;
         }
         this.tabContents = undefined;
-        this.__tabBarOptionsArray = new SynchedPropertyObjectOneWayPU(params.tabBarOptionsArray, this, "tabBarOptionsArray");
-        this.__tabBarPosition = new SynchedPropertySimpleOneWayPU(params.tabBarPosition, this, "tabBarPosition");
-        this.__barBackgroundColor = new SynchedPropertyObjectOneWayPU(params.barBackgroundColor, this, "barBackgroundColor");
-        this.__index = new SynchedPropertyObjectOneWayPU(params.index, this, "index");
-        this.__barOverlap = new SynchedPropertySimpleOneWayPU(params.barOverlap, this, "barOverlap");
-        this.__layoutMode = new SynchedPropertySimpleOneWayPU(params.layoutMode, this, "layoutMode");
+        this.__tabBarOptionsArray = new SynchedPropertyObjectOneWayPU(params.tabBarOptionsArray, this, 'tabBarOptionsArray');
+        this.__tabBarPosition = new SynchedPropertySimpleOneWayPU(params.tabBarPosition, this, 'tabBarPosition');
+        this.__barBackgroundColor = new SynchedPropertyObjectOneWayPU(params.barBackgroundColor, this, 'barBackgroundColor');
+        this.__index = new SynchedPropertyObjectOneWayPU(params.index, this, 'index');
+        this.__barOverlap = new SynchedPropertySimpleOneWayPU(params.barOverlap, this, 'barOverlap');
+        this.__layoutMode = new SynchedPropertySimpleOneWayPU(params.layoutMode, this, 'layoutMode');
         this.controller = new TabsController();
         this.onChange = undefined;
         this.onTabBarClick = undefined;
         this.onContentWillChange = undefined;
-        this.__selectedIndex = new ObservedPropertySimplePU(0, this, "selectedIndex");
-        this.__barModeStatus = new ObservedPropertySimplePU(BarMode.Fixed, this, "barModeStatus");
-        this.__tabBarHeight = new ObservedPropertyObjectPU(undefined, this, "tabBarHeight");
+        this.__selectedIndex = new ObservedPropertySimplePU(0, this, 'selectedIndex');
+        this.__barModeStatus = new ObservedPropertySimplePU(BarMode.Fixed, this, 'arModeStatus');
+        this.__tabBarHeight = new ObservedPropertyObjectPU(undefined, this, 'tabBarHeight');
         this.isIconTextExist = false;
         this.setInitiallyProvidedValue(params);
-        this.declareWatch("tabBarPosition", this.barPositionChangeBySingleMode);
+        this.declareWatch('tabBarPosition', this.barPositionChangeBySingleMode);
         this.finalizeConstruction();
     }
     setInitiallyProvidedValue(params) {
@@ -340,8 +339,8 @@ export class TabBarOptions {
 
 export var TabBarPosition;
 (function (TabBarPosition) {
-    TabBarPosition[TabBarPosition["LEFT"] = 0] = "LEFT";
-    TabBarPosition[TabBarPosition["BOTTOM"] = 1] = "BOTTOM";
+    TabBarPosition[TabBarPosition['LEFT'] = 0] = 'LEFT';
+    TabBarPosition[TabBarPosition['BOTTOM'] = 1] = 'BOTTOM';
 })(TabBarPosition || (TabBarPosition = {}));
 
 export default { AtomicServiceTabs, TabBarOptions, TabBarPosition};
