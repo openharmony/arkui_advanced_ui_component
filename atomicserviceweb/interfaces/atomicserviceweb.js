@@ -356,9 +356,7 @@ export class AtomicServiceWeb extends ViewPU {
                 }
                 return n7;
             });
-            Web.onPermissionRequest((c10) => {
-                this.handleOnPermissionRequest(c10);
-            });
+            Web.onPermissionRequest((c10) => { this.handleOnPermissionRequest(c10); });
         }, Web);
     }
 
