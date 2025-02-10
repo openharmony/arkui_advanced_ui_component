@@ -205,12 +205,12 @@ export struct AtomicServiceNavigation {
         height, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
     let grad2 = context.createLinearGradient(this.navigationWidth * COLOR_RATIO_ONE_FIFTY_PERCENT, height,
       this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
-    grad1.addColorStop(0, this.ResourceColorToString(primaryColor));
-    grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.ResourceColorToString(primaryColor));
-    grad1.addColorStop(1, this.ResourceColorToString(secondaryColor));
-    grad2.addColorStop(0, this.ResourceColorToString(primaryColor));
-    grad2.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.ResourceColorToString(primaryColor));
-    grad2.addColorStop(1, this.ResourceColorToString(secondaryColor));
+    grad1.addColorStop(0, this.resourceColorToString(primaryColor));
+    grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.resourceColorToString(primaryColor));
+    grad1.addColorStop(1, this.resourceColorToString(secondaryColor));
+    grad2.addColorStop(0, this.resourceColorToString(primaryColor));
+    grad2.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.resourceColorToString(primaryColor));
+    grad2.addColorStop(1, this.resourceColorToString(secondaryColor));
     context.fillStyle = grad1;
     context.fillRect(0, 0, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, height);
     context.fillStyle = grad2;
@@ -227,9 +227,9 @@ export struct AtomicServiceNavigation {
     secondaryColor: ResourceColor): void {
     let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
     let grad1 = context.createLinearGradient(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, 0);
-    grad1.addColorStop(0, this.ResourceColorToString(primaryColor));
-    grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.ResourceColorToString(primaryColor));
-    grad1.addColorStop(1, this.ResourceColorToString(secondaryColor));
+    grad1.addColorStop(0, this.resourceColorToString(primaryColor));
+    grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.resourceColorToString(primaryColor));
+    grad1.addColorStop(1, this.resourceColorToString(secondaryColor));
     context.fillStyle = grad1;
     context.fillRect(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, height);
     let y1 = (COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
@@ -237,9 +237,9 @@ export struct AtomicServiceNavigation {
     let grad2 =
       context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y1, this.navigationWidth,
         height * COLOR_RATIO_FIFTY_PERCENT);
-    grad2.addColorStop(0, this.ResourceColorToString(secondaryColor));
-    grad2.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.ResourceColorToString(secondaryColor));
-    grad2.addColorStop(1, this.ResourceColorToString(primaryColor));
+    grad2.addColorStop(0, this.resourceColorToString(secondaryColor));
+    grad2.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.resourceColorToString(secondaryColor));
+    grad2.addColorStop(1, this.resourceColorToString(primaryColor));
     context.fillStyle = grad2;
     context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0,
       this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE,
@@ -249,9 +249,9 @@ export struct AtomicServiceNavigation {
     let grad3 =
       context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y2, this.navigationWidth,
         height * COLOR_RATIO_FIFTY_PERCENT);
-    grad3.addColorStop(0, this.ResourceColorToString(secondaryColor));
-    grad3.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.ResourceColorToString(secondaryColor));
-    grad3.addColorStop(1, this.ResourceColorToString(primaryColor));
+    grad3.addColorStop(0, this.resourceColorToString(secondaryColor));
+    grad3.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.resourceColorToString(secondaryColor));
+    grad3.addColorStop(1, this.resourceColorToString(primaryColor));
     context.fillStyle = grad3;
     context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE,
       height * COLOR_RATIO_FIFTY_PERCENT,
@@ -269,9 +269,9 @@ export struct AtomicServiceNavigation {
     secondaryColor: ResourceColor): void {
     let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
     let grad = context.createLinearGradient(0, 0, this.navigationWidth, height);
-    grad.addColorStop(0, this.ResourceColorToString(primaryColor));
-    grad.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.ResourceColorToString(primaryColor));
-    grad.addColorStop(1, this.ResourceColorToString(secondaryColor));
+    grad.addColorStop(0, this.resourceColorToString(primaryColor));
+    grad.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.resourceColorToString(primaryColor));
+    grad.addColorStop(1, this.resourceColorToString(secondaryColor));
     context.fillStyle = grad;
     context.fillRect(0, 0, this.navigationWidth, height);
   }
@@ -305,7 +305,7 @@ export struct AtomicServiceNavigation {
     primaryColor: ResourceColor, backgroundColor: string): void {
     let height = this.navigationHeight * COLOR_RATIO_SIXTY_PERCENT;
     let grad1 = context.createLinearGradient(0, 0, 0, height);
-    grad1.addColorStop(0, this.ResourceColorToString(primaryColor));
+    grad1.addColorStop(0, this.resourceColorToString(primaryColor));
     grad1.addColorStop(1, backgroundColor);
     context.fillStyle = grad1;
     context.fillRect(0, 0, this.navigationWidth, height);
@@ -321,7 +321,7 @@ export struct AtomicServiceNavigation {
    * @param resource ResourceColor = Color | number | string | Resource,对于Resource转化为直接使用的字符串需要特殊处理
    * @returns
    */
-  ResourceColorToString(resource: ResourceColor): string {
+  resourceColorToString(resource: ResourceColor): string {
     if (typeof resource === 'object') {
       try {
         return getContext(this).resourceManager.getStringSync(resource)
@@ -329,7 +329,7 @@ export struct AtomicServiceNavigation {
         let code = (error as BusinessError).code;
         let message = (error as BusinessError).message;
         hilog.error(0x0000, 'AtomicServiceNavigation',
-          `ResourceColorToString - systemResourceManager getStringValue failed, error code: ${code}, message: ${message}.`);
+          `resourceColorToString - systemResourceManager getStringValue failed, error code: ${code}, message: ${message}.`);
       }
       return '';
     } else {
