@@ -99,6 +99,11 @@ const TEL_PROTOCOL = 'tel:';
 const MAILTO_PROTOCOL = 'mailto:';
 const WANT_ACTION_SEND_TO_DATA = 'ohos.want.action.sendToData';
 const RESOURCE_RAWFILE = 'resource://rawfile';
+const TYPE_AS_WEB = 'ASWeb';
+const WEB_PERMISSIONS = {
+    'TYPE_VIDEO_CAPTURE': 'ohos.permission.CAMERA',
+    'TYPE_AUDIO_CAPTURE': 'ohos.permission.MICROPHONE'
+};
 const SYSTEM_INTERNAL_ERROR = new AsError(500, 'System internal error.');
 const JS_API_INVALID_INVOKE_ERROR = new AsError(200001, 'Invalid invoke.');
 const PARAM_REQUIRED_ERROR_CODE = 200002;
@@ -351,6 +356,7 @@ export class AtomicServiceWeb extends ViewPU {
                 }
                 return n7;
             });
+            Web.onPermissionRequest((c10) => { this.handleOnPermissionRequest(c10); });
         }, Web);
     }
 
@@ -525,6 +531,76 @@ export class AtomicServiceWeb extends ViewPU {
             });
         } catch (g8) {
             console.error(`AtomicServiceWeb openSendMail error, code: ${g8.code}, message: ${g8.message}`);
+        }
+    }
+
+    handleOnPermissionRequest(t8) {
+        if (this.checkPermissionRequest(t8)) {
+            t8.request.grant(t8.request.getAccessibleResource());
+        } else {
+            t8.request.deny();
+        }
+    }
+
+    checkPermissionRequest(o8) {
+        let p8 = o8.request.getAccessibleResource();
+        if (!p8 || p8.length <= 0) {
+            return false;
+        }
+        let q8 = this.getAppId();
+        if (!q8) {
+            console.error('AtomicServiceWeb checkPermissionRequest error, appId is invalid');
+            return false;
+        }
+        for (let r8 of p8) {
+            let s8 = WEB_PERMISSIONS[r8];
+            if (!s8) {
+                console.error('AtomicServiceWeb checkPermissionRequest error, permission is not support');
+                return false;
+            }
+            if (!this.isPermissionUserGranted(s8)) {
+                return false;
+            }
+            if (!this.isPermissionWhiteListAllow(q8, s8)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    isPermissionUserGranted(j8) {
+        try {
+            let l8 = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+            if (!l8?.appInfo?.accessTokenId) {
+                return false;
+            }
+            let m8 = l8.appInfo.accessTokenId;
+            let n8 = abilityAccessCtrl.createAtManager()
+                .checkAccessTokenSync(m8, j8);
+            if (n8 !== abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED) {
+                console.error(`AtomicServiceWeb isPermissionGranted permission ${j8} is not grant`);
+                return false;
+            }
+            return true;
+        } catch (k8) {
+            console.error(`AtomicServiceWeb isPermissionGranted error, code: ${k8.code}, message: ${k8.message}`);
+            return false;
+        }
+    }
+
+    isPermissionWhiteListAllow(f8, g8) {
+        if (!atomicBasicEngine || !atomicBasicEngine.default ||
+            typeof atomicBasicEngine.default.checkAtomicServiceAllow !== 'function') {
+            console.error('AtomicServiceWeb isPermissionRequestAllow error, checkAtomicServiceAllow is not available');
+            return false;
+        }
+        try {
+            let i8 = atomicBasicEngine.default.checkAtomicServiceAllow(f8, g8, TYPE_AS_WEB);
+            console.debug(`AtomicServiceWeb isPermissionRequestAllow ret=${i8} permission=${g8}`);
+            return i8;
+        } catch (h8) {
+            console.error(`AtomicServiceWeb isPermissionRequestAllow error, code: ${h8.code}, message: ${h8.message}`);
+            return false;
         }
     }
 
