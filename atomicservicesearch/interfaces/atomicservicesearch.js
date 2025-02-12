@@ -17,69 +17,53 @@ if (!("finalizeConstruction" in ViewPU.prototype)) {
     Reflect.set(ViewPU.prototype, "finalizeConstruction", () => { });
 }
 
-const OperationType = requireNapi('arkui.advanced.SubHeader');
 const LengthMetrics = requireNapi('arkui.node').LengthMetrics;
 
 const TEXT_SIZE_BODY1 = { "id": -1, "type": -1, params: [`sys.float.ohos_id_text_size_body1`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
-const TEXT_COLOR_SECONDARY = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_text_secondary`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
+const COLOR_TEXT_SECONDARY = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_text_secondary`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
 const ICON_COLOR_SECONDARY = { "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_secondary'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
-const TEXT_BOX_COLOR = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_text_field_sub_bg`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
+const ATOMIC_SERVICE_SEARCH_BG_COLOR = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_text_field_sub_bg`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
 const TEXT_COLOR_PRIMARY = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_text_primary`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
 const FUNCTION_ICON_COLOR = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_primary`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
 const EFFECT_COLOR = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_click_effect`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
-const FONT_WEIGHT_PRIMARY = 500;
-const FONT_WEIGHT_DEFAULT = 400;
-const FONT_SIZE = 16;
-const MENU_ALIGN_TYPE_START_X = 0;
-const MENU_ALIGN_TYPE_START_Y = 0;
-const SELECT_CONSTRAINT_SIZE_MIN_HEIGHT = 36;
-const SELECT_HEIGHT = 36;
+const ICON_SIZE = 16;
 const SELECT_PADDING_LEFT = 6;
 const SELECT_MARGIN_LEFT = 2;
-const SELECT_SPACE = 2;
-const DIVIDER_HEIGHT = 20;
+const FLEX_SHRINK = 0;
 const DIVIDER_OPACITY = 0.6;
 const DIVIDER_MARGIN_LEFT = 2;
 const DIVIDER_MARGIN_RIGHT = -2;
-const FUNCTION_ICON_WIDTH_HEIGHT = 24;
-const INDEPENDENT_FUNCTION_POSITION_OFFSET = 0;
-const FUNCTION_POSITION_OFFSET = 2;
-const INDEPENDENT_FUNCTION_WIDTH_HEIGHT = 40;
-const FUNCTION_WIDTH_HEIGHT = 36;
-const FLEX_SHRINK = 0;
-const INDEPENDENT_FUNCTION_MARGIN = 0;
-const FUNCTION_MARGIN_LEFT = 8;
-const FUNCTION_MARGIN_RIGHT = 0;
-const BORDER_RADIUS = 20;
-const SEARCH_HEIGHT = 40;
-
+const ATOMIC_SERVICE_SEARCH_HEIGHT = 40;
+const ATMOIC_SELECT_HEIGHT = 36;
+const ATOMIC_SELECT_BORDER_RADIUS = 20;
+const ATOMIC_DIVIDER_HEIGHT = 20;
+const ICON_WIDTH_AND_HEIGTH = 24;
+const OPERATION_ITEM1_MARGIN_RIGHT = 2;
+const OPERATION_ITEM2_MARGIN_LEFT = 8;
 export class AtomicServiceSearch extends ViewPU {
-
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
         super(parent, __localStorage, elmtId, extraInfo);
-        if (typeof paramsLambda === 'function') {
+        if (typeof paramsLambda === "function") {
             this.paramsGenerator_ = paramsLambda;
         }
-        this.__changeValue = new SynchedPropertySimpleOneWayPU(params.changeValue, this, 'changeValue');
-        this.__isFunction1Pressed = new ObservedPropertySimplePU(false, this, 'isFunction1Pressed');
-        this.__isFunction2Pressed = new ObservedPropertySimplePU(false, this, 'isFunction2Pressed');
-        this.__isSearchPressed = new ObservedPropertySimplePU(false, this, 'isSearchPressed');
-        this.__showImage = new ObservedPropertySimplePU(true, this, 'showImage');
-        this.__hint = new SynchedPropertyObjectOneWayPU(params.hint, this, 'hint');
-        this.__operationType = new SynchedPropertySimpleOneWayPU(params.operationType, this, 'operationType');
+        this.__isFunction1Pressed = new ObservedPropertySimplePU(false, this, "isFunction1Pressed");
+        this.__isFunction2Pressed = new ObservedPropertySimplePU(false, this, "isFunction2Pressed");
+        this.__isSearchPressed = new ObservedPropertySimplePU(false, this, "isSearchPressed");
+        this.__showImage = new ObservedPropertySimplePU(true, this, "showImage");
+        this.__value = new SynchedPropertySimpleOneWayPU(params.value, this, "value");
+        this.__placeholder = new SynchedPropertyObjectOneWayPU(params.placeholder, this, "placeholder");
         this.controller = new SearchController();
-        this.operationItem = undefined;
-        this.select = undefined;
-        this.onSearch = undefined;
+        this.selectItems = undefined;
+        this.__selectStyle = new SynchedPropertyObjectOneWayPU(params.selectStyle, this, "selectStyle");
+        this.searchEvents = undefined;
+        this.__searchStyle = new SynchedPropertyObjectOneWayPU(params.searchStyle, this, "searchStyle");
+        this.operationItem1 = undefined;
+        this.operationItem2 = undefined;
         this.setInitiallyProvidedValue(params);
-        this.declareWatch('changeValue', this.onParamsChange);
+        this.declareWatch("value", this.onParamsChange);
         this.finalizeConstruction();
     }
-    
     setInitiallyProvidedValue(params) {
-        if (params.changeValue === undefined) {
-            this.__changeValue.set('');
-        }
         if (params.isFunction1Pressed !== undefined) {
             this.isFunction1Pressed = params.isFunction1Pressed;
         }
@@ -92,139 +76,307 @@ export class AtomicServiceSearch extends ViewPU {
         if (params.showImage !== undefined) {
             this.showImage = params.showImage;
         }
-        if (params.hint === undefined) {
-            this.__hint.set('Search');
+        if (params.value === undefined) {
+            this.__value.set('');
         }
-        if (params.operationType === undefined) {
-            this.__operationType.set(OperationType.BUTTON);
+        if (params.placeholder === undefined) {
+            this.__placeholder.set('Search');
         }
         if (params.controller !== undefined) {
             this.controller = params.controller;
         }
-        if (params.operationItem !== undefined) {
-            this.operationItem = params.operationItem;
+        if (params.selectItems !== undefined) {
+            this.selectItems = params.selectItems;
         }
-        if (params.select !== undefined) {
-            this.select = params.select;
+        if (params.selectStyle === undefined) {
+            this.__selectStyle.set({
+                font: {
+                    size: TEXT_SIZE_BODY1,
+                },
+                fontColor: TEXT_COLOR_PRIMARY
+            });
         }
-        if (params.onSearch !== undefined) {
-            this.onSearch = params.onSearch;
+        if (params.searchEvents !== undefined) {
+            this.searchEvents = params.searchEvents;
+        }
+        if (params.searchStyle === undefined) {
+            this.__searchStyle.set({
+                componentBackgroundColor: ATOMIC_SERVICE_SEARCH_BG_COLOR,
+                placeholderFont: {
+                    size: TEXT_SIZE_BODY1,
+                },
+                placeholderColor: COLOR_TEXT_SECONDARY,
+                textFont: {
+                    size: TEXT_SIZE_BODY1,
+                },
+                fontColor: COLOR_TEXT_SECONDARY,
+                searchIcon: {
+                    size: ICON_SIZE,
+                    color: ICON_COLOR_SECONDARY,
+                },
+                pressBackgroundColor: EFFECT_COLOR
+            });
+        }
+        if (params.operationItem1 !== undefined) {
+            this.operationItem1 = params.operationItem1;
+        }
+        if (params.operationItem2 !== undefined) {
+            this.operationItem2 = params.operationItem2;
         }
     }
-
     updateStateVars(params) {
-        this.__changeValue.reset(params.changeValue);
-        this.__hint.reset(params.hint);
-        this.__operationType.reset(params.operationType);
+        this.__value.reset(params.value);
+        this.__placeholder.reset(params.placeholder);
+        this.__selectStyle.reset(params.selectStyle);
+        this.__searchStyle.reset(params.searchStyle);
     }
-
     purgeVariableDependenciesOnElmtId(rmElmtId) {
-        this.__changeValue.purgeDependencyOnElmtId(rmElmtId);
         this.__isFunction1Pressed.purgeDependencyOnElmtId(rmElmtId);
         this.__isFunction2Pressed.purgeDependencyOnElmtId(rmElmtId);
         this.__isSearchPressed.purgeDependencyOnElmtId(rmElmtId);
         this.__showImage.purgeDependencyOnElmtId(rmElmtId);
-        this.__hint.purgeDependencyOnElmtId(rmElmtId);
-        this.__operationType.purgeDependencyOnElmtId(rmElmtId);
+        this.__value.purgeDependencyOnElmtId(rmElmtId);
+        this.__placeholder.purgeDependencyOnElmtId(rmElmtId);
+        this.__selectStyle.purgeDependencyOnElmtId(rmElmtId);
+        this.__searchStyle.purgeDependencyOnElmtId(rmElmtId);
     }
-
     aboutToBeDeleted() {
-        this.__changeValue.aboutToBeDeleted();
         this.__isFunction1Pressed.aboutToBeDeleted();
         this.__isFunction2Pressed.aboutToBeDeleted();
         this.__isSearchPressed.aboutToBeDeleted();
         this.__showImage.aboutToBeDeleted();
-        this.__hint.aboutToBeDeleted();
-        this.__operationType.aboutToBeDeleted();
+        this.__value.aboutToBeDeleted();
+        this.__placeholder.aboutToBeDeleted();
+        this.__selectStyle.aboutToBeDeleted();
+        this.__searchStyle.aboutToBeDeleted();
         SubscriberManager.Get().delete(this.id__());
         this.aboutToBeDeletedInternal();
     }
-
-    get changeValue() {
-        return this.__changeValue.get();
-    }
-
-    set changeValue(newValue) {
-        this.__changeValue.set(newValue);
-    }
-
     get isFunction1Pressed() {
         return this.__isFunction1Pressed.get();
     }
-
     set isFunction1Pressed(newValue) {
         this.__isFunction1Pressed.set(newValue);
     }
-
     get isFunction2Pressed() {
         return this.__isFunction2Pressed.get();
     }
-
     set isFunction2Pressed(newValue) {
         this.__isFunction2Pressed.set(newValue);
     }
-
     get isSearchPressed() {
         return this.__isSearchPressed.get();
     }
-
     set isSearchPressed(newValue) {
         this.__isSearchPressed.set(newValue);
     }
-
     get showImage() {
         return this.__showImage.get();
     }
-
     set showImage(newValue) {
         this.__showImage.set(newValue);
     }
-
-    get hint() {
-        return this.__hint.get();
+    get value() {
+        return this.__value.get();
     }
-
-    set hint(newValue) {
-        this.__hint.set(newValue);
+    set value(newValue) {
+        this.__value.set(newValue);
     }
-
-    get operationType() {
-        return this.__operationType.get();
+    get placeholder() {
+        return this.__placeholder.get();
     }
-
-    set operationType(newValue) {
-        this.__operationType.set(newValue);
+    set placeholder(newValue) {
+        this.__placeholder.set(newValue);
     }
-
+    get selectStyle() {
+        return this.__selectStyle.get();
+    }
+    set selectStyle(newValue) {
+        this.__selectStyle.set(newValue);
+    }
+    get searchStyle() {
+        return this.__searchStyle.get();
+    }
+    set searchStyle(newValue) {
+        this.__searchStyle.set(newValue);
+    }
+    aboutToAppear() {
+        this.showImage = this.value.length === 0 ? true : false;
+        this.initSelectStyle();
+        this.initSearchStyle();
+    }
+    initSelectStyle() {
+        if (typeof this.selectStyle !== 'undefined') {
+            if (typeof this.selectStyle.font === 'undefined') {
+                this.selectStyle.font = { size: TEXT_SIZE_BODY1 };
+            }
+            if (typeof this.selectStyle.fontColor !== 'undefined') {
+                this.selectStyle.fontColor = TEXT_COLOR_PRIMARY;
+            }
+        }
+    }
+    initSearchStyle() {
+        if (typeof this.searchStyle !== 'undefined') {
+            if (typeof this.searchStyle.componentBackgroundColor === 'undefined') {
+                this.searchStyle.componentBackgroundColor = ATOMIC_SERVICE_SEARCH_BG_COLOR;
+            }
+            if (typeof this.searchStyle.placeholderFont === 'undefined') {
+                this.searchStyle.placeholderFont = { size: TEXT_SIZE_BODY1 };
+            }
+            if (typeof this.searchStyle.placeholderColor === 'undefined') {
+                this.searchStyle.placeholderColor = COLOR_TEXT_SECONDARY;
+            }
+            if (typeof this.searchStyle.textFont === 'undefined') {
+                this.searchStyle.textFont = { size: TEXT_SIZE_BODY1 };
+            }
+            if (typeof this.searchStyle.fontColor === 'undefined') {
+                this.searchStyle.fontColor = COLOR_TEXT_SECONDARY;
+            }
+            if (typeof this.searchStyle.searchIcon === 'undefined') {
+                this.searchStyle.searchIcon = {
+                    size: ICON_SIZE,
+                    color: ICON_COLOR_SECONDARY,
+                };
+            }
+            if (typeof this.searchStyle.pressBackgroundColor === 'undefined') {
+                this.searchStyle.pressBackgroundColor = EFFECT_COLOR;
+            }
+        }
+    }
     onParamsChange() {
-        this.showImage = this.changeValue.length === 0 ? true : false;
+        this.showImage = this.value.length === 0 ? true : false;
     }
-
+    renderSelect(parent = null) {
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            If.create();
+            if (typeof this.selectItems !== 'undefined' && this.selectItems.options.length !== 0) {
+                this.ifElseBranchUpdateFunction(0, () => {
+                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                        Row.create();
+                        Row.flexShrink(FLEX_SHRINK);
+                    }, Row);
+                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                        Select.create(this.selectItems?.options);
+                        Select.value(this.selectItems?.value);
+                        Select.selected(this.selectItems?.selected);
+                        Select.onSelect(this.selectItems?.onSelect);
+                        Select.controlSize(this.selectStyle?.controlSize);
+                        Select.menuItemContentModifier.bind(this)(this.selectStyle?.menuItemContentModifier);
+                        Select.divider(this.selectStyle?.divider);
+                        Select.font(this.selectStyle?.font);
+                        Select.fontColor(this.selectStyle?.fontColor);
+                        Select.selectedOptionBgColor(this.selectStyle?.selectedOptionBgColor);
+                        Select.selectedOptionFont(this.selectStyle?.selectedOptionFont);
+                        Select.selectedOptionFontColor(this.selectStyle?.selectedOptionFontColor);
+                        Select.optionBgColor(this.selectStyle?.optionBgColor);
+                        Select.optionFont(this.selectStyle?.optionFont);
+                        Select.optionFontColor(this.selectStyle?.optionFontColor);
+                        Select.space(this.selectStyle?.space);
+                        Select.arrowPosition(this.selectStyle?.arrowPosition);
+                        Select.menuAlign(this.selectStyle?.menuAlign?.alignType, this.selectStyle?.menuAlign?.offset);
+                        Select.optionWidth(this.selectStyle?.optionWidth);
+                        Select.optionHeight(this.selectStyle?.optionHeight);
+                        Select.menuBackgroundColor(this.selectStyle?.menuBackgroundColor);
+                        Select.menuBackgroundBlurStyle(this.selectStyle?.menuBackgroundBlurStyle);
+                        Select.height(ATMOIC_SELECT_HEIGHT);
+                        Select.borderRadius(ATOMIC_SELECT_BORDER_RADIUS);
+                        Select.constraintSize({ minHeight: ATMOIC_SELECT_HEIGHT });
+                        Select.padding({ start: LengthMetrics.vp(SELECT_PADDING_LEFT) });
+                        Select.margin({ start: LengthMetrics.vp(SELECT_MARGIN_LEFT) });
+                        Select.backgroundColor(Color.Transparent);
+                    }, Select);
+                    Select.pop();
+                    Row.pop();
+                });
+            }
+            else {
+                this.ifElseBranchUpdateFunction(1, () => {
+                });
+            }
+        }, If);
+        If.pop();
+    }
+    renderDivider(parent = null) {
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            If.create();
+            if (typeof this.selectItems !== 'undefined' && this.selectItems.options.length !== 0) {
+                this.ifElseBranchUpdateFunction(0, () => {
+                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                        Divider.create();
+                        Divider.vertical(true);
+                        Divider.color(Color.Black);
+                        Divider.height(ATOMIC_DIVIDER_HEIGHT);
+                        Divider.opacity(DIVIDER_OPACITY);
+                        Divider.margin({
+                            start: LengthMetrics.vp(DIVIDER_MARGIN_LEFT),
+                            end: LengthMetrics.vp(DIVIDER_MARGIN_RIGHT)
+                        });
+                    }, Divider);
+                });
+            }
+            else {
+                this.ifElseBranchUpdateFunction(1, () => {
+                });
+            }
+        }, If);
+        If.pop();
+    }
     renderSearch(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Search.create({ value: this.changeValue, placeholder: this.hint, controller: this.controller });
-            Search.backgroundColor(Color.Transparent);
-            Search.placeholderFont({ size: TEXT_SIZE_BODY1, weight: FONT_WEIGHT_DEFAULT });
-            Search.textFont({ size: TEXT_SIZE_BODY1, weight: FONT_WEIGHT_DEFAULT });
-            Search.fontColor(TEXT_COLOR_SECONDARY);
-            Search.searchIcon({ color: ICON_COLOR_SECONDARY });
-            Search.onSubmit(this.onSearch?.onSubmit);
-            Search.onChange((value, previewText) => {
-                if (typeof this.onSearch?.onChange !== 'undefined') {
-                    this.onSearch?.onChange(value, previewText);
-                }
-                this.changeValue = value;
+            Search.create({
+                value: this.value,
+                placeholder: this.placeholder,
+                controller: this.controller
             });
-            Search.onCopy(this.onSearch?.onCopy);
-            Search.onCut(this.onSearch?.onCut);
-            Search.onPaste(this.onSearch?.onPaste);
-            Search.onTextSelectionChange(this.onSearch?.onTextSelectionChange);
-            Search.onContentScroll(this.onSearch?.onContentScroll);
-            Search.onEditChange(this.onSearch?.onEditChange);
-            Search.onWillInsert(this.onSearch?.onWillInsert);
-            Search.onDidInsert(this.onSearch?.onDidInsert);
-            Search.onWillDelete(this.onSearch?.onWillDelete);
-            Search.onDidDelete(this.onSearch?.onDidDelete);
+            Search.backgroundColor(Color.Transparent);
+            Search.searchButton(this.searchStyle?.searchButton?.value, this.searchStyle?.searchButton?.option);
+            Search.placeholderColor(this.searchStyle?.placeholderColor);
+            Search.placeholderFont(this.searchStyle?.placeholderFont);
+            Search.textFont(this.searchStyle?.textFont);
+            Search.textAlign(this.searchStyle?.textAlign);
+            Search.copyOption(this.searchStyle?.copyOption);
+            Search.searchIcon(this.searchStyle?.searchIcon);
+            Search.cancelButton({ icon: this.searchStyle?.cancelIcon });
+            Search.fontColor(this.searchStyle?.fontColor);
+            Search.caretStyle(this.searchStyle?.caretStyle);
+            Search.enableKeyboardOnFocus(this.searchStyle?.enableKeyboardOnFocus);
+            Search.selectionMenuHidden(this.searchStyle?.selectionMenuHidden);
+            Search.customKeyboard(null, { supportAvoidance: this.searchStyle?.keyboardAvoidance });
+            Search.type(this.searchStyle?.type);
+            Search.maxLength(this.searchStyle?.maxLength);
+            Search.enterKeyType(this.searchStyle?.enterKeyType);
+            Search.decoration(this.searchStyle?.decoration);
+            Search.letterSpacing(this.searchStyle?.letterSpacing);
+            Search.fontFeature(this.searchStyle?.fontFeature);
+            Search.selectedBackgroundColor(this.searchStyle?.selectedBackgroundColor);
+            Search.inputFilter(this.searchStyle?.inputFilter?.value, this.searchStyle?.inputFilter?.error);
+            Search.textIndent(this.searchStyle?.textIndent);
+            Search.minFontSize(this.searchStyle?.minFontSize);
+            Search.maxFontSize(this.searchStyle?.maxFontSize);
+            Search.editMenuOptions(this.searchStyle?.editMenuOptions);
+            Search.enablePreviewText(this.searchStyle?.enablePreviewText);
+            Search.enableHapticFeedback(this.searchStyle?.enableHapticFeedback);
+            Search.placeholderFont(this.searchStyle?.placeholderFont);
+            Search.textFont(this.searchStyle?.textFont);
+            Search.searchIcon(this.searchStyle?.searchIcon);
+            Search.fontColor(this.searchStyle?.fontColor);
+            Search.onCut(this.searchEvents?.onCut);
+            Search.onCopy(this.searchEvents?.onCopy);
+            Search.onPaste(this.searchEvents?.onPaste);
+            Search.onSubmit(this.searchEvents?.onSubmit);
+            Search.onDidInsert(this.searchEvents?.onDidInsert);
+            Search.onDidDelete(this.searchEvents?.onDidDelete);
+            Search.onEditChange(this.searchEvents?.onEditChange);
+            Search.onWillInsert(this.searchEvents?.onWillInsert);
+            Search.onWillDelete(this.searchEvents?.onWillDelete);
+            Search.onContentScroll(this.searchEvents?.onContentScroll);
+            Search.onTextSelectionChange(this.searchEvents?.onTextSelectionChange);
+            Search.onChange((value, previewText) => {
+                if (typeof this.searchEvents?.onChange !== 'undefined') {
+                    this.searchEvents?.onChange(value, previewText);
+                }
+                this.value = value;
+            });
             Search.onTouch((event) => {
                 if (event && event.type === TouchType.Down) {
                     this.isSearchPressed = true;
@@ -236,36 +388,38 @@ export class AtomicServiceSearch extends ViewPU {
         }, Search);
         Search.pop();
     }
-
-    renderSelect(parent = null) {
+    renderOperationItem1(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
-            if (typeof this.select !== 'undefined' && this.select.options.length !== 0) {
+            if (typeof this.operationItem1 !== 'undefined' && this.showImage) {
                 this.ifElseBranchUpdateFunction(0, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Row.create();
+                        Row.onClick(this.operationItem1?.action);
                         Row.flexShrink(FLEX_SHRINK);
+                        Row.borderRadius(ATOMIC_SELECT_BORDER_RADIUS);
+                        Row.alignItems(VerticalAlign.Center);
+                        Row.justifyContent(FlexAlign.Center);
+                        Row.width(ATMOIC_SELECT_HEIGHT);
+                        Row.height(ATMOIC_SELECT_HEIGHT);
+                        Row.margin({ right: OPERATION_ITEM1_MARGIN_RIGHT });
+                        Row.backgroundColor(this.isFunction1Pressed ? this.searchStyle?.pressBackgroundColor : Color.Transparent);
+                        Row.onTouch((event) => {
+                            if (event && event.type === TouchType.Down) {
+                                this.isFunction1Pressed = true;
+                            }
+                            else if (event && event.type === TouchType.Up) {
+                                this.isFunction1Pressed = false;
+                            }
+                        });
                     }, Row);
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        Select.create(this.select?.options);
-                        Select.value(this.select?.value);
-                        Select.selected(this.select?.selected);
-                        Select.onSelect(this.select?.onSelect);
-                        Select.font({ size: TEXT_SIZE_BODY1, weight: FONT_WEIGHT_PRIMARY });
-                        Select.fontColor(TEXT_COLOR_PRIMARY);
-                        Select.selectedOptionFont({ size: FONT_SIZE, weight: FONT_WEIGHT_DEFAULT });
-                        Select.menuAlign(MenuAlignType.START, { dx: MENU_ALIGN_TYPE_START_X, dy: MENU_ALIGN_TYPE_START_Y });
-                        Select.optionFont({ size: FONT_SIZE, weight: FONT_WEIGHT_DEFAULT });
-                        Select.backgroundColor(Color.Transparent);
-                        Select.arrowPosition(ArrowPosition.END);
-                        Select.constraintSize({ minHeight: SELECT_CONSTRAINT_SIZE_MIN_HEIGHT });
-                        Select.padding({ start: LengthMetrics.vp(SELECT_PADDING_LEFT) });
-                        Select.margin({ start: LengthMetrics.vp(SELECT_MARGIN_LEFT) });
-                        Select.height(SELECT_HEIGHT);
-                        Select.space(SELECT_SPACE);
-                    }, Select);
-                    Select.pop();
-                    this.renderDivider.bind(this)();
+                        Image.create(this.operationItem1?.value);
+                        Image.objectFit(ImageFit.Contain);
+                        Image.fillColor(FUNCTION_ICON_COLOR);
+                        Image.width(ICON_WIDTH_AND_HEIGTH);
+                        Image.height(ICON_WIDTH_AND_HEIGTH);
+                    }, Image);
                     Row.pop();
                 });
             }
@@ -276,79 +430,53 @@ export class AtomicServiceSearch extends ViewPU {
         }, If);
         If.pop();
     }
-
-    renderDivider(parent = null) {
+    renderOperationItem2(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Divider.create();
-            Divider.vertical(true);
-            Divider.height(DIVIDER_HEIGHT);
-            Divider.color(Color.Black);
-            Divider.opacity(DIVIDER_OPACITY);
-            Divider.margin({
-                start: LengthMetrics.vp(DIVIDER_MARGIN_LEFT),
-                end: LengthMetrics.vp(DIVIDER_MARGIN_RIGHT)
-            });
-        }, Divider);
-    }
-
-    renderFunction(item, independentOrNot, parent = null) {
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Row.create();
-            Row.position(independentOrNot ?
-                {
-                    top: LengthMetrics.vp(INDEPENDENT_FUNCTION_POSITION_OFFSET),
-                    end: LengthMetrics.vp(INDEPENDENT_FUNCTION_POSITION_OFFSET)
-                } :
-                { top: LengthMetrics.vp(FUNCTION_POSITION_OFFSET), end: LengthMetrics.vp(FUNCTION_POSITION_OFFSET) });
-            Row.width(independentOrNot ? INDEPENDENT_FUNCTION_WIDTH_HEIGHT : FUNCTION_WIDTH_HEIGHT);
-            Row.height(independentOrNot ? INDEPENDENT_FUNCTION_WIDTH_HEIGHT : FUNCTION_WIDTH_HEIGHT);
-            Row.flexShrink(FLEX_SHRINK);
-            Row.borderRadius(BORDER_RADIUS);
-            Row.onClick(item.action);
-            Row.alignItems(VerticalAlign.Center);
-            Row.justifyContent(FlexAlign.Center);
-            Row.margin(independentOrNot ?
-                {
-                    start: LengthMetrics.vp(INDEPENDENT_FUNCTION_MARGIN),
-                } :
-                {
-                    start: LengthMetrics.vp(FUNCTION_MARGIN_LEFT),
-                    end: LengthMetrics.vp(FUNCTION_MARGIN_RIGHT)
+            If.create();
+            if (typeof this.operationItem2 !== 'undefined') {
+                this.ifElseBranchUpdateFunction(0, () => {
+                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                        Row.create();
+                        Row.onClick(this.operationItem2?.action);
+                        Row.flexShrink(FLEX_SHRINK);
+                        Row.borderRadius(ATOMIC_SELECT_BORDER_RADIUS);
+                        Row.alignItems(VerticalAlign.Center);
+                        Row.justifyContent(FlexAlign.Center);
+                        Row.width(ATOMIC_SERVICE_SEARCH_HEIGHT);
+                        Row.height(ATOMIC_SERVICE_SEARCH_HEIGHT);
+                        Row.margin(OPERATION_ITEM2_MARGIN_LEFT);
+                        Row.backgroundColor(this.isFunction2Pressed ? this.searchStyle?.pressBackgroundColor :
+                            this.searchStyle?.componentBackgroundColor);
+                        Row.onTouch((event) => {
+                            if (event && event.type === TouchType.Down) {
+                                this.isFunction2Pressed = true;
+                            }
+                            else if (event && event.type === TouchType.Up) {
+                                this.isFunction2Pressed = false;
+                            }
+                        });
+                    }, Row);
+                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                        Image.create(this.operationItem2?.value);
+                        Image.objectFit(ImageFit.Contain);
+                        Image.fillColor(FUNCTION_ICON_COLOR);
+                        Image.width(ICON_WIDTH_AND_HEIGTH);
+                        Image.height(ICON_WIDTH_AND_HEIGTH);
+                    }, Image);
+                    Row.pop();
                 });
-            Row.backgroundColor(independentOrNot ?
-                (this.isFunction2Pressed ? EFFECT_COLOR : Color.Transparent) :
-                (this.isFunction1Pressed ? EFFECT_COLOR : Color.Transparent));
-            Row.onTouch((event) => {
-                if (event && event.type === TouchType.Down) {
-                    if (independentOrNot) {
-                        this.isFunction2Pressed = true;
-                    }
-                    else {
-                        this.isFunction1Pressed = true;
-                    }
-                }
-                else if (event && event.type === TouchType.Up) {
-                    if (independentOrNot) {
-                        this.isFunction2Pressed = false;
-                    }
-                    else {
-                        this.isFunction1Pressed = false;
-                    }
-                }
-            });
-        }, Row);
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Image.create(item.value);
-            Image.width(FUNCTION_ICON_WIDTH_HEIGHT);
-            Image.height(FUNCTION_ICON_WIDTH_HEIGHT);
-            Image.fillColor(FUNCTION_ICON_COLOR);
-            Image.objectFit(ImageFit.Contain);
-        }, Image);
-        Row.pop();
+            }
+            else {
+                this.ifElseBranchUpdateFunction(1, () => {
+                });
+            }
+        }, If);
+        If.pop();
     }
     initialRender() {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Row.create();
+            Row.height(ATOMIC_SERVICE_SEARCH_HEIGHT);
         }, Row);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Flex.create({
@@ -356,95 +484,43 @@ export class AtomicServiceSearch extends ViewPU {
                 alignItems: ItemAlign.Center,
                 justifyContent: FlexAlign.Start
             });
-            Flex.height(SEARCH_HEIGHT);
-            Flex.borderRadius(BORDER_RADIUS);
-            Flex.backgroundColor((typeof this.operationItem !== 'undefined' && this.operationItem?.length >= 2) ?
-                Color.Transparent : (this.isSearchPressed ? EFFECT_COLOR : TEXT_BOX_COLOR));
         }, Flex);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
+            Stack.create();
+            Stack.alignContent(Alignment.End);
+            Stack.borderRadius(ATOMIC_SELECT_BORDER_RADIUS);
+            Stack.backgroundColor(this.isSearchPressed ?
+                this.searchStyle?.pressBackgroundColor : this.searchStyle?.componentBackgroundColor);
+        }, Stack);
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            Flex.create({
+                direction: FlexDirection.Row,
+                alignItems: ItemAlign.Center,
+                justifyContent: FlexAlign.Start
+            });
+        }, Flex);
+        this.renderSelect.bind(this)();
+        this.renderDivider.bind(this)();
+        this.renderSearch.bind(this)();
+        Flex.pop();
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
-            if (typeof this.operationItem === 'undefined' || this.operationItem?.length === 0) {
+            if (typeof this.searchStyle?.searchButton === 'undefined') {
                 this.ifElseBranchUpdateFunction(0, () => {
-                    this.renderSelect.bind(this)();
-                    this.renderSearch.bind(this)();
-                });
-            } else if (this.operationItem?.length === 1) {
-                this.ifElseBranchUpdateFunction(1, () => {
-                    this.renderSelect.bind(this)();
-                    this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        Stack.create();
-                    }, Stack);
-                    this.renderSearch.bind(this)();
-                    this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        If.create();
-                        if (this.showImage) {
-                            this.ifElseBranchUpdateFunction(0, () => {
-                                this.renderFunction.bind(this)(this.operationItem[0], false);
-                            });
-                        }
-                        else {
-                            this.ifElseBranchUpdateFunction(1, () => {
-                            });
-                        }
-                    }, If);
-                    If.pop();
-                    Stack.pop();
-                });
-            } else if (this.operationItem?.length >= 2) {
-                this.ifElseBranchUpdateFunction(2, () => {
-                    this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        Flex.create({
-                            direction: FlexDirection.Row,
-                            alignItems: ItemAlign.Center,
-                            justifyContent: FlexAlign.SpaceBetween
-                        });
-                        Flex.height(SEARCH_HEIGHT);
-                        Flex.borderRadius(BORDER_RADIUS);
-                        Flex.backgroundColor(this.isSearchPressed ? EFFECT_COLOR : TEXT_BOX_COLOR);
-                    }, Flex);
-                    this.renderSelect.bind(this)();
-                    this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        Stack.create();
-                    }, Stack);
-                    this.renderSearch.bind(this)();
-                    this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        If.create();
-                        if (this.showImage) {
-                            this.ifElseBranchUpdateFunction(0, () => {
-                                this.renderFunction.bind(this)(this.operationItem[0], false);
-                            });
-                        }
-                        else {
-                            this.ifElseBranchUpdateFunction(1, () => {
-                            });
-                        }
-                    }, If);
-                    If.pop();
-                    Stack.pop();
-                    Flex.pop();
-                    this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        Row.create();
-                        Row.width(INDEPENDENT_FUNCTION_WIDTH_HEIGHT);
-                        Row.height(INDEPENDENT_FUNCTION_WIDTH_HEIGHT);
-                        Row.flexShrink(FLEX_SHRINK);
-                        Row.borderRadius(BORDER_RADIUS);
-                        Row.margin({ start: LengthMetrics.vp(FUNCTION_MARGIN_LEFT) });
-                        Row.backgroundColor(TEXT_BOX_COLOR);
-                    }, Row);
-                    this.renderFunction.bind(this)(this.operationItem[1], true);
-                    Row.pop();
+                    this.renderOperationItem1.bind(this)();
                 });
             }
             else {
-                this.ifElseBranchUpdateFunction(3, () => {
+                this.ifElseBranchUpdateFunction(1, () => {
                 });
             }
         }, If);
         If.pop();
+        Stack.pop();
+        this.renderOperationItem2.bind(this)();
         Flex.pop();
         Row.pop();
     }
-
     rerender() {
         this.updateDirtyElements();
     }
