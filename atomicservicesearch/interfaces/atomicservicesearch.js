@@ -13,19 +13,19 @@
  * limitations under the License.
  */
 
-if (!("finalizeConstruction" in ViewPU.prototype)) {
-    Reflect.set(ViewPU.prototype, "finalizeConstruction", () => { });
+if (!('finalizeConstruction' in ViewPU.prototype)) {
+    Reflect.set(ViewPU.prototype, 'finalizeConstruction', () => { });
 }
 
 const LengthMetrics = requireNapi('arkui.node').LengthMetrics;
 
-const TEXT_SIZE_BODY1 = { "id": -1, "type": -1, params: [`sys.float.ohos_id_text_size_body1`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
-const COLOR_TEXT_SECONDARY = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_text_secondary`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
-const ICON_COLOR_SECONDARY = { "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_secondary'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
-const ATOMIC_SERVICE_SEARCH_BG_COLOR = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_text_field_sub_bg`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
-const TEXT_COLOR_PRIMARY = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_text_primary`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
-const FUNCTION_ICON_COLOR = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_primary`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
-const EFFECT_COLOR = { "id": -1, "type": -1, params: [`sys.color.ohos_id_color_click_effect`], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" };
+const TEXT_SIZE_BODY1 = { 'id': -1, 'type': -1, params: [`sys.float.ohos_id_text_size_body1`], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
+const COLOR_TEXT_SECONDARY = { 'id': -1, 'type': -1, params: [`sys.color.ohos_id_color_text_secondary`], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
+const ICON_COLOR_SECONDARY = { 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_secondary'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
+const ATOMIC_SERVICE_SEARCH_BG_COLOR = { 'id': -1, 'type': -1, params: [`sys.color.ohos_id_color_text_field_sub_bg`], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
+const TEXT_COLOR_PRIMARY = { 'id': -1, 'type': -1, params: [`sys.color.ohos_id_color_text_primary`], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
+const FUNCTION_ICON_COLOR = { 'id': -1, 'type': -1, params: [`sys.color.ohos_id_color_primary`], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
+const EFFECT_COLOR = { 'id': -1, 'type': -1, params: [`sys.color.ohos_id_color_click_effect`], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
 const ICON_SIZE = 16;
 const SELECT_PADDING_LEFT = 6;
 const SELECT_MARGIN_LEFT = 2;
@@ -40,29 +40,32 @@ const ATOMIC_DIVIDER_HEIGHT = 20;
 const ICON_WIDTH_AND_HEIGTH = 24;
 const OPERATION_ITEM1_MARGIN_RIGHT = 2;
 const OPERATION_ITEM2_MARGIN_LEFT = 8;
+
 export class AtomicServiceSearch extends ViewPU {
+
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
         super(parent, __localStorage, elmtId, extraInfo);
-        if (typeof paramsLambda === "function") {
+        if (typeof paramsLambda === 'function') {
             this.paramsGenerator_ = paramsLambda;
         }
-        this.__isFunction1Pressed = new ObservedPropertySimplePU(false, this, "isFunction1Pressed");
-        this.__isFunction2Pressed = new ObservedPropertySimplePU(false, this, "isFunction2Pressed");
-        this.__isSearchPressed = new ObservedPropertySimplePU(false, this, "isSearchPressed");
-        this.__showImage = new ObservedPropertySimplePU(true, this, "showImage");
-        this.__value = new SynchedPropertySimpleOneWayPU(params.value, this, "value");
-        this.__placeholder = new SynchedPropertyObjectOneWayPU(params.placeholder, this, "placeholder");
+        this.__isFunction1Pressed = new ObservedPropertySimplePU(false, this, 'isFunction1Pressed');
+        this.__isFunction2Pressed = new ObservedPropertySimplePU(false, this, 'isFunction2Pressed');
+        this.__isSearchPressed = new ObservedPropertySimplePU(false, this, 'isSearchPressed');
+        this.__showImage = new ObservedPropertySimplePU(true, this, 'showImage');
+        this.__value = new SynchedPropertySimpleOneWayPU(params.value, this, 'value');
+        this.__placeholder = new SynchedPropertyObjectOneWayPU(params.placeholder, this, 'placeholder');
         this.controller = new SearchController();
         this.selectItems = undefined;
-        this.__selectStyle = new SynchedPropertyObjectOneWayPU(params.selectStyle, this, "selectStyle");
+        this.__selectStyle = new SynchedPropertyObjectOneWayPU(params.selectStyle, this, 'selectStyle');
         this.searchEvents = undefined;
-        this.__searchStyle = new SynchedPropertyObjectOneWayPU(params.searchStyle, this, "searchStyle");
+        this.__searchStyle = new SynchedPropertyObjectOneWayPU(params.searchStyle, this, 'searchStyle');
         this.operationItem1 = undefined;
         this.operationItem2 = undefined;
         this.setInitiallyProvidedValue(params);
-        this.declareWatch("value", this.onParamsChange);
+        this.declareWatch('value', this.onParamsChange);
         this.finalizeConstruction();
     }
+
     setInitiallyProvidedValue(params) {
         if (params.isFunction1Pressed !== undefined) {
             this.isFunction1Pressed = params.isFunction1Pressed;
@@ -124,12 +127,14 @@ export class AtomicServiceSearch extends ViewPU {
             this.operationItem2 = params.operationItem2;
         }
     }
+
     updateStateVars(params) {
         this.__value.reset(params.value);
         this.__placeholder.reset(params.placeholder);
         this.__selectStyle.reset(params.selectStyle);
         this.__searchStyle.reset(params.searchStyle);
     }
+
     purgeVariableDependenciesOnElmtId(rmElmtId) {
         this.__isFunction1Pressed.purgeDependencyOnElmtId(rmElmtId);
         this.__isFunction2Pressed.purgeDependencyOnElmtId(rmElmtId);
@@ -140,6 +145,7 @@ export class AtomicServiceSearch extends ViewPU {
         this.__selectStyle.purgeDependencyOnElmtId(rmElmtId);
         this.__searchStyle.purgeDependencyOnElmtId(rmElmtId);
     }
+
     aboutToBeDeleted() {
         this.__isFunction1Pressed.aboutToBeDeleted();
         this.__isFunction2Pressed.aboutToBeDeleted();
@@ -152,59 +158,77 @@ export class AtomicServiceSearch extends ViewPU {
         SubscriberManager.Get().delete(this.id__());
         this.aboutToBeDeletedInternal();
     }
+
     get isFunction1Pressed() {
         return this.__isFunction1Pressed.get();
     }
+
     set isFunction1Pressed(newValue) {
         this.__isFunction1Pressed.set(newValue);
     }
+
     get isFunction2Pressed() {
         return this.__isFunction2Pressed.get();
     }
+
     set isFunction2Pressed(newValue) {
         this.__isFunction2Pressed.set(newValue);
     }
+
     get isSearchPressed() {
         return this.__isSearchPressed.get();
     }
+
     set isSearchPressed(newValue) {
         this.__isSearchPressed.set(newValue);
     }
+
     get showImage() {
         return this.__showImage.get();
     }
+
     set showImage(newValue) {
         this.__showImage.set(newValue);
     }
+
     get value() {
         return this.__value.get();
     }
+
     set value(newValue) {
         this.__value.set(newValue);
     }
+
     get placeholder() {
         return this.__placeholder.get();
     }
+
     set placeholder(newValue) {
         this.__placeholder.set(newValue);
     }
+
     get selectStyle() {
         return this.__selectStyle.get();
     }
+
     set selectStyle(newValue) {
         this.__selectStyle.set(newValue);
     }
+
     get searchStyle() {
         return this.__searchStyle.get();
     }
+
     set searchStyle(newValue) {
         this.__searchStyle.set(newValue);
     }
+
     aboutToAppear() {
         this.showImage = this.value.length === 0 ? true : false;
         this.initSelectStyle();
         this.initSearchStyle();
     }
+
     initSelectStyle() {
         if (typeof this.selectStyle !== 'undefined') {
             if (typeof this.selectStyle.font === 'undefined') {
@@ -215,6 +239,7 @@ export class AtomicServiceSearch extends ViewPU {
             }
         }
     }
+
     initSearchStyle() {
         if (typeof this.searchStyle !== 'undefined') {
             if (typeof this.searchStyle.componentBackgroundColor === 'undefined') {
@@ -243,9 +268,11 @@ export class AtomicServiceSearch extends ViewPU {
             }
         }
     }
+
     onParamsChange() {
         this.showImage = this.value.length === 0 ? true : false;
     }
+
     renderSelect(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
@@ -296,6 +323,7 @@ export class AtomicServiceSearch extends ViewPU {
         }, If);
         If.pop();
     }
+
     renderDivider(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
@@ -321,6 +349,7 @@ export class AtomicServiceSearch extends ViewPU {
         }, If);
         If.pop();
     }
+
     renderSearch(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Search.create({
@@ -388,6 +417,7 @@ export class AtomicServiceSearch extends ViewPU {
         }, Search);
         Search.pop();
     }
+
     renderOperationItem1(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
@@ -430,6 +460,7 @@ export class AtomicServiceSearch extends ViewPU {
         }, If);
         If.pop();
     }
+
     renderOperationItem2(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
@@ -473,6 +504,7 @@ export class AtomicServiceSearch extends ViewPU {
         }, If);
         If.pop();
     }
+
     initialRender() {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Row.create();
@@ -521,6 +553,7 @@ export class AtomicServiceSearch extends ViewPU {
         Flex.pop();
         Row.pop();
     }
+    
     rerender() {
         this.updateDirtyElements();
     }
