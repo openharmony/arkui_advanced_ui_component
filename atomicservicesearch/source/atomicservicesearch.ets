@@ -164,7 +164,7 @@ export struct AtomicServiceSearch {
   private initSelectStyle(): void {
     if (typeof this.selectStyle !== 'undefined') {
       if (typeof this.selectStyle.font === 'undefined') {
-        this.selectStyle.font =  { size: TEXT_SIZE_BODY1 };
+        this.selectStyle.font = { size: TEXT_SIZE_BODY1 };
       }
       if (typeof this.selectStyle.fontColor !== 'undefined') {
         this.selectStyle.fontColor = TEXT_COLOR_PRIMARY;
@@ -394,11 +394,12 @@ export struct AtomicServiceSearch {
             direction: FlexDirection.Row,
             alignItems: ItemAlign.Center,
             justifyContent: FlexAlign.Start
-          }){
+          }) {
             this.renderSelect();
             this.renderDivider();
             this.renderSearch();
           }
+
           if (typeof this.searchStyle?.searchButton === 'undefined') {
             this.renderOperationItem1();
           }
