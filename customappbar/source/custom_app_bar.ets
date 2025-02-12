@@ -46,7 +46,7 @@ const TITLE_MARGIN_RIGHT: number = 12;
 const TITLE_MARGIN_TOP: number = 8;
 const TITLE_LABEL_MARGIN: number = 8.5;
 const TITLE_TEXT_MARGIN: number = 3;
-const MAX_WIDTH: string = '60%';
+const MAX_WIDTH: number = 480;
 const MAX_WIDTH_LIMIT: number = 600;
 const ARKUI_APP_BAR_COLOR_CONFIGURATION: string = 'arkui_app_bar_color_configuration';
 const ARKUI_APP_BAR_MENU_SAFE_AREA: string = 'arkui_app_bar_menu_safe_area';
@@ -108,16 +108,19 @@ export struct CustomAppBar {
   @State contentMarginLeft: number = 0;
   @State contentMarginRight: number = 0;
   @State contentMarginBottom: number = 0;
-  @State appBarOpacity: number = 0;
   // 半屏参数
   @State isHalfScreen: boolean = true;
+  private isHalfToFullScreen: boolean = false;
   @State containerHeight: string = '0%';
-  @State containerWidth: string = '100%';
+  @State containerWidth: string | number = '100%';
+  @State stackHeight: string = '100%';
   @State borderSize: number = HALF_CONTAINER_BORFER_SIZE;
-  @State titleOpacity: number = 1;
+  @State titleOpacity: number = 0;
   @State buttonOpacity: number = 1;
   @State titleHeight: number = 0;
+  @State titleOffset: number = 0;
   @State maskOpacity: number = 0;
+  @State maskBlurScale: number = 0;
   @State contentBgColor: ResourceColor = '#FFFFFFFF';
   @State isShowPanel: boolean = false;
   @State statusBarHeight: number = 0;
@@ -144,7 +147,6 @@ export struct CustomAppBar {
     } else {
       this.containerHeight = '100%';
       this.containerWidth = '100%';
-      this.appBarOpacity = 1;
     }
     let portraitFunc =
       (mediaQueryResult: mediaquery.MediaQueryResult): void => this.onPortrait(mediaQueryResult);
@@ -283,13 +285,21 @@ export struct CustomAppBar {
       curve: Curve.Sharp,
     }, () => {
       this.maskOpacity = 0.3;
-    })
+      this.maskBlurScale = 1;
+    });
     animateTo({
-      duration: 100,
+      duration: 250,
       curve: curves.interpolatingSpring(0, 1, 328, 36),
     }, () => {
       this.containerHeight = '100%';
-    })
+    });
+    // 标题栏渐显
+    animateTo({
+      duration: 100,
+      curve: curves.cubicBezierCurve(0.2, 0, 0.2, 1),
+    }, () => {
+      this.titleOpacity = 1;
+    });
   }
 
   /**
@@ -297,65 +307,77 @@ export struct CustomAppBar {
    */
   expendContainerAnimation(): void {
     animateTo({
-      duration: 100,
-      curve: curves.interpolatingSpring(0, 1, 328, 36),
-    }, () => {
-      this.containerHeight = '100%';
-      this.borderSize = 0;
-      this.containerWidth = '100%';
-      this.contentMarginTop = this.fullContentMarginTop;
-      this.titleHeight = 0;
-    })
-    // 标题栏消失
-    animateTo({
       duration: 150,
-      curve: curves.cubicBezierCurve(0.2, 0, 0.2, 1),
+      curve: curves.interpolatingSpring(0, 1, 328, 36),
       onFinish: () => {
-        this.isHalfScreen = false;
         this.contentBgColor = '#FFFFFF';
+        this.isHalfToFullScreen = true;
       }
     }, () => {
-      this.titleOpacity = 0;
-      this.appBarOpacity = 1;
-    })
-    // 按钮消失
+      this.containerWidth = '100%';
+      this.contentMarginTop = this.fullContentMarginTop;
+      this.titleOffset = -this.titleHeight;
+      this.isHalfScreen = false;
+    });
+    // 标题栏渐隐
     animateTo({
-      duration: 150,
-      curve: curves.cubicBezierCurve(0.33, 0, 0.67, 1),
+      duration: 100,
+      curve: curves.cubicBezierCurve(0.2, 0, 0.2, 1),
     }, () => {
-      this.buttonOpacity = 0;
-    })
+      this.titleOpacity = 0;
+    });
   }
 
   /**
-   * 半屏嵌入式关闭动效
+   * 嵌入式关闭动效
    */
   closeContainerAnimation(): void {
+    if (this.isHalfScreen) {
+      this.closeHalfContainerAnimation();
+      return;
+    }
+    if (this.isHalfToFullScreen) {
+      // 关闭弹框
+      animateTo({
+        duration: 250,
+        curve: curves.interpolatingSpring(0, 1, 328, 36),
+        onFinish: () => {
+          this.onCloseButtonClick();
+        }
+      }, () => {
+        this.stackHeight = '0%';
+      });
+    } else {
+      this.onCloseButtonClick();
+    }
+  }
+
+  closeHalfContainerAnimation() {
     // 关闭弹框
     animateTo({
-      duration: 100,
+      duration: 250,
       curve: curves.interpolatingSpring(0, 1, 328, 36),
       onFinish: () => {
         this.onCloseButtonClick();
       }
     }, () => {
       this.containerHeight = '0%';
-      this.borderSize = 0;
-    })
+    });
     // 蒙层渐隐
     animateTo({
       duration: 250,
       curve: Curve.Sharp,
     }, () => {
       this.maskOpacity = 0;
-    })
+      this.maskBlurScale = 0;
+    });
     // 标题栏渐隐
     animateTo({
-      duration: 200,
+      duration: 100,
       curve: curves.cubicBezierCurve(0.2, 0, 0.2, 1),
     }, () => {
       this.titleOpacity = 0;
-    })
+    });
   }
 
   @Builder
@@ -396,7 +418,6 @@ export struct CustomAppBar {
             .height(IMAGE_SIZE)
             .fillColor(this.closeFillColor)
             .draggable(false)
-            .draggable(false)
             .interpolation(ImageInterpolation.High)
         }
         .id('AtomicServiceCloseId')
@@ -406,7 +427,7 @@ export struct CustomAppBar {
         .width(BUTTON_SIZE)
         .height(VIEW_HEIGHT)
         .gesture(TapGesture().onAction(() => {
-          this.onCloseButtonClick();
+          this.closeContainerAnimation();
         }))
       }
       .borderRadius(MENU_RADIUS)
@@ -417,11 +438,11 @@ export struct CustomAppBar {
       .width(VIEW_WIDTH)
       .align(Alignment.Top)
       .draggable(false)
+      .geometryTransition('menubar')
       .id('AtomicServiceMenubarId')
     }
     .id('AtomicServiceMenubarRowId')
     .margin({ top: this.statusBarHeight + MENU_MARGIN_TOP, left: VIEW_MARGIN_RIGHT, right: VIEW_MARGIN_RIGHT })
-    .opacity(this.appBarOpacity)
     .justifyContent(FlexAlign.End)
     .height(VIEW_HEIGHT)
     .hitTestBehavior(HitTestMode.Transparent)
@@ -487,6 +508,7 @@ export struct CustomAppBar {
     }
     .justifyContent(FlexAlign.Start)
     .height(this.titleHeight)
+    .offset({y:this.titleOffset})
     .hitTestBehavior(HitTestMode.Transparent)
   }
 
@@ -494,10 +516,10 @@ export struct CustomAppBar {
   halfScreenMenuBar() {
     Column() {
       Row() {
+        Row() {
         Button({ type: ButtonType.Circle }) {
           SymbolGlyph($r('sys.symbol.arrow_up_left_and_arrow_down_right'))
-            .height(BUTTON_IMAGE_SIZE)
-            .width(BUTTON_IMAGE_SIZE)
+            .fontSize(BUTTON_IMAGE_SIZE)
             .fontWeight(FontWeight.Medium)
             .fontColor([this.halfButtonImageColor])
         }.width(BUTTON_SIZE).height(BUTTON_SIZE).backgroundColor(this.halfButtonBackColor)
@@ -507,26 +529,33 @@ export struct CustomAppBar {
 
         Button({ type: ButtonType.Circle }) {
           SymbolGlyph($r('sys.symbol.xmark'))
-            .height(BUTTON_IMAGE_SIZE)
-            .width(BUTTON_IMAGE_SIZE)
+            .fontSize(BUTTON_IMAGE_SIZE)
             .fontWeight(FontWeight.Medium)
             .fontColor([this.halfButtonImageColor])
         }
         .width(BUTTON_SIZE)
         .height(BUTTON_SIZE)
-        .margin({ start: LengthMetrics.vp(VIEW_MARGIN_RIGHT), end: LengthMetrics.vp(HALF_MENU_MARGIN) })
+        .margin({
+          start: LengthMetrics.vp(VIEW_MARGIN_RIGHT),
+        })
         .backgroundColor(this.halfButtonBackColor)
         .onClick(() => {
           this.closeContainerAnimation();
+        })
+        }
+        .geometryTransition('menubar').justifyContent(FlexAlign.End)
+        .transition(TransitionEffect.OPACITY)
+        .borderRadius(MENU_RADIUS)
+        .height(BUTTON_SIZE)
+        .margin({
+          top: LengthMetrics.vp(this.titleHeight + HALF_MENU_MARGIN),
+          end: LengthMetrics.vp(HALF_MENU_MARGIN)
         })
       }
       .width(this.containerWidth)
       .height(this.containerHeight)
       .alignItems(VerticalAlign.Top)
       .justifyContent(FlexAlign.End)
-      .margin({
-        top: LengthMetrics.vp(this.titleHeight + HALF_MENU_MARGIN)
-      })
       .opacity(this.buttonOpacity)
     }.height('100%')
     .width('100%')
@@ -574,7 +603,7 @@ export struct CustomAppBar {
             .height('100%')
             .backgroundColor('#262626')
             .opacity(this.maskOpacity)
-            .foregroundBlurStyle(BlurStyle.BACKGROUND_REGULAR)
+            .foregroundBlurStyle(BlurStyle.BACKGROUND_REGULAR, { scale: this.maskBlurScale })
             .onClick(() => {
               this.closeContainerAnimation();
             })
@@ -618,7 +647,7 @@ export struct CustomAppBar {
           this.fullScreenMenubar()
         }
       }
-      .height('100%')
+      .height(this.stackHeight)
       .width('100%')
       .backgroundColor(this.contentBgColor)
       .hitTestBehavior(HitTestMode.Transparent)
