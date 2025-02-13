@@ -30,11 +30,11 @@ const ICON_SIZE = 16;
 const SELECT_PADDING_LEFT = 6;
 const SELECT_MARGIN_LEFT = 2;
 const FLEX_SHRINK = 0;
-const DIVIDER_OPACITY = 0.6;
+const DIVIDER_OPACITY = 0.5;
 const DIVIDER_MARGIN_LEFT = 2;
 const DIVIDER_MARGIN_RIGHT = -2;
 const ATOMIC_SERVICE_SEARCH_HEIGHT = 40;
-const ATMOIC_SELECT_HEIGHT = 36;
+const ATOMIC_SELECT_HEIGHT = 36;
 const ATOMIC_SELECT_BORDER_RADIUS = 20;
 const ATOMIC_DIVIDER_HEIGHT = 20;
 const ICON_WIDTH_AND_HEIGTH = 24;
@@ -42,7 +42,7 @@ const OPERATION_ITEM1_MARGIN_RIGHT = 2;
 const OPERATION_ITEM2_MARGIN_LEFT = 8;
 
 export class AtomicServiceSearch extends ViewPU {
-    
+
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
         super(parent, __localStorage, elmtId, extraInfo);
         if (typeof paramsLambda === 'function') {
@@ -62,7 +62,7 @@ export class AtomicServiceSearch extends ViewPU {
         this.declareWatch('value', this.onParamsChange);
         this.finalizeConstruction();
     }
-    
+
     setInitiallyProvidedValue(params) {
         if (params.isFunction1Pressed !== undefined) {
             this.isFunction1Pressed = params.isFunction1Pressed;
@@ -110,14 +110,14 @@ export class AtomicServiceSearch extends ViewPU {
             this.controller = params.controller;
         }
     }
-    
+
     updateStateVars(params) {
         this.__value.reset(params.value);
         this.__placeholder.reset(params.placeholder);
         this.__select.reset(params.select);
         this.__search.reset(params.search);
     }
-    
+
     purgeVariableDependenciesOnElmtId(rmElmtId) {
         this.__isFunction1Pressed.purgeDependencyOnElmtId(rmElmtId);
         this.__isFunction2Pressed.purgeDependencyOnElmtId(rmElmtId);
@@ -128,7 +128,7 @@ export class AtomicServiceSearch extends ViewPU {
         this.__select.purgeDependencyOnElmtId(rmElmtId);
         this.__search.purgeDependencyOnElmtId(rmElmtId);
     }
-    
+
     aboutToBeDeleted() {
         this.__isFunction1Pressed.aboutToBeDeleted();
         this.__isFunction2Pressed.aboutToBeDeleted();
@@ -141,77 +141,77 @@ export class AtomicServiceSearch extends ViewPU {
         SubscriberManager.Get().delete(this.id__());
         this.aboutToBeDeletedInternal();
     }
-    
+
     get isFunction1Pressed() {
         return this.__isFunction1Pressed.get();
     }
-    
+
     set isFunction1Pressed(newValue) {
         this.__isFunction1Pressed.set(newValue);
     }
-    
+
     get isFunction2Pressed() {
         return this.__isFunction2Pressed.get();
     }
-    
+
     set isFunction2Pressed(newValue) {
         this.__isFunction2Pressed.set(newValue);
     }
-    
+
     get isSearchPressed() {
         return this.__isSearchPressed.get();
     }
-    
+
     set isSearchPressed(newValue) {
         this.__isSearchPressed.set(newValue);
     }
-    
+
     get showImage() {
         return this.__showImage.get();
     }
-    
+
     set showImage(newValue) {
         this.__showImage.set(newValue);
     }
-    
+
     get value() {
         return this.__value.get();
     }
-    
+
     set value(newValue) {
         this.__value.set(newValue);
     }
-    
+
     get placeholder() {
         return this.__placeholder.get();
     }
-    
+
     set placeholder(newValue) {
         this.__placeholder.set(newValue);
     }
-    
+
     get select() {
         return this.__select.get();
     }
-    
+
     set select(newValue) {
         this.__select.set(newValue);
     }
-    
+
     get search() {
         return this.__search.get();
     }
-    
+
     set search(newValue) {
         this.__search.set(newValue);
     }
-    
+
     aboutToAppear() {
         this.showImage = this.value?.length === 0 ? true : false;
         this.initSelectStyle();
         this.initSearchStyle();
     }
-    
+
     initSelectStyle() {
         if (typeof this.select !== 'undefined') {
             if (typeof this.select.font === 'undefined') {
@@ -222,7 +222,7 @@ export class AtomicServiceSearch extends ViewPU {
             }
         }
     }
-    
+
     initSearchStyle() {
         if (typeof this.search !== 'undefined') {
             if (typeof this.search.componentBackgroundColor === 'undefined') {
@@ -251,15 +251,15 @@ export class AtomicServiceSearch extends ViewPU {
             }
         }
     }
-    
+
     onParamsChange() {
         this.showImage = this.value?.length === 0 ? true : false;
     }
-    
+
     renderSelect(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
-            if (typeof this.select !== 'undefined' && this.select?.options?.length !== 0) {
+            if (typeof this.select !== 'undefined' && typeof this.select.options !== 'undefined') {
                 this.ifElseBranchUpdateFunction(0, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Row.create();
@@ -288,9 +288,9 @@ export class AtomicServiceSearch extends ViewPU {
                         Select.optionHeight(this.select?.optionHeight);
                         Select.menuBackgroundColor(this.select?.menuBackgroundColor);
                         Select.menuBackgroundBlurStyle(this.select?.menuBackgroundBlurStyle);
-                        Select.height(ATMOIC_SELECT_HEIGHT);
+                        Select.height(ATOMIC_SELECT_HEIGHT);
                         Select.borderRadius(ATOMIC_SELECT_BORDER_RADIUS);
-                        Select.constraintSize({ minHeight: ATMOIC_SELECT_HEIGHT });
+                        Select.constraintSize({ minHeight: ATOMIC_SELECT_HEIGHT });
                         Select.padding({ start: LengthMetrics.vp(SELECT_PADDING_LEFT) });
                         Select.margin({ start: LengthMetrics.vp(SELECT_MARGIN_LEFT) });
                         Select.backgroundColor(Color.Transparent);
@@ -306,11 +306,11 @@ export class AtomicServiceSearch extends ViewPU {
         }, If);
         If.pop();
     }
-    
+
     renderDivider(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
-            if (typeof this.select !== 'undefined' && this.select?.options?.length !== 0) {
+            if (typeof this.select !== 'undefined' && typeof this.select.options !== 'undefined') {
                 this.ifElseBranchUpdateFunction(0, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Divider.create();
@@ -332,7 +332,7 @@ export class AtomicServiceSearch extends ViewPU {
         }, If);
         If.pop();
     }
-    
+
     renderSearch(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Search.create({
@@ -400,8 +400,8 @@ export class AtomicServiceSearch extends ViewPU {
         }, Search);
         Search.pop();
     }
-    
-    renderOperationItem1(parent = null) {
+
+    renderAuxiliaryItem(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
             if (typeof this.operation?.auxiliaryItem !== 'undefined' && this.showImage) {
@@ -413,8 +413,8 @@ export class AtomicServiceSearch extends ViewPU {
                         Row.borderRadius(ATOMIC_SELECT_BORDER_RADIUS);
                         Row.alignItems(VerticalAlign.Center);
                         Row.justifyContent(FlexAlign.Center);
-                        Row.width(ATMOIC_SELECT_HEIGHT);
-                        Row.height(ATMOIC_SELECT_HEIGHT);
+                        Row.width(ATOMIC_SELECT_HEIGHT);
+                        Row.height(ATOMIC_SELECT_HEIGHT);
                         Row.margin({ right: OPERATION_ITEM1_MARGIN_RIGHT });
                         Row.backgroundColor(this.isFunction1Pressed ? this.search?.pressBackgroundColor : Color.Transparent);
                         Row.onTouch((event) => {
@@ -443,15 +443,15 @@ export class AtomicServiceSearch extends ViewPU {
         }, If);
         If.pop();
     }
-    
-    renderOperationItem2(parent = null) {
+
+    renderIndependentItem(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
-            if (typeof this.operation?.auxiliaryItem !== 'undefined') {
+            if (typeof this.operation?.independentItem !== 'undefined') {
                 this.ifElseBranchUpdateFunction(0, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Row.create();
-                        Row.onClick(this.operation?.auxiliaryItem.action);
+                        Row.onClick(this.operation?.independentItem.action);
                         Row.flexShrink(FLEX_SHRINK);
                         Row.borderRadius(ATOMIC_SELECT_BORDER_RADIUS);
                         Row.alignItems(VerticalAlign.Center);
@@ -471,7 +471,7 @@ export class AtomicServiceSearch extends ViewPU {
                         });
                     }, Row);
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        Image.create(this.operation?.auxiliaryItem.value);
+                        Image.create(this.operation?.independentItem.value);
                         Image.objectFit(ImageFit.Contain);
                         Image.fillColor(FUNCTION_ICON_COLOR);
                         Image.width(ICON_WIDTH_AND_HEIGTH);
@@ -487,7 +487,7 @@ export class AtomicServiceSearch extends ViewPU {
         }, If);
         If.pop();
     }
-    
+
     initialRender() {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Row.create();
@@ -522,7 +522,7 @@ export class AtomicServiceSearch extends ViewPU {
             If.create();
             if (typeof this.search?.searchButton === 'undefined') {
                 this.ifElseBranchUpdateFunction(0, () => {
-                    this.renderOperationItem1.bind(this)();
+                    this.renderAuxiliaryItem.bind(this)();
                 });
             }
             else {
@@ -532,10 +532,11 @@ export class AtomicServiceSearch extends ViewPU {
         }, If);
         If.pop();
         Stack.pop();
-        this.renderOperationItem2.bind(this)();
+        this.renderIndependentItem.bind(this)();
         Flex.pop();
         Row.pop();
     }
+
     rerender() {
         this.updateDirtyElements();
     }

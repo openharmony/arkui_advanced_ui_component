@@ -14,6 +14,7 @@
  */
 import { LengthMetrics, OperationOption } from '@kit.ArkUI';
 
+declare type OnSelectCallback = (index: number, value?: string) => void;
 const TEXT_SIZE_BODY1: Resource = $r(`sys.float.ohos_id_text_size_body1`);
 const COLOR_TEXT_SECONDARY = $r(`sys.color.ohos_id_color_text_secondary`);
 const ICON_COLOR_SECONDARY = $r('sys.color.ohos_id_color_secondary');
@@ -25,11 +26,11 @@ const ICON_SIZE: number = 16;
 const SELECT_PADDING_LEFT: number = 6;
 const SELECT_MARGIN_LEFT: number = 2;
 const FLEX_SHRINK: number = 0;
-const DIVIDER_OPACITY: number = 0.6;
+const DIVIDER_OPACITY: number = 0.5;
 const DIVIDER_MARGIN_LEFT: number = 2;
 const DIVIDER_MARGIN_RIGHT: number = -2;
 const ATOMIC_SERVICE_SEARCH_HEIGHT: number = 40;
-const ATMOIC_SELECT_HEIGHT: number = 36;
+const ATOMIC_SELECT_HEIGHT: number = 36;
 const ATOMIC_SELECT_BORDER_RADIUS: number = 20;
 const ATOMIC_DIVIDER_HEIGHT: number = 20;
 const ICON_WIDTH_AND_HEIGTH: number = 24;
@@ -55,7 +56,7 @@ interface SelectOptions {
   options?: Array<SelectOption>;
   selected?: number;
   value?: string;
-  onSelect?: (index: number, value?: string) => void;
+  onSelect?: OnSelectCallback;
   controlSize?: ControlSize;
   menuItemContentModifier?: ContentModifier<MenuItemConfiguration>;
   divider?: Optional<DividerOptions> | null;
@@ -162,7 +163,7 @@ export struct AtomicServiceSearch {
   private initSelectStyle(): void {
     if (typeof this.select !== 'undefined') {
       if (typeof this.select.font === 'undefined') {
-        this.select.font =  { size: TEXT_SIZE_BODY1 };
+        this.select.font = { size: TEXT_SIZE_BODY1 };
       }
       if (typeof this.select.fontColor !== 'undefined') {
         this.select.fontColor = TEXT_COLOR_PRIMARY;
@@ -205,7 +206,7 @@ export struct AtomicServiceSearch {
 
   @Builder
   renderSelect() {
-    if (typeof this.select !== 'undefined' && this.select?.options?.length !== 0) {
+    if (typeof this.select !== 'undefined' && typeof this.select.options !== 'undefined') {
       Row() {
         Select(this.select?.options)
           .value(this.select?.value)
@@ -229,9 +230,9 @@ export struct AtomicServiceSearch {
           .optionHeight(this.select?.optionHeight)
           .menuBackgroundColor(this.select?.menuBackgroundColor)
           .menuBackgroundBlurStyle(this.select?.menuBackgroundBlurStyle)
-          .height(ATMOIC_SELECT_HEIGHT)
+          .height(ATOMIC_SELECT_HEIGHT)
           .borderRadius(ATOMIC_SELECT_BORDER_RADIUS)
-          .constraintSize({ minHeight: ATMOIC_SELECT_HEIGHT })
+          .constraintSize({ minHeight: ATOMIC_SELECT_HEIGHT })
           .padding({ start: LengthMetrics.vp(SELECT_PADDING_LEFT) })
           .margin({ start: LengthMetrics.vp(SELECT_MARGIN_LEFT) })
           .backgroundColor(Color.Transparent)
@@ -242,7 +243,7 @@ export struct AtomicServiceSearch {
 
   @Builder
   renderDivider() {
-    if (typeof this.select !== 'undefined' && this.select?.options?.length !== 0) {
+    if (typeof this.select !== 'undefined' && typeof this.select.options !== 'undefined') {
       Divider()
         .vertical(true)
         .color(Color.Black)
@@ -270,12 +271,12 @@ export struct AtomicServiceSearch {
       .textAlign(this.search?.textAlign)
       .copyOption(this.search?.copyOption)
       .searchIcon(this.search?.searchIcon)
-      .cancelButton({icon: this.search?.cancelIcon})
+      .cancelButton({ icon: this.search?.cancelIcon })
       .fontColor(this.search?.fontColor)
       .caretStyle(this.search?.caretStyle)
       .enableKeyboardOnFocus(this.search?.enableKeyboardOnFocus)
       .selectionMenuHidden(this.search?.selectionMenuHidden)
-      .customKeyboard(null, {supportAvoidance: this.search?.keyboardAvoidance})
+      .customKeyboard(null, { supportAvoidance: this.search?.keyboardAvoidance })
       .type(this.search?.type)
       .maxLength(this.search?.maxLength)
       .enterKeyType(this.search?.enterKeyType)
@@ -321,7 +322,7 @@ export struct AtomicServiceSearch {
   }
 
   @Builder
-  renderOperationItem1() {
+  renderAuxiliaryItem() {
     if (typeof this.operation?.auxiliaryItem !== 'undefined' && this.showImage) {
       Row() {
         Image(this.operation?.auxiliaryItem?.value)
@@ -335,8 +336,8 @@ export struct AtomicServiceSearch {
       .borderRadius(ATOMIC_SELECT_BORDER_RADIUS)
       .alignItems(VerticalAlign.Center)
       .justifyContent(FlexAlign.Center)
-      .width(ATMOIC_SELECT_HEIGHT)
-      .height(ATMOIC_SELECT_HEIGHT)
+      .width(ATOMIC_SELECT_HEIGHT)
+      .height(ATOMIC_SELECT_HEIGHT)
       .margin({ right: OPERATION_ITEM1_MARGIN_RIGHT })
       .backgroundColor(this.isFunction1Pressed ? this.search?.pressBackgroundColor : Color.Transparent)
       .onTouch((event?: TouchEvent) => {
@@ -350,16 +351,16 @@ export struct AtomicServiceSearch {
   }
 
   @Builder
-  renderOperationItem2() {
-    if (typeof this.operation?.auxiliaryItem !== 'undefined') {
+  renderIndependentItem() {
+    if (typeof this.operation?.independentItem !== 'undefined') {
       Row() {
-        Image(this.operation?.auxiliaryItem.value)
+        Image(this.operation?.independentItem.value)
           .objectFit(ImageFit.Contain)
           .fillColor(FUNCTION_ICON_COLOR)
           .width(ICON_WIDTH_AND_HEIGTH)
           .height(ICON_WIDTH_AND_HEIGTH)
       }
-      .onClick(this.operation?.auxiliaryItem.action)
+      .onClick(this.operation?.independentItem.action)
       .flexShrink(FLEX_SHRINK)
       .borderRadius(ATOMIC_SELECT_BORDER_RADIUS)
       .alignItems(VerticalAlign.Center)
@@ -391,13 +392,13 @@ export struct AtomicServiceSearch {
             direction: FlexDirection.Row,
             alignItems: ItemAlign.Center,
             justifyContent: FlexAlign.Start
-          }){
+          }) {
             this.renderSelect();
             this.renderDivider();
             this.renderSearch();
           }
           if (typeof this.search?.searchButton === 'undefined') {
-            this.renderOperationItem1();
+            this.renderAuxiliaryItem();
           }
         }
         .alignContent(Alignment.End)
@@ -405,7 +406,7 @@ export struct AtomicServiceSearch {
         .backgroundColor(this.isSearchPressed ?
           this.search?.pressBackgroundColor : this.search?.componentBackgroundColor)
 
-        this.renderOperationItem2();
+        this.renderIndependentItem();
       }
     }
     .height(ATOMIC_SERVICE_SEARCH_HEIGHT)
