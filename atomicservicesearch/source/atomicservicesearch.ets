@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { LengthMetrics, SelectOptions, OperationOption } from '@kit.ArkUI';
+import { LengthMetrics, OperationOption } from '@kit.ArkUI';
 
 const TEXT_SIZE_BODY1: Resource = $r(`sys.float.ohos_id_text_size_body1`);
 const COLOR_TEXT_SECONDARY = $r(`sys.color.ohos_id_color_text_secondary`);
@@ -51,7 +51,11 @@ interface MenuAlignOption {
   offset?: Offset
 }
 
-interface SelectStyles {
+interface SelectOptions {
+  options?: Array<SelectOption>;
+  selected?: number;
+  value?: string;
+  onSelect?: (index: number, value?: string) => void;
   controlSize?: ControlSize;
   menuItemContentModifier?: ContentModifier<MenuItemConfiguration>;
   divider?: Optional<DividerOptions> | null;
@@ -72,22 +76,7 @@ interface SelectStyles {
   menuBackgroundBlurStyle?: BlurStyle;
 }
 
-interface SearchEvents {
-  onSubmit?: Callback<string> | SearchSubmitCallback;
-  onChange?: EditableTextOnChangeCallback;
-  onCopy?: Callback<string>;
-  onCut?: Callback<string>;
-  onPaste?: OnPasteCallback;
-  onTextSelectionChange?: OnTextSelectionChangeCallback;
-  onContentScroll?: OnContentScrollCallback;
-  onEditChange?: Callback<boolean>;
-  onWillInsert?: Callback<InsertValue, boolean>;
-  onDidInsert?: Callback<InsertValue>;
-  onWillDelete?: Callback<DeleteValue, boolean>;
-  onDidDelete?: Callback<DeleteValue>;
-}
-
-interface SearchStyle {
+interface SearchOptions {
   componentBackgroundColor?: ResourceColor;
   pressBackgroundColor?: ResourceColor;
   searchButton?: SearchButtonParams;
@@ -117,6 +106,23 @@ interface SearchStyle {
   editMenuOptions?: EditMenuOptions;
   enablePreviewText?: boolean;
   enableHapticFeedback?: boolean;
+  onSubmit?: Callback<string> | SearchSubmitCallback;
+  onChange?: EditableTextOnChangeCallback;
+  onCopy?: Callback<string>;
+  onCut?: Callback<string>;
+  onPaste?: OnPasteCallback;
+  onTextSelectionChange?: OnTextSelectionChangeCallback;
+  onContentScroll?: OnContentScrollCallback;
+  onEditChange?: Callback<boolean>;
+  onWillInsert?: Callback<InsertValue, boolean>;
+  onDidInsert?: Callback<InsertValue>;
+  onWillDelete?: Callback<DeleteValue, boolean>;
+  onDidDelete?: Callback<DeleteValue>;
+}
+
+interface OperationOptions {
+  auxiliaryItem?: OperationOption;
+  independentItem?: OperationOption;
 }
 
 @Component
@@ -125,18 +131,10 @@ export struct AtomicServiceSearch {
   @State private isFunction2Pressed: boolean = false;
   @State private isSearchPressed: boolean = false;
   @State private showImage: boolean = true;
-  @Prop @Watch('onParamsChange') value: string = '';
+  @Prop @Watch('onParamsChange') value?: string = '';
   @Prop placeholder?: ResourceStr = 'Search';
-  controller: SearchController = new SearchController();
-  selectItems?: SelectOptions;
-  @Prop selectStyle?: SelectStyles = {
-    font:{
-      size: TEXT_SIZE_BODY1,
-    },
-    fontColor: TEXT_COLOR_PRIMARY
-  };
-  searchEvents?: SearchEvents;
-  @Prop searchStyle?: SearchStyle = {
+  @Prop select?: SelectOptions = {};
+  @Prop search?: SearchOptions = {
     componentBackgroundColor: ATOMIC_SERVICE_SEARCH_BG_COLOR,
     placeholderFont: {
       size: TEXT_SIZE_BODY1,
@@ -152,86 +150,85 @@ export struct AtomicServiceSearch {
     },
     pressBackgroundColor: EFFECT_COLOR
   };
-  operationItem1?: OperationOption;
-  operationItem2?: OperationOption;
+  operation?: OperationOptions;
+  controller?: SearchController = new SearchController();
 
   aboutToAppear(): void {
-    this.showImage = this.value.length === 0 ? true : false;
+    this.showImage = this.value?.length === 0 ? true : false;
     this.initSelectStyle();
     this.initSearchStyle();
   }
 
   private initSelectStyle(): void {
-    if (typeof this.selectStyle !== 'undefined') {
-      if (typeof this.selectStyle.font === 'undefined') {
-        this.selectStyle.font = { size: TEXT_SIZE_BODY1 };
+    if (typeof this.select !== 'undefined') {
+      if (typeof this.select.font === 'undefined') {
+        this.select.font =  { size: TEXT_SIZE_BODY1 };
       }
-      if (typeof this.selectStyle.fontColor !== 'undefined') {
-        this.selectStyle.fontColor = TEXT_COLOR_PRIMARY;
+      if (typeof this.select.fontColor !== 'undefined') {
+        this.select.fontColor = TEXT_COLOR_PRIMARY;
       }
     }
-
   }
 
   private initSearchStyle() : void {
-    if (typeof this.searchStyle !== 'undefined') {
-      if (typeof this.searchStyle.componentBackgroundColor === 'undefined') {
-        this.searchStyle.componentBackgroundColor = ATOMIC_SERVICE_SEARCH_BG_COLOR;
+    if (typeof this.search !== 'undefined') {
+      if (typeof this.search.componentBackgroundColor === 'undefined') {
+        this.search.componentBackgroundColor = ATOMIC_SERVICE_SEARCH_BG_COLOR;
       }
-      if (typeof this.searchStyle.placeholderFont === 'undefined') {
-        this.searchStyle.placeholderFont = { size: TEXT_SIZE_BODY1 };
+      if (typeof this.search.placeholderFont === 'undefined') {
+        this.search.placeholderFont = { size: TEXT_SIZE_BODY1 };
       }
-      if (typeof this.searchStyle.placeholderColor === 'undefined') {
-        this.searchStyle.placeholderColor = COLOR_TEXT_SECONDARY;
+      if (typeof this.search.placeholderColor === 'undefined') {
+        this.search.placeholderColor = COLOR_TEXT_SECONDARY;
       }
-      if (typeof this.searchStyle.textFont === 'undefined') {
-        this.searchStyle.textFont = { size: TEXT_SIZE_BODY1 };
+      if (typeof this.search.textFont === 'undefined') {
+        this.search.textFont = { size: TEXT_SIZE_BODY1 };
       }
-      if (typeof this.searchStyle.fontColor === 'undefined') {
-        this.searchStyle.fontColor = COLOR_TEXT_SECONDARY;
+      if (typeof this.search.fontColor === 'undefined') {
+        this.search.fontColor = COLOR_TEXT_SECONDARY;
       }
-      if (typeof this.searchStyle.searchIcon === 'undefined') {
-        this.searchStyle.searchIcon = {
+      if (typeof this.search.searchIcon === 'undefined') {
+        this.search.searchIcon = {
           size: ICON_SIZE,
           color: ICON_COLOR_SECONDARY,
         }
       }
-      if (typeof this.searchStyle.pressBackgroundColor === 'undefined') {
-        this.searchStyle.pressBackgroundColor = EFFECT_COLOR;
+      if (typeof this.search.pressBackgroundColor === 'undefined') {
+        this.search.pressBackgroundColor = EFFECT_COLOR;
       }
     }
   }
 
   private onParamsChange(): void {
-    this.showImage = this.value.length === 0 ? true : false;
+    this.showImage = this.value?.length === 0 ? true : false;
   }
 
   @Builder
   renderSelect() {
-    if (typeof this.selectItems !== 'undefined' && this.selectItems.options.length !== 0) {
+    if (typeof this.select !== 'undefined' && this.select?.options?.length !== 0) {
       Row() {
-        Select(this.selectItems?.options)
-          .value(this.selectItems?.value)
-          .selected(this.selectItems?.selected)
-          .onSelect(this.selectItems?.onSelect)
-          .controlSize(this.selectStyle?.controlSize)
-          .menuItemContentModifier(this.selectStyle?.menuItemContentModifier)
-          .divider(this.selectStyle?.divider)
-          .font(this.selectStyle?.font)
-          .fontColor(this.selectStyle?.fontColor)
-          .selectedOptionBgColor(this.selectStyle?.selectedOptionBgColor)
-          .selectedOptionFont(this.selectStyle?.selectedOptionFont)
-          .selectedOptionFontColor(this.selectStyle?.selectedOptionFontColor)
-          .optionBgColor(this.selectStyle?.optionBgColor)
-          .optionFont(this.selectStyle?.optionFont)
-          .optionFontColor(this.selectStyle?.optionFontColor)
-          .space(this.selectStyle?.space)
-          .arrowPosition(this.selectStyle?.arrowPosition)
-          .menuAlign(this.selectStyle?.menuAlign?.alignType, this.selectStyle?.menuAlign?.offset)
-          .optionWidth(this.selectStyle?.optionWidth)
-          .optionHeight(this.selectStyle?.optionHeight)
-          .menuBackgroundColor(this.selectStyle?.menuBackgroundColor)
-          .menuBackgroundBlurStyle(this.selectStyle?.menuBackgroundBlurStyle)
+        Select(this.select?.options)
+          .value(this.select?.value)
+          .selected(this.select?.selected)
+          .onSelect(this.select?.onSelect)
+          .controlSize(this.select?.controlSize)
+          .menuItemContentModifier(this.select?.menuItemContentModifier)
+          .divider(this.select?.divider)
+          .font(this.select?.font)
+          .fontColor(this.select?.fontColor)
+          .selectedOptionBgColor(this.select?.selectedOptionBgColor)
+          .selectedOptionFont(this.select?.selectedOptionFont)
+          .selectedOptionFontColor(this.select?.selectedOptionFontColor)
+          .optionBgColor(this.select?.optionBgColor)
+          .optionFont(this.select?.optionFont)
+          .optionFontColor(this.select?.optionFontColor)
+          .space(this.select?.space)
+          .arrowPosition(this.select?.arrowPosition)
+          .menuAlign(this.select?.menuAlign?.alignType, this.select?.menuAlign?.offset)
+          .optionWidth(this.select?.optionWidth)
+          .optionHeight(this.select?.optionHeight)
+          .menuBackgroundColor(this.select?.menuBackgroundColor)
+          .menuBackgroundBlurStyle(this.select?.menuBackgroundBlurStyle)
           .height(ATMOIC_SELECT_HEIGHT)
           .borderRadius(ATOMIC_SELECT_BORDER_RADIUS)
           .constraintSize({ minHeight: ATMOIC_SELECT_HEIGHT })
@@ -245,7 +242,7 @@ export struct AtomicServiceSearch {
 
   @Builder
   renderDivider() {
-    if (typeof this.selectItems !== 'undefined' && this.selectItems.options.length !== 0) {
+    if (typeof this.select !== 'undefined' && this.select?.options?.length !== 0) {
       Divider()
         .vertical(true)
         .color(Color.Black)
@@ -266,51 +263,51 @@ export struct AtomicServiceSearch {
       controller: this.controller
     })
       .backgroundColor(Color.Transparent)
-      .searchButton(this.searchStyle?.searchButton?.value, this.searchStyle?.searchButton?.option)
-      .placeholderColor(this.searchStyle?.placeholderColor)
-      .placeholderFont(this.searchStyle?.placeholderFont)
-      .textFont(this.searchStyle?.textFont)
-      .textAlign(this.searchStyle?.textAlign)
-      .copyOption(this.searchStyle?.copyOption)
-      .searchIcon(this.searchStyle?.searchIcon)
-      .cancelButton({icon: this.searchStyle?.cancelIcon})
-      .fontColor(this.searchStyle?.fontColor)
-      .caretStyle(this.searchStyle?.caretStyle)
-      .enableKeyboardOnFocus(this.searchStyle?.enableKeyboardOnFocus)
-      .selectionMenuHidden(this.searchStyle?.selectionMenuHidden)
-      .customKeyboard(null, {supportAvoidance: this.searchStyle?.keyboardAvoidance})
-      .type(this.searchStyle?.type)
-      .maxLength(this.searchStyle?.maxLength)
-      .enterKeyType(this.searchStyle?.enterKeyType)
-      .decoration(this.searchStyle?.decoration)
-      .letterSpacing(this.searchStyle?.letterSpacing)
-      .fontFeature(this.searchStyle?.fontFeature)
-      .selectedBackgroundColor(this.searchStyle?.selectedBackgroundColor)
-      .inputFilter(this.searchStyle?.inputFilter?.value, this.searchStyle?.inputFilter?.error)
-      .textIndent(this.searchStyle?.textIndent)
-      .minFontSize(this.searchStyle?.minFontSize)
-      .maxFontSize(this.searchStyle?.maxFontSize)
-      .editMenuOptions(this.searchStyle?.editMenuOptions)
-      .enablePreviewText(this.searchStyle?.enablePreviewText)
-      .enableHapticFeedback(this.searchStyle?.enableHapticFeedback)
-      .placeholderFont(this.searchStyle?.placeholderFont)
-      .textFont(this.searchStyle?.textFont)
-      .searchIcon(this.searchStyle?.searchIcon)
-      .fontColor(this.searchStyle?.fontColor)
-      .onCut(this.searchEvents?.onCut)
-      .onCopy(this.searchEvents?.onCopy)
-      .onPaste(this.searchEvents?.onPaste)
-      .onSubmit(this.searchEvents?.onSubmit)
-      .onDidInsert(this.searchEvents?.onDidInsert)
-      .onDidDelete(this.searchEvents?.onDidDelete)
-      .onEditChange(this.searchEvents?.onEditChange)
-      .onWillInsert(this.searchEvents?.onWillInsert)
-      .onWillDelete(this.searchEvents?.onWillDelete)
-      .onContentScroll(this.searchEvents?.onContentScroll)
-      .onTextSelectionChange(this.searchEvents?.onTextSelectionChange)
+      .searchButton(this.search?.searchButton?.value, this.search?.searchButton?.option)
+      .placeholderColor(this.search?.placeholderColor)
+      .placeholderFont(this.search?.placeholderFont)
+      .textFont(this.search?.textFont)
+      .textAlign(this.search?.textAlign)
+      .copyOption(this.search?.copyOption)
+      .searchIcon(this.search?.searchIcon)
+      .cancelButton({icon: this.search?.cancelIcon})
+      .fontColor(this.search?.fontColor)
+      .caretStyle(this.search?.caretStyle)
+      .enableKeyboardOnFocus(this.search?.enableKeyboardOnFocus)
+      .selectionMenuHidden(this.search?.selectionMenuHidden)
+      .customKeyboard(null, {supportAvoidance: this.search?.keyboardAvoidance})
+      .type(this.search?.type)
+      .maxLength(this.search?.maxLength)
+      .enterKeyType(this.search?.enterKeyType)
+      .decoration(this.search?.decoration)
+      .letterSpacing(this.search?.letterSpacing)
+      .fontFeature(this.search?.fontFeature)
+      .selectedBackgroundColor(this.search?.selectedBackgroundColor)
+      .inputFilter(this.search?.inputFilter?.value, this.search?.inputFilter?.error)
+      .textIndent(this.search?.textIndent)
+      .minFontSize(this.search?.minFontSize)
+      .maxFontSize(this.search?.maxFontSize)
+      .editMenuOptions(this.search?.editMenuOptions)
+      .enablePreviewText(this.search?.enablePreviewText)
+      .enableHapticFeedback(this.search?.enableHapticFeedback)
+      .placeholderFont(this.search?.placeholderFont)
+      .textFont(this.search?.textFont)
+      .searchIcon(this.search?.searchIcon)
+      .fontColor(this.search?.fontColor)
+      .onCut(this.search?.onCut)
+      .onCopy(this.search?.onCopy)
+      .onPaste(this.search?.onPaste)
+      .onSubmit(this.search?.onSubmit)
+      .onDidInsert(this.search?.onDidInsert)
+      .onDidDelete(this.search?.onDidDelete)
+      .onEditChange(this.search?.onEditChange)
+      .onWillInsert(this.search?.onWillInsert)
+      .onWillDelete(this.search?.onWillDelete)
+      .onContentScroll(this.search?.onContentScroll)
+      .onTextSelectionChange(this.search?.onTextSelectionChange)
       .onChange((value: string, previewText?: PreviewText) => {
-        if (typeof this.searchEvents?.onChange !== 'undefined') {
-          this.searchEvents?.onChange(value, previewText);
+        if (typeof this.search?.onChange !== 'undefined') {
+          this.search?.onChange(value, previewText);
         }
         this.value = value;
       })
@@ -325,15 +322,15 @@ export struct AtomicServiceSearch {
 
   @Builder
   renderOperationItem1() {
-    if (typeof this.operationItem1 !== 'undefined' && this.showImage) {
+    if (typeof this.operation?.auxiliaryItem !== 'undefined' && this.showImage) {
       Row() {
-        Image(this.operationItem1?.value)
+        Image(this.operation?.auxiliaryItem?.value)
           .objectFit(ImageFit.Contain)
           .fillColor(FUNCTION_ICON_COLOR)
           .width(ICON_WIDTH_AND_HEIGTH)
           .height(ICON_WIDTH_AND_HEIGTH)
       }
-      .onClick(this.operationItem1?.action)
+      .onClick(this.operation?.auxiliaryItem.action)
       .flexShrink(FLEX_SHRINK)
       .borderRadius(ATOMIC_SELECT_BORDER_RADIUS)
       .alignItems(VerticalAlign.Center)
@@ -341,7 +338,7 @@ export struct AtomicServiceSearch {
       .width(ATMOIC_SELECT_HEIGHT)
       .height(ATMOIC_SELECT_HEIGHT)
       .margin({ right: OPERATION_ITEM1_MARGIN_RIGHT })
-      .backgroundColor(this.isFunction1Pressed ? this.searchStyle?.pressBackgroundColor : Color.Transparent)
+      .backgroundColor(this.isFunction1Pressed ? this.search?.pressBackgroundColor : Color.Transparent)
       .onTouch((event?: TouchEvent) => {
         if (event && event.type === TouchType.Down) {
           this.isFunction1Pressed = true;
@@ -354,15 +351,15 @@ export struct AtomicServiceSearch {
 
   @Builder
   renderOperationItem2() {
-    if (typeof this.operationItem2 !== 'undefined') {
+    if (typeof this.operation?.auxiliaryItem !== 'undefined') {
       Row() {
-        Image(this.operationItem2?.value)
+        Image(this.operation?.auxiliaryItem.value)
           .objectFit(ImageFit.Contain)
           .fillColor(FUNCTION_ICON_COLOR)
           .width(ICON_WIDTH_AND_HEIGTH)
           .height(ICON_WIDTH_AND_HEIGTH)
       }
-      .onClick(this.operationItem2?.action)
+      .onClick(this.operation?.auxiliaryItem.action)
       .flexShrink(FLEX_SHRINK)
       .borderRadius(ATOMIC_SELECT_BORDER_RADIUS)
       .alignItems(VerticalAlign.Center)
@@ -370,8 +367,8 @@ export struct AtomicServiceSearch {
       .width(ATOMIC_SERVICE_SEARCH_HEIGHT)
       .height(ATOMIC_SERVICE_SEARCH_HEIGHT)
       .margin(OPERATION_ITEM2_MARGIN_LEFT)
-      .backgroundColor(this.isFunction2Pressed ? this.searchStyle?.pressBackgroundColor :
-        this.searchStyle?.componentBackgroundColor)
+      .backgroundColor(this.isFunction2Pressed ?
+        this.search?.pressBackgroundColor : this.search?.componentBackgroundColor)
       .onTouch((event?: TouchEvent) => {
         if (event && event.type === TouchType.Down) {
           this.isFunction2Pressed = true;
@@ -394,20 +391,19 @@ export struct AtomicServiceSearch {
             direction: FlexDirection.Row,
             alignItems: ItemAlign.Center,
             justifyContent: FlexAlign.Start
-          }) {
+          }){
             this.renderSelect();
             this.renderDivider();
             this.renderSearch();
           }
-
-          if (typeof this.searchStyle?.searchButton === 'undefined') {
+          if (typeof this.search?.searchButton === 'undefined') {
             this.renderOperationItem1();
           }
         }
         .alignContent(Alignment.End)
         .borderRadius(ATOMIC_SELECT_BORDER_RADIUS)
         .backgroundColor(this.isSearchPressed ?
-          this.searchStyle?.pressBackgroundColor : this.searchStyle?.componentBackgroundColor)
+          this.search?.pressBackgroundColor : this.search?.componentBackgroundColor)
 
         this.renderOperationItem2();
       }
