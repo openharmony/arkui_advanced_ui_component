@@ -51,7 +51,7 @@ const TITLE_MARGIN_RIGHT = 12;
 const TITLE_MARGIN_TOP = 8;
 const TITLE_LABEL_MARGIN = 8.5;
 const TITLE_TEXT_MARGIN = 3;
-const MAX_WIDTH = '60%';
+const MAX_WIDTH = 480;
 const MAX_WIDTH_LIMIT = 600;
 const ARKUI_APP_BAR_COLOR_CONFIGURATION = 'arkui_app_bar_color_configuration';
 const ARKUI_APP_BAR_MENU_SAFE_AREA = 'arkui_app_bar_menu_safe_area';
@@ -111,15 +111,18 @@ export class CustomAppBar extends ViewPU {
         this.__contentMarginLeft = new ObservedPropertySimplePU(0, this, 'contentMarginLeft');
         this.__contentMarginRight = new ObservedPropertySimplePU(0, this, 'contentMarginRight');
         this.__contentMarginBottom = new ObservedPropertySimplePU(0, this, 'contentMarginBottom');
-        this.__appBarOpacity = new ObservedPropertySimplePU(0, this, 'appBarOpacity');
         this.__isHalfScreen = new ObservedPropertySimplePU(true, this, 'isHalfScreen');
+        this.isHalfToFullScreen = false;
         this.__containerHeight = new ObservedPropertySimplePU('0%', this, 'containerHeight');
         this.__containerWidth = new ObservedPropertySimplePU('100%', this, 'containerWidth');
+        this.__stackHeight = new ObservedPropertySimplePU('100%', this, 'stackHeight');
         this.__borderSize = new ObservedPropertySimplePU(HALF_CONTAINER_BORFER_SIZE, this, 'borderSize');
-        this.__titleOpacity = new ObservedPropertySimplePU(1, this, 'titleOpacity');
+        this.__titleOpacity = new ObservedPropertySimplePU(0, this, 'titleOpacity');
         this.__buttonOpacity = new ObservedPropertySimplePU(1, this, 'buttonOpacity');
         this.__titleHeight = new ObservedPropertySimplePU(0, this, 'titleHeight');
+        this.__titleOffset = new ObservedPropertySimplePU(0, this, 'titleOffset');
         this.__maskOpacity = new ObservedPropertySimplePU(0, this, 'maskOpacity');
+        this.__maskBlurScale = new ObservedPropertySimplePU(0, this, 'maskBlurScale');
         this.__contentBgColor = new ObservedPropertyObjectPU('#FFFFFFFF', this, 'contentBgColor');
         this.__isShowPanel = new ObservedPropertySimplePU(false, this, 'isShowPanel');
         this.__statusBarHeight = new ObservedPropertySimplePU(0, this, 'statusBarHeight');
@@ -174,17 +177,20 @@ export class CustomAppBar extends ViewPU {
         if (params.contentMarginBottom !== undefined) {
             this.contentMarginBottom = params.contentMarginBottom;
         }
-        if (params.appBarOpacity !== undefined) {
-            this.appBarOpacity = params.appBarOpacity;
-        }
         if (params.isHalfScreen !== undefined) {
             this.isHalfScreen = params.isHalfScreen;
+        }
+        if (params.isHalfToFullScreen !== undefined) {
+            this.isHalfToFullScreen = params.isHalfToFullScreen;
         }
         if (params.containerHeight !== undefined) {
             this.containerHeight = params.containerHeight;
         }
         if (params.containerWidth !== undefined) {
             this.containerWidth = params.containerWidth;
+        }
+        if (params.stackHeight !== undefined) {
+            this.stackHeight = params.stackHeight;
         }
         if (params.borderSize !== undefined) {
             this.borderSize = params.borderSize;
@@ -198,8 +204,14 @@ export class CustomAppBar extends ViewPU {
         if (params.titleHeight !== undefined) {
             this.titleHeight = params.titleHeight;
         }
+        if (params.titleOffset !== undefined) {
+            this.titleOffset = params.titleOffset;
+        }
         if (params.maskOpacity !== undefined) {
             this.maskOpacity = params.maskOpacity;
+        }
+        if (params.maskBlurScale !== undefined) {
+            this.maskBlurScale = params.maskBlurScale;
         }
         if (params.contentBgColor !== undefined) {
             this.contentBgColor = params.contentBgColor;
@@ -251,15 +263,17 @@ export class CustomAppBar extends ViewPU {
         this.__contentMarginLeft.purgeDependencyOnElmtId(rmElmtId);
         this.__contentMarginRight.purgeDependencyOnElmtId(rmElmtId);
         this.__contentMarginBottom.purgeDependencyOnElmtId(rmElmtId);
-        this.__appBarOpacity.purgeDependencyOnElmtId(rmElmtId);
         this.__isHalfScreen.purgeDependencyOnElmtId(rmElmtId);
         this.__containerHeight.purgeDependencyOnElmtId(rmElmtId);
         this.__containerWidth.purgeDependencyOnElmtId(rmElmtId);
+        this.__stackHeight.purgeDependencyOnElmtId(rmElmtId);
         this.__borderSize.purgeDependencyOnElmtId(rmElmtId);
         this.__titleOpacity.purgeDependencyOnElmtId(rmElmtId);
         this.__buttonOpacity.purgeDependencyOnElmtId(rmElmtId);
         this.__titleHeight.purgeDependencyOnElmtId(rmElmtId);
+        this.__titleOffset.purgeDependencyOnElmtId(rmElmtId);
         this.__maskOpacity.purgeDependencyOnElmtId(rmElmtId);
+        this.__maskBlurScale.purgeDependencyOnElmtId(rmElmtId);
         this.__contentBgColor.purgeDependencyOnElmtId(rmElmtId);
         this.__isShowPanel.purgeDependencyOnElmtId(rmElmtId);
         this.__statusBarHeight.purgeDependencyOnElmtId(rmElmtId);
@@ -278,15 +292,17 @@ export class CustomAppBar extends ViewPU {
         this.__contentMarginLeft.aboutToBeDeleted();
         this.__contentMarginRight.aboutToBeDeleted();
         this.__contentMarginBottom.aboutToBeDeleted();
-        this.__appBarOpacity.aboutToBeDeleted();
         this.__isHalfScreen.aboutToBeDeleted();
         this.__containerHeight.aboutToBeDeleted();
         this.__containerWidth.aboutToBeDeleted();
+        this.__stackHeight.aboutToBeDeleted();
         this.__borderSize.aboutToBeDeleted();
         this.__titleOpacity.aboutToBeDeleted();
         this.__buttonOpacity.aboutToBeDeleted();
         this.__titleHeight.aboutToBeDeleted();
+        this.__titleOffset.aboutToBeDeleted();
         this.__maskOpacity.aboutToBeDeleted();
+        this.__maskBlurScale.aboutToBeDeleted();
         this.__contentBgColor.aboutToBeDeleted();
         this.__isShowPanel.aboutToBeDeleted();
         this.__statusBarHeight.aboutToBeDeleted();
@@ -371,12 +387,6 @@ export class CustomAppBar extends ViewPU {
     set contentMarginBottom(newValue) {
         this.__contentMarginBottom.set(newValue);
     }
-    get appBarOpacity() {
-        return this.__appBarOpacity.get();
-    }
-    set appBarOpacity(newValue) {
-        this.__appBarOpacity.set(newValue);
-    }
     get isHalfScreen() {
         return this.__isHalfScreen.get();
     }
@@ -394,6 +404,12 @@ export class CustomAppBar extends ViewPU {
     }
     set containerWidth(newValue) {
         this.__containerWidth.set(newValue);
+    }
+    get stackHeight() {
+        return this.__stackHeight.get();
+    }
+    set stackHeight(newValue) {
+        this.__stackHeight.set(newValue);
     }
     get borderSize() {
         return this.__borderSize.get();
@@ -419,11 +435,23 @@ export class CustomAppBar extends ViewPU {
     set titleHeight(newValue) {
         this.__titleHeight.set(newValue);
     }
+    get titleOffset() {
+        return this.__titleOffset.get();
+    }
+    set titleOffset(newValue) {
+        this.__titleOffset.set(newValue);
+    }
     get maskOpacity() {
         return this.__maskOpacity.get();
     }
     set maskOpacity(newValue) {
         this.__maskOpacity.set(newValue);
+    }
+    get maskBlurScale() {
+        return this.__maskBlurScale.get();
+    }
+    set maskBlurScale(newValue) {
+        this.__maskBlurScale.set(newValue);
     }
     get contentBgColor() {
         return this.__contentBgColor.get();
@@ -458,9 +486,8 @@ export class CustomAppBar extends ViewPU {
         else {
             this.containerHeight = '100%';
             this.containerWidth = '100%';
-            this.appBarOpacity = 1;
         }
-        let portraitFunc = (mediaQueryResult) => this.onPortrait(mediaQueryResult); // bind current js instance
+        let portraitFunc = (mediaQueryResult) => this.onPortrait(mediaQueryResult);
         this.listener.on('change', portraitFunc);
     }
     onPortrait(mediaQueryResult) {
@@ -595,12 +622,20 @@ export class CustomAppBar extends ViewPU {
             curve: Curve.Sharp,
         }, () => {
             this.maskOpacity = 0.3;
+            this.maskBlurScale = 1;
         });
         Context.animateTo({
-            duration: 100,
+            duration: 250,
             curve: curves.interpolatingSpring(0, 1, 328, 36),
         }, () => {
             this.containerHeight = '100%';
+        });
+        // 标题栏渐显
+        Context.animateTo({
+            duration: 100,
+            curve: curves.cubicBezierCurve(0.2, 0, 0.2, 1),
+        }, () => {
+            this.titleOpacity = 1;
         });
     }
     /**
@@ -608,49 +643,60 @@ export class CustomAppBar extends ViewPU {
      */
     expendContainerAnimation() {
         Context.animateTo({
-            duration: 100,
-            curve: curves.interpolatingSpring(0, 1, 328, 36),
-        }, () => {
-            this.containerHeight = '100%';
-            this.borderSize = 0;
-            this.containerWidth = '100%';
-            this.contentMarginTop = this.fullContentMarginTop;
-            this.titleHeight = 0;
-        });
-        // 标题栏消失
-        Context.animateTo({
             duration: 150,
-            curve: curves.cubicBezierCurve(0.2, 0, 0.2, 1),
+            curve: curves.interpolatingSpring(0, 1, 328, 36),
             onFinish: () => {
-                this.isHalfScreen = false;
                 this.contentBgColor = '#FFFFFF';
+                this.isHalfToFullScreen = true;
             }
         }, () => {
-            this.titleOpacity = 0;
-            this.appBarOpacity = 1;
+            this.containerWidth = '100%';
+            this.contentMarginTop = this.fullContentMarginTop;
+            this.titleOffset = -this.titleHeight;
+            this.isHalfScreen = false;
         });
-        // 按钮消失
+        // 标题栏渐隐
         Context.animateTo({
-            duration: 150,
-            curve: curves.cubicBezierCurve(0.33, 0, 0.67, 1),
+            duration: 100,
+            curve: curves.cubicBezierCurve(0.2, 0, 0.2, 1),
         }, () => {
-            this.buttonOpacity = 0;
+            this.titleOpacity = 0;
         });
     }
     /**
-     * 半屏嵌入式关闭动效
+     * 嵌入式关闭动效
      */
     closeContainerAnimation() {
+        if (this.isHalfScreen) {
+            this.closeHalfContainerAnimation();
+            return;
+        }
+        if (this.isHalfToFullScreen) {
+            // 关闭弹框
+            Context.animateTo({
+                duration: 250,
+                curve: curves.interpolatingSpring(0, 1, 328, 36),
+                onFinish: () => {
+                    this.onCloseButtonClick();
+                }
+            }, () => {
+                this.stackHeight = '0%';
+            });
+        }
+        else {
+            this.onCloseButtonClick();
+        }
+    }
+    closeHalfContainerAnimation() {
         // 关闭弹框
         Context.animateTo({
-            duration: 100,
+            duration: 250,
             curve: curves.interpolatingSpring(0, 1, 328, 36),
             onFinish: () => {
                 this.onCloseButtonClick();
             }
         }, () => {
             this.containerHeight = '0%';
-            this.borderSize = 0;
         });
         // 蒙层渐隐
         Context.animateTo({
@@ -658,10 +704,11 @@ export class CustomAppBar extends ViewPU {
             curve: Curve.Sharp,
         }, () => {
             this.maskOpacity = 0;
+            this.maskBlurScale = 0;
         });
         // 标题栏渐隐
         Context.animateTo({
-            duration: 200,
+            duration: 100,
             curve: curves.cubicBezierCurve(0.2, 0, 0.2, 1),
         }, () => {
             this.titleOpacity = 0;
@@ -672,7 +719,6 @@ export class CustomAppBar extends ViewPU {
             Row.create();
             Row.id('AtomicServiceMenubarRowId');
             Row.margin({ top: this.statusBarHeight + MENU_MARGIN_TOP, left: VIEW_MARGIN_RIGHT, right: VIEW_MARGIN_RIGHT });
-            Row.opacity(this.appBarOpacity);
             Row.justifyContent(FlexAlign.End);
             Row.height(VIEW_HEIGHT);
             Row.hitTestBehavior(HitTestMode.Transparent);
@@ -688,6 +734,7 @@ export class CustomAppBar extends ViewPU {
             Row.width(VIEW_WIDTH);
             Row.align(Alignment.Top);
             Row.draggable(false);
+            Row.geometryTransition('menubar');
             Row.id('AtomicServiceMenubarId');
         }, Row);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -736,7 +783,7 @@ export class CustomAppBar extends ViewPU {
             Gesture.create(GesturePriority.Low);
             TapGesture.create();
             TapGesture.onAction(() => {
-                this.onCloseButtonClick();
+                this.closeContainerAnimation();
             });
             TapGesture.pop();
             Gesture.pop();
@@ -747,7 +794,6 @@ export class CustomAppBar extends ViewPU {
             Image.width(IMAGE_SIZE);
             Image.height(IMAGE_SIZE);
             Image.fillColor(this.closeFillColor);
-            Image.draggable(false);
             Image.draggable(false);
             Image.interpolation(ImageInterpolation.High);
         }, Image);
@@ -760,6 +806,7 @@ export class CustomAppBar extends ViewPU {
             Column.create();
             Column.justifyContent(FlexAlign.Start);
             Column.height(this.titleHeight);
+            Column.offset({ y: this.titleOffset });
             Column.hitTestBehavior(HitTestMode.Transparent);
         }, Column);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -843,10 +890,19 @@ export class CustomAppBar extends ViewPU {
             Row.height(this.containerHeight);
             Row.alignItems(VerticalAlign.Top);
             Row.justifyContent(FlexAlign.End);
-            Row.margin({
-                top: LengthMetrics.vp(this.titleHeight + HALF_MENU_MARGIN)
-            });
             Row.opacity(this.buttonOpacity);
+        }, Row);
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            Row.create();
+            Row.geometryTransition('menubar');
+            Row.justifyContent(FlexAlign.End);
+            Row.transition(TransitionEffect.OPACITY);
+            Row.borderRadius(MENU_RADIUS);
+            Row.height(BUTTON_SIZE);
+            Row.margin({
+                top: LengthMetrics.vp(this.titleHeight + HALF_MENU_MARGIN),
+                end: LengthMetrics.vp(HALF_MENU_MARGIN)
+            });
         }, Row);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Button.createWithChild({ type: ButtonType.Circle });
@@ -859,8 +915,7 @@ export class CustomAppBar extends ViewPU {
         }, Button);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             SymbolGlyph.create({ 'id': -1, 'type': 40000, params: ['sys.symbol.arrow_up_left_and_arrow_down_right'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
-            SymbolGlyph.height(BUTTON_IMAGE_SIZE);
-            SymbolGlyph.width(BUTTON_IMAGE_SIZE);
+            SymbolGlyph.fontSize(BUTTON_IMAGE_SIZE);
             SymbolGlyph.fontWeight(FontWeight.Medium);
             SymbolGlyph.fontColor([this.halfButtonImageColor]);
         }, SymbolGlyph);
@@ -869,7 +924,9 @@ export class CustomAppBar extends ViewPU {
             Button.createWithChild({ type: ButtonType.Circle });
             Button.width(BUTTON_SIZE);
             Button.height(BUTTON_SIZE);
-            Button.margin({ start: LengthMetrics.vp(VIEW_MARGIN_RIGHT), end: LengthMetrics.vp(HALF_MENU_MARGIN) });
+            Button.margin({
+                start: LengthMetrics.vp(VIEW_MARGIN_RIGHT)
+            });
             Button.backgroundColor(this.halfButtonBackColor);
             Button.onClick(() => {
                 this.closeContainerAnimation();
@@ -877,12 +934,12 @@ export class CustomAppBar extends ViewPU {
         }, Button);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             SymbolGlyph.create({ 'id': -1, 'type': 40000, params: ['sys.symbol.xmark'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
-            SymbolGlyph.height(BUTTON_IMAGE_SIZE);
-            SymbolGlyph.width(BUTTON_IMAGE_SIZE);
+            SymbolGlyph.fontSize(BUTTON_IMAGE_SIZE);
             SymbolGlyph.fontWeight(FontWeight.Medium);
             SymbolGlyph.fontColor([this.halfButtonImageColor]);
         }, SymbolGlyph);
         Button.pop();
+        Row.pop();
         Row.pop();
         Column.pop();
     }
@@ -928,7 +985,7 @@ export class CustomAppBar extends ViewPU {
         }, Column);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Stack.create({ alignContent: Alignment.TopEnd });
-            Stack.height('100%');
+            Stack.height(this.stackHeight);
             Stack.width('100%');
             Stack.backgroundColor(ObservedObject.GetRawObject(this.contentBgColor));
             Stack.hitTestBehavior(HitTestMode.Transparent);
@@ -950,7 +1007,7 @@ export class CustomAppBar extends ViewPU {
                         // 透明模糊背板
                         Column.opacity(this.maskOpacity);
                         // 透明模糊背板
-                        Column.foregroundBlurStyle(BlurStyle.BACKGROUND_REGULAR);
+                        Column.foregroundBlurStyle(BlurStyle.BACKGROUND_REGULAR, { scale: this.maskBlurScale });
                         // 透明模糊背板
                         Column.onClick(() => {
                             this.closeContainerAnimation();
