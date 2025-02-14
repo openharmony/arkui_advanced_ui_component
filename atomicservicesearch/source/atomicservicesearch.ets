@@ -15,6 +15,10 @@
 import { LengthMetrics, OperationOption } from '@kit.ArkUI';
 
 declare type OnSelectCallback = (index: number, value?: string) => void;
+declare type OnPasteCallback = (value: string, event: PasteEvent) => void;
+declare type OnTextSelectionChangeCallback = (selectionStart: number, selectionEnd: number) => void;
+declare type OnContentScrollCallback = (totalOffsetX: number, totalOffsetY: number) => void;
+
 const TEXT_SIZE_BODY1: Resource = $r(`sys.float.ohos_id_text_size_body1`);
 const COLOR_TEXT_SECONDARY = $r(`sys.color.ohos_id_color_text_secondary`);
 const ICON_COLOR_SECONDARY = $r('sys.color.ohos_id_color_secondary');
@@ -79,7 +83,7 @@ interface SelectOptions {
 
 interface SearchOptions {
   componentBackgroundColor?: ResourceColor;
-  pressBackgroundColor?: ResourceColor;
+  pressedBackgroundColor?: ResourceColor;
   searchButton?: SearchButtonParams;
   placeholderColor?: ResourceColor;
   placeholderFont?: Font;
@@ -91,8 +95,8 @@ interface SearchOptions {
   fontColor?: ResourceColor;
   caretStyle?: CaretStyle;
   enableKeyboardOnFocus?: boolean;
-  selectionMenuHidden?: boolean;
-  keyboardAvoidance?: boolean;
+  hideSelectionMenu?: boolean;
+  avoidKeyboard?: boolean;
   type?: SearchType;
   maxLength?: number;
   enterKeyType?: EnterKeyType;
@@ -132,7 +136,7 @@ export struct AtomicServiceSearch {
   @State private isFunction2Pressed: boolean = false;
   @State private isSearchPressed: boolean = false;
   @State private showImage: boolean = true;
-  @Prop @Watch('onParamsChange') value?: string = '';
+  @Prop @Watch('onParamsChange') value?: ResourceStr = '';
   @Prop placeholder?: ResourceStr = 'Search';
   @Prop select?: SelectOptions = {};
   @Prop search?: SearchOptions = {
@@ -149,13 +153,13 @@ export struct AtomicServiceSearch {
       size: ICON_SIZE,
       color: ICON_COLOR_SECONDARY,
     },
-    pressBackgroundColor: EFFECT_COLOR
+    pressedBackgroundColor: EFFECT_COLOR
   };
   operation?: OperationOptions;
   controller?: SearchController = new SearchController();
 
   aboutToAppear(): void {
-    this.showImage = this.value?.length === 0 ? true : false;
+    this.showImage = this.value?.toString().length === 0 ? true : false;
     this.initSelectStyle();
     this.initSearchStyle();
   }
@@ -171,7 +175,7 @@ export struct AtomicServiceSearch {
     }
   }
 
-  private initSearchStyle() : void {
+  private initSearchStyle(): void {
     if (typeof this.search !== 'undefined') {
       if (typeof this.search.componentBackgroundColor === 'undefined') {
         this.search.componentBackgroundColor = ATOMIC_SERVICE_SEARCH_BG_COLOR;
@@ -194,14 +198,14 @@ export struct AtomicServiceSearch {
           color: ICON_COLOR_SECONDARY,
         }
       }
-      if (typeof this.search.pressBackgroundColor === 'undefined') {
-        this.search.pressBackgroundColor = EFFECT_COLOR;
+      if (typeof this.search.pressedBackgroundColor === 'undefined') {
+        this.search.pressedBackgroundColor = EFFECT_COLOR;
       }
     }
   }
 
   private onParamsChange(): void {
-    this.showImage = this.value?.length === 0 ? true : false;
+    this.showImage = this.value?.toString().length === 0 ? true : false;
   }
 
   @Builder
@@ -259,7 +263,7 @@ export struct AtomicServiceSearch {
   @Builder
   renderSearch() {
     Search({
-      value: this.value,
+      value: this.value?.toString(),
       placeholder: this.placeholder,
       controller: this.controller
     })
@@ -275,8 +279,8 @@ export struct AtomicServiceSearch {
       .fontColor(this.search?.fontColor)
       .caretStyle(this.search?.caretStyle)
       .enableKeyboardOnFocus(this.search?.enableKeyboardOnFocus)
-      .selectionMenuHidden(this.search?.selectionMenuHidden)
-      .customKeyboard(null, { supportAvoidance: this.search?.keyboardAvoidance })
+      .selectionMenuHidden(this.search?.hideSelectionMenu)
+      .customKeyboard(null, { supportAvoidance: this.search?.avoidKeyboard })
       .type(this.search?.type)
       .maxLength(this.search?.maxLength)
       .enterKeyType(this.search?.enterKeyType)
@@ -339,7 +343,7 @@ export struct AtomicServiceSearch {
       .width(ATOMIC_SELECT_HEIGHT)
       .height(ATOMIC_SELECT_HEIGHT)
       .margin({ right: OPERATION_ITEM1_MARGIN_RIGHT })
-      .backgroundColor(this.isFunction1Pressed ? this.search?.pressBackgroundColor : Color.Transparent)
+      .backgroundColor(this.isFunction1Pressed ? this.search?.pressedBackgroundColor : Color.Transparent)
       .onTouch((event?: TouchEvent) => {
         if (event && event.type === TouchType.Down) {
           this.isFunction1Pressed = true;
@@ -369,7 +373,7 @@ export struct AtomicServiceSearch {
       .height(ATOMIC_SERVICE_SEARCH_HEIGHT)
       .margin(OPERATION_ITEM2_MARGIN_LEFT)
       .backgroundColor(this.isFunction2Pressed ?
-        this.search?.pressBackgroundColor : this.search?.componentBackgroundColor)
+        this.search?.pressedBackgroundColor : this.search?.componentBackgroundColor)
       .onTouch((event?: TouchEvent) => {
         if (event && event.type === TouchType.Down) {
           this.isFunction2Pressed = true;
@@ -397,6 +401,7 @@ export struct AtomicServiceSearch {
             this.renderDivider();
             this.renderSearch();
           }
+
           if (typeof this.search?.searchButton === 'undefined') {
             this.renderAuxiliaryItem();
           }
@@ -404,12 +409,11 @@ export struct AtomicServiceSearch {
         .alignContent(Alignment.End)
         .borderRadius(ATOMIC_SELECT_BORDER_RADIUS)
         .backgroundColor(this.isSearchPressed ?
-          this.search?.pressBackgroundColor : this.search?.componentBackgroundColor)
+          this.search?.pressedBackgroundColor : this.search?.componentBackgroundColor)
 
         this.renderIndependentItem();
       }
     }
     .height(ATOMIC_SERVICE_SEARCH_HEIGHT)
   }
-
 }

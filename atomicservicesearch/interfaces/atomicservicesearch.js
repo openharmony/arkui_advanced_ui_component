@@ -18,7 +18,6 @@ if (!('finalizeConstruction' in ViewPU.prototype)) {
 }
 
 const LengthMetrics = requireNapi('arkui.node').LengthMetrics;
-
 const TEXT_SIZE_BODY1 = { 'id': -1, 'type': -1, params: [`sys.float.ohos_id_text_size_body1`], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
 const COLOR_TEXT_SECONDARY = { 'id': -1, 'type': -1, params: [`sys.color.ohos_id_color_text_secondary`], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
 const ICON_COLOR_SECONDARY = { 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_secondary'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
@@ -52,7 +51,7 @@ export class AtomicServiceSearch extends ViewPU {
         this.__isFunction2Pressed = new ObservedPropertySimplePU(false, this, 'isFunction2Pressed');
         this.__isSearchPressed = new ObservedPropertySimplePU(false, this, 'isSearchPressed');
         this.__showImage = new ObservedPropertySimplePU(true, this, 'showImage');
-        this.__value = new SynchedPropertySimpleOneWayPU(params.value, this, 'value');
+        this.__value = new SynchedPropertyObjectOneWayPU(params.value, this, 'value');
         this.__placeholder = new SynchedPropertyObjectOneWayPU(params.placeholder, this, 'placeholder');
         this.__select = new SynchedPropertyObjectOneWayPU(params.select, this, 'select');
         this.__search = new SynchedPropertyObjectOneWayPU(params.search, this, 'search');
@@ -100,7 +99,7 @@ export class AtomicServiceSearch extends ViewPU {
                     size: ICON_SIZE,
                     color: ICON_COLOR_SECONDARY,
                 },
-                pressBackgroundColor: EFFECT_COLOR
+                pressedBackgroundColor: EFFECT_COLOR
             });
         }
         if (params.operation !== undefined) {
@@ -207,7 +206,7 @@ export class AtomicServiceSearch extends ViewPU {
     }
 
     aboutToAppear() {
-        this.showImage = this.value?.length === 0 ? true : false;
+        this.showImage = this.value?.toString().length === 0 ? true : false;
         this.initSelectStyle();
         this.initSearchStyle();
     }
@@ -246,14 +245,14 @@ export class AtomicServiceSearch extends ViewPU {
                     color: ICON_COLOR_SECONDARY,
                 };
             }
-            if (typeof this.search.pressBackgroundColor === 'undefined') {
-                this.search.pressBackgroundColor = EFFECT_COLOR;
+            if (typeof this.search.pressedBackgroundColor === 'undefined') {
+                this.search.pressedBackgroundColor = EFFECT_COLOR;
             }
         }
     }
 
     onParamsChange() {
-        this.showImage = this.value?.length === 0 ? true : false;
+        this.showImage = this.value?.toString().length === 0 ? true : false;
     }
 
     renderSelect(parent = null) {
@@ -336,7 +335,7 @@ export class AtomicServiceSearch extends ViewPU {
     renderSearch(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Search.create({
-                value: this.value,
+                value: this.value?.toString(),
                 placeholder: this.placeholder,
                 controller: this.controller
             });
@@ -352,8 +351,8 @@ export class AtomicServiceSearch extends ViewPU {
             Search.fontColor(this.search?.fontColor);
             Search.caretStyle(this.search?.caretStyle);
             Search.enableKeyboardOnFocus(this.search?.enableKeyboardOnFocus);
-            Search.selectionMenuHidden(this.search?.selectionMenuHidden);
-            Search.customKeyboard(null, { supportAvoidance: this.search?.keyboardAvoidance });
+            Search.selectionMenuHidden(this.search?.hideSelectionMenu);
+            Search.customKeyboard(null, { supportAvoidance: this.search?.avoidKeyboard });
             Search.type(this.search?.type);
             Search.maxLength(this.search?.maxLength);
             Search.enterKeyType(this.search?.enterKeyType);
@@ -416,7 +415,7 @@ export class AtomicServiceSearch extends ViewPU {
                         Row.width(ATOMIC_SELECT_HEIGHT);
                         Row.height(ATOMIC_SELECT_HEIGHT);
                         Row.margin({ right: OPERATION_ITEM1_MARGIN_RIGHT });
-                        Row.backgroundColor(this.isFunction1Pressed ? this.search?.pressBackgroundColor : Color.Transparent);
+                        Row.backgroundColor(this.isFunction1Pressed ? this.search?.pressedBackgroundColor : Color.Transparent);
                         Row.onTouch((event) => {
                             if (event && event.type === TouchType.Down) {
                                 this.isFunction1Pressed = true;
@@ -460,7 +459,7 @@ export class AtomicServiceSearch extends ViewPU {
                         Row.height(ATOMIC_SERVICE_SEARCH_HEIGHT);
                         Row.margin(OPERATION_ITEM2_MARGIN_LEFT);
                         Row.backgroundColor(this.isFunction2Pressed ?
-                            this.search?.pressBackgroundColor : this.search?.componentBackgroundColor);
+                            this.search?.pressedBackgroundColor : this.search?.componentBackgroundColor);
                         Row.onTouch((event) => {
                             if (event && event.type === TouchType.Down) {
                                 this.isFunction2Pressed = true;
@@ -505,7 +504,7 @@ export class AtomicServiceSearch extends ViewPU {
             Stack.alignContent(Alignment.End);
             Stack.borderRadius(ATOMIC_SELECT_BORDER_RADIUS);
             Stack.backgroundColor(this.isSearchPressed ?
-                this.search?.pressBackgroundColor : this.search?.componentBackgroundColor);
+                this.search?.pressedBackgroundColor : this.search?.componentBackgroundColor);
         }, Stack);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Flex.create({
@@ -540,7 +539,7 @@ export class AtomicServiceSearch extends ViewPU {
     rerender() {
         this.updateDirtyElements();
     }
-    
+
 }
 
 export default { AtomicServiceSearch };
