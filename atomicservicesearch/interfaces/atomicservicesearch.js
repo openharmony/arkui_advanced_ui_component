@@ -59,6 +59,8 @@ export class AtomicServiceSearch extends ViewPU {
         this.controller = new SearchController();
         this.setInitiallyProvidedValue(params);
         this.declareWatch('value', this.onParamsChange);
+        this.declareWatch('select', this.onSelectChange);
+        this.declareWatch('search', this.onSearchChange);
         this.finalizeConstruction();
     }
 
@@ -211,6 +213,18 @@ export class AtomicServiceSearch extends ViewPU {
         this.initSearchStyle();
     }
 
+    onParamsChange() {
+        this.showImage = this.value?.toString().length === 0 ? true : false;
+    }
+
+    onSelectChange() {
+        this.initSelectStyle();
+    }
+
+    onSearchChange() {
+        this.initSearchStyle();
+    }
+
     initSelectStyle() {
         if (typeof this.select !== 'undefined') {
             if (typeof this.select.font === 'undefined') {
@@ -249,10 +263,6 @@ export class AtomicServiceSearch extends ViewPU {
                 this.search.pressedBackgroundColor = EFFECT_COLOR;
             }
         }
-    }
-
-    onParamsChange() {
-        this.showImage = this.value?.toString().length === 0 ? true : false;
     }
 
     renderSelect(parent = null) {
@@ -539,7 +549,7 @@ export class AtomicServiceSearch extends ViewPU {
     rerender() {
         this.updateDirtyElements();
     }
-
+    
 }
 
 export default { AtomicServiceSearch };

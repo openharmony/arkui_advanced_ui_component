@@ -41,22 +41,22 @@ const ICON_WIDTH_AND_HEIGTH: number = 24;
 const OPERATION_ITEM1_MARGIN_RIGHT: number = 2;
 const OPERATION_ITEM2_MARGIN_LEFT: number = 8;
 
-interface InputFilterOptions {
+export interface InputFilterOptions {
   value: ResourceStr,
   error?: Callback<string>
 }
 
-interface SearchButtonParams {
+export interface SearchButtonParams {
   value: string,
   option?: SearchButtonOptions
 }
 
-interface MenuAlignOption {
+export interface MenuAlignOption {
   alignType: MenuAlignType,
   offset?: Offset
 }
 
-interface SelectOptions {
+export interface SelectOptions {
   options?: Array<SelectOption>;
   selected?: number;
   value?: string;
@@ -81,7 +81,7 @@ interface SelectOptions {
   menuBackgroundBlurStyle?: BlurStyle;
 }
 
-interface SearchOptions {
+export interface SearchOptions {
   componentBackgroundColor?: ResourceColor;
   pressedBackgroundColor?: ResourceColor;
   searchButton?: SearchButtonParams;
@@ -125,7 +125,7 @@ interface SearchOptions {
   onDidDelete?: Callback<DeleteValue>;
 }
 
-interface OperationOptions {
+export interface OperationOptions {
   auxiliaryItem?: OperationOption;
   independentItem?: OperationOption;
 }
@@ -138,8 +138,8 @@ export struct AtomicServiceSearch {
   @State private showImage: boolean = true;
   @Prop @Watch('onParamsChange') value?: ResourceStr = '';
   @Prop placeholder?: ResourceStr = 'Search';
-  @Prop select?: SelectOptions = {};
-  @Prop search?: SearchOptions = {
+  @Prop @Watch('onSelectChange') select?: SelectOptions = {};
+  @Prop @Watch('onSearchChange') search?: SearchOptions = {
     componentBackgroundColor: ATOMIC_SERVICE_SEARCH_BG_COLOR,
     placeholderFont: {
       size: TEXT_SIZE_BODY1,
@@ -161,6 +161,18 @@ export struct AtomicServiceSearch {
   aboutToAppear(): void {
     this.showImage = this.value?.toString().length === 0 ? true : false;
     this.initSelectStyle();
+    this.initSearchStyle();
+  }
+
+  private onParamsChange(): void {
+    this.showImage = this.value?.toString().length === 0 ? true : false;
+  }
+
+  private onSelectChange(): void {
+    this.initSelectStyle();
+  }
+
+  private onSearchChange(): void {
     this.initSearchStyle();
   }
 
@@ -202,10 +214,6 @@ export struct AtomicServiceSearch {
         this.search.pressedBackgroundColor = EFFECT_COLOR;
       }
     }
-  }
-
-  private onParamsChange(): void {
-    this.showImage = this.value?.toString().length === 0 ? true : false;
   }
 
   @Builder
