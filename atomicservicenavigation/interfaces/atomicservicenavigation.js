@@ -12,23 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length,
-        r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === 'object' && typeof Reflect.decorate === 'function') {
-        r =
-            Reflect.decorate(decorators, target, key, desc);
-    } else {
-        for (var i = decorators.length - 1; i >= 0; i--) {
-            if (d =
-                decorators[i]) {
-                r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-            }
-        }
-    }
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
 if (!('finalizeConstruction' in ViewPU.prototype)) {
     Reflect.set(ViewPU.prototype, 'finalizeConstruction', () => {
     });
@@ -73,26 +56,26 @@ const ATOMIC_SERVICE_CAPSULE_WIDTH = 81.5;
  *
  * @enum { number }.
  */
-export var GradientAlpha;
+export let GradientAlpha;
 (function (GradientAlpha) {
     /**
      * 不透明度为0.2
      *
      */
-    GradientAlpha[GradientAlpha['OPACITY_20'] = 1] = 'OPACITY_20';
+    GradientAlpha.OPACITY_20 = 1;
     /**
      * 不透明度为0.6
      *
      */
-    GradientAlpha[GradientAlpha['OPACITY_60'] = 2] = 'OPACITY_60';
+    GradientAlpha.OPACITY_60 = 2;
     /**
      * 不透明度为0.8
      */
-    GradientAlpha[GradientAlpha['OPACITY_80'] = 3] = 'OPACITY_80';
+    GradientAlpha.OPACITY_80 = 3;
     /**
      * 不透明度为1.0
      */
-    GradientAlpha[GradientAlpha['OPACITY_100'] = 4] = 'OPACITY_100';
+    GradientAlpha.OPACITY_100 = 4;
 })(GradientAlpha || (GradientAlpha = {}));
 
 /**
@@ -100,20 +83,20 @@ export var GradientAlpha;
  *
  * @enum { number }.
  */
-export var MixMode;
+export let MixMode;
 (function (MixMode) {
     /**
      * 两种颜色所占比例相同
      */
-    MixMode[MixMode['AVERAGE'] = 1] = 'AVERAGE';
+    MixMode.AVERAGE = 1;
     /**
      * 一种颜色穿过另一种颜色
      */
-    MixMode[MixMode['CROSS'] = 2] = 'CROSS';
+    MixMode.CROSS = 2;
     /**
      * 一种颜色渐渐转变为另一种颜色
      */
-    MixMode[MixMode['TOWARDS'] = 3] = 'TOWARDS';
+    MixMode.TOWARDS = 3;
 })(MixMode || (MixMode = {}));
 
 /**
@@ -121,20 +104,20 @@ export var MixMode;
  *
  * @enum { number }.
  */
-export var BackgroundTheme;
+export let BackgroundTheme;
 (function (BackgroundTheme) {
     /**
      * 黑色
      */
-    BackgroundTheme[BackgroundTheme['DARK'] = 1] = 'DARK';
+    BackgroundTheme.DARK = 1;
     /**
      * 白色
      */
-    BackgroundTheme[BackgroundTheme['LIGHT'] = 2] = 'LIGHT';
+    BackgroundTheme.LIGHT = 2;
     /**
      * 颜色值 #F1F3F5
      */
-    BackgroundTheme[BackgroundTheme['DEFAULT'] = 3] = 'DEFAULT';
+    BackgroundTheme.DEFAULT = 3;
 })(BackgroundTheme || (BackgroundTheme = {}));
 
 export class AtomicServiceNavigation extends ViewPU {
@@ -1574,20 +1557,20 @@ class SideBarHelper {
 /**
  * 标题栏类型
  */
-export var TitleBarType;
+export let TitleBarType;
 (function (TitleBarType) {
     /**
      * 长图标类型标题栏
      */
-    TitleBarType[TitleBarType['SQUARED_ICON'] = 1] = 'SQUARED_ICON';
+    TitleBarType.SQUARED_ICON = 1;
     /**
      * 圆形图标类型标题栏
      */
-    TitleBarType[TitleBarType['ROUND_ICON'] = 2] = 'ROUND_ICON';
+    TitleBarType.ROUND_ICON = 2;
     /**
      * 抽屉类型标题栏
      */
-    TitleBarType[TitleBarType['DRAWER'] = 3] = 'DRAWER';
+    TitleBarType.DRAWER = 3;
 })(TitleBarType || (TitleBarType = {}));
 
 //# sourceMappingURL=AtomicServiceNavigation.js.map
