@@ -41,7 +41,7 @@ const OPERATION_ITEM1_MARGIN_RIGHT = 2;
 const OPERATION_ITEM2_MARGIN_LEFT = 8;
 
 export class AtomicServiceSearch extends ViewPU {
-
+    
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
         super(parent, __localStorage, elmtId, extraInfo);
         if (typeof paramsLambda === 'function') {
@@ -162,7 +162,7 @@ export class AtomicServiceSearch extends ViewPU {
     get isSearchPressed() {
         return this.__isSearchPressed.get();
     }
-
+    
     set isSearchPressed(newValue) {
         this.__isSearchPressed.set(newValue);
     }
@@ -424,7 +424,7 @@ export class AtomicServiceSearch extends ViewPU {
                         Row.justifyContent(FlexAlign.Center);
                         Row.width(ATOMIC_SELECT_HEIGHT);
                         Row.height(ATOMIC_SELECT_HEIGHT);
-                        Row.margin({ right: OPERATION_ITEM1_MARGIN_RIGHT });
+                        Row.margin({ end: LengthMetrics.vp(OPERATION_ITEM1_MARGIN_RIGHT) });
                         Row.backgroundColor(this.isFunction1Pressed ? this.search?.pressedBackgroundColor : Color.Transparent);
                         Row.onTouch((event) => {
                             if (event && event.type === TouchType.Down) {
@@ -467,7 +467,7 @@ export class AtomicServiceSearch extends ViewPU {
                         Row.justifyContent(FlexAlign.Center);
                         Row.width(ATOMIC_SERVICE_SEARCH_HEIGHT);
                         Row.height(ATOMIC_SERVICE_SEARCH_HEIGHT);
-                        Row.margin(OPERATION_ITEM2_MARGIN_LEFT);
+                        Row.margin({ start: LengthMetrics.vp(OPERATION_ITEM2_MARGIN_LEFT) });
                         Row.backgroundColor(this.isFunction2Pressed ?
                             this.search?.pressedBackgroundColor : this.search?.componentBackgroundColor);
                         Row.onTouch((event) => {
@@ -549,7 +549,7 @@ export class AtomicServiceSearch extends ViewPU {
     rerender() {
         this.updateDirtyElements();
     }
-    
+
 }
 
 export default { AtomicServiceSearch };

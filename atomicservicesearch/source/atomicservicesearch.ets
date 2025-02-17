@@ -350,7 +350,7 @@ export struct AtomicServiceSearch {
       .justifyContent(FlexAlign.Center)
       .width(ATOMIC_SELECT_HEIGHT)
       .height(ATOMIC_SELECT_HEIGHT)
-      .margin({ right: OPERATION_ITEM1_MARGIN_RIGHT })
+      .margin({ end: LengthMetrics.vp(OPERATION_ITEM1_MARGIN_RIGHT) })
       .backgroundColor(this.isFunction1Pressed ? this.search?.pressedBackgroundColor : Color.Transparent)
       .onTouch((event?: TouchEvent) => {
         if (event && event.type === TouchType.Down) {
@@ -379,7 +379,7 @@ export struct AtomicServiceSearch {
       .justifyContent(FlexAlign.Center)
       .width(ATOMIC_SERVICE_SEARCH_HEIGHT)
       .height(ATOMIC_SERVICE_SEARCH_HEIGHT)
-      .margin(OPERATION_ITEM2_MARGIN_LEFT)
+      .margin({ start: LengthMetrics.vp(OPERATION_ITEM2_MARGIN_LEFT) })
       .backgroundColor(this.isFunction2Pressed ?
         this.search?.pressedBackgroundColor : this.search?.componentBackgroundColor)
       .onTouch((event?: TouchEvent) => {
