@@ -14,6 +14,7 @@
 group("advanced_ui_component") {
   deps = [
     "atomicservicenavigation/interfaces:atomicservicenavigation",
+    "atomicservicesearch/interfaces:atomicservicesearch",
     "atomicservicetabs/interfaces:atomicservicetabs",
     "atomicserviceweb/interfaces:atomicserviceweb",
     "customappbar/interfaces:custom_app_bar",

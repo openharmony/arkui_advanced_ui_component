@@ -26,6 +26,7 @@
         "build": {
             "sub_component": [
               "//foundation/arkui/advanced_ui_component/atomicservicenavigation/interfaces:atomicservicenavigation",
+              "//foundation/arkui/advanced_ui_component/atomicservicesearch/interfaces:atomicservicesearch",
               "//foundation/arkui/advanced_ui_component/atomicservicetabs/interfaces:atomicservicetabs",
               "//foundation/arkui/advanced_ui_component/atomicserviceweb/interfaces:atomicserviceweb",
               "//foundation/arkui/advanced_ui_component/innerfullscreenlaunchcomponent/interfaces:innerfullscreenlaunchcomponent",
