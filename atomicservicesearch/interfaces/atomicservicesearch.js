@@ -41,7 +41,7 @@ const OPERATION_ITEM1_MARGIN_RIGHT = 2;
 const OPERATION_ITEM2_MARGIN_LEFT = 8;
 
 export class AtomicServiceSearch extends ViewPU {
-    
+
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
         super(parent, __localStorage, elmtId, extraInfo);
         if (typeof paramsLambda === 'function') {
@@ -350,19 +350,18 @@ export class AtomicServiceSearch extends ViewPU {
                 controller: this.controller
             });
             Search.backgroundColor(Color.Transparent);
-            Search.searchButton(this.search?.searchButton?.value, this.search?.searchButton?.option);
+            Search.searchButton(this.search?.searchButton?.value, this.search?.searchButton?.options);
             Search.placeholderColor(this.search?.placeholderColor);
             Search.placeholderFont(this.search?.placeholderFont);
             Search.textFont(this.search?.textFont);
             Search.textAlign(this.search?.textAlign);
-            Search.copyOption(this.search?.copyOption);
+            Search.copyOption(this.search?.copyOptions);
             Search.searchIcon(this.search?.searchIcon);
             Search.cancelButton({ icon: this.search?.cancelIcon });
             Search.fontColor(this.search?.fontColor);
             Search.caretStyle(this.search?.caretStyle);
             Search.enableKeyboardOnFocus(this.search?.enableKeyboardOnFocus);
             Search.selectionMenuHidden(this.search?.hideSelectionMenu);
-            Search.customKeyboard(null, { supportAvoidance: this.search?.avoidKeyboard });
             Search.type(this.search?.type);
             Search.maxLength(this.search?.maxLength);
             Search.enterKeyType(this.search?.enterKeyType);
@@ -549,7 +548,7 @@ export class AtomicServiceSearch extends ViewPU {
     rerender() {
         this.updateDirtyElements();
     }
-
+    
 }
 
 export default { AtomicServiceSearch };

@@ -48,10 +48,10 @@ export interface InputFilterOptions {
 
 export interface SearchButtonParams {
   value: string,
-  option?: SearchButtonOptions
+  options?: SearchButtonOptions
 }
 
-export interface MenuAlignOption {
+export interface MenuAlignOptions {
   alignType: MenuAlignType,
   offset?: Offset
 }
@@ -76,7 +76,7 @@ export interface SelectOptions {
   optionHeight?: Dimension;
   space?: Length;
   arrowPosition?: ArrowPosition;
-  menuAlign?: MenuAlignOption;
+  menuAlign?: MenuAlignOptions;
   menuBackgroundColor?: ResourceColor;
   menuBackgroundBlurStyle?: BlurStyle;
 }
@@ -89,14 +89,13 @@ export interface SearchOptions {
   placeholderFont?: Font;
   textFont?: Font;
   textAlign?: TextAlign;
-  copyOption?: CopyOptions;
+  copyOptions?: CopyOptions;
   searchIcon?: IconOptions | SymbolGlyphModifier;
   cancelIcon?: IconOptions;
   fontColor?: ResourceColor;
   caretStyle?: CaretStyle;
   enableKeyboardOnFocus?: boolean;
   hideSelectionMenu?: boolean;
-  avoidKeyboard?: boolean;
   type?: SearchType;
   maxLength?: number;
   enterKeyType?: EnterKeyType;
@@ -276,19 +275,18 @@ export struct AtomicServiceSearch {
       controller: this.controller
     })
       .backgroundColor(Color.Transparent)
-      .searchButton(this.search?.searchButton?.value, this.search?.searchButton?.option)
+      .searchButton(this.search?.searchButton?.value, this.search?.searchButton?.options)
       .placeholderColor(this.search?.placeholderColor)
       .placeholderFont(this.search?.placeholderFont)
       .textFont(this.search?.textFont)
       .textAlign(this.search?.textAlign)
-      .copyOption(this.search?.copyOption)
+      .copyOption(this.search?.copyOptions)
       .searchIcon(this.search?.searchIcon)
       .cancelButton({ icon: this.search?.cancelIcon })
       .fontColor(this.search?.fontColor)
       .caretStyle(this.search?.caretStyle)
       .enableKeyboardOnFocus(this.search?.enableKeyboardOnFocus)
       .selectionMenuHidden(this.search?.hideSelectionMenu)
-      .customKeyboard(null, { supportAvoidance: this.search?.avoidKeyboard })
       .type(this.search?.type)
       .maxLength(this.search?.maxLength)
       .enterKeyType(this.search?.enterKeyType)
