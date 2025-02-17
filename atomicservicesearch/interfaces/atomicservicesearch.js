@@ -162,7 +162,7 @@ export class AtomicServiceSearch extends ViewPU {
     get isSearchPressed() {
         return this.__isSearchPressed.get();
     }
-    
+
     set isSearchPressed(newValue) {
         this.__isSearchPressed.set(newValue);
     }
