@@ -548,7 +548,7 @@ export class AtomicServiceSearch extends ViewPU {
     rerender() {
         this.updateDirtyElements();
     }
-    
+
 }
 
 export default { AtomicServiceSearch };

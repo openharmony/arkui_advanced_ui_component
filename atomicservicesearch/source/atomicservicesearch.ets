@@ -59,7 +59,7 @@ export interface MenuAlignOptions {
 export interface SelectOptions {
   options?: Array<SelectOption>;
   selected?: number;
-  value?: string;
+  value?: ResourceStr;
   onSelect?: OnSelectCallback;
   controlSize?: ControlSize;
   menuItemContentModifier?: ContentModifier<MenuItemConfiguration>;
