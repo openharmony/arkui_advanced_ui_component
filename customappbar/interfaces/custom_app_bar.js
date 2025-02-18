@@ -635,7 +635,18 @@ export class CustomAppBar extends ViewPU {
      * 点击title栏
      */
     onEyelashTitleClick() {
-        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL, 1);
+        let info = {
+            'bundleName':'com.huawei.hmos.asde',
+            'abilityName':'PanelAbility',
+            'params':[
+                `bundleName:${this.bundleName}`,
+                'abilityName:MainAbility',
+                'module:entry',
+                'pageName:DETAIL',
+                'ability.want.params.uiExtensionType:sysDialog/atomicServicePanel'
+            ]
+        }
+        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL, info);
     }
     /**
      * 触发构建回调
