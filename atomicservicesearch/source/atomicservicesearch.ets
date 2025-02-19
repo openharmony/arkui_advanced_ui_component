@@ -41,7 +41,7 @@ const ICON_WIDTH_AND_HEIGTH: number = 24;
 const OPERATION_ITEM1_MARGIN_RIGHT: number = 2;
 const OPERATION_ITEM2_MARGIN_LEFT: number = 8;
 
-export interface InputFilterOptions {
+export interface InputFilterParams {
   inputFilterValue: ResourceStr,
   error?: Callback<string>
 }
@@ -51,12 +51,12 @@ export interface SearchButtonParams {
   options?: SearchButtonOptions
 }
 
-export interface MenuAlignOptions {
+export interface MenuAlignParams {
   alignType: MenuAlignType,
   offset?: Offset
 }
 
-export interface SelectOptions {
+export interface SelectParams {
   options?: Array<SelectOption>;
   selected?: number;
   selectValue?: ResourceStr;
@@ -76,12 +76,12 @@ export interface SelectOptions {
   optionHeight?: Dimension;
   space?: Length;
   arrowPosition?: ArrowPosition;
-  menuAlign?: MenuAlignOptions;
+  menuAlign?: MenuAlignParams;
   menuBackgroundColor?: ResourceColor;
   menuBackgroundBlurStyle?: BlurStyle;
 }
 
-export interface SearchOptions {
+export interface SearchParams {
   componentBackgroundColor?: ResourceColor;
   pressedBackgroundColor?: ResourceColor;
   searchButton?: SearchButtonParams;
@@ -103,7 +103,7 @@ export interface SearchOptions {
   letterSpacing?: number | string | Resource;
   fontFeature?: ResourceStr;
   selectedBackgroundColor?: ResourceColor;
-  inputFilter?: InputFilterOptions;
+  inputFilter?: InputFilterParams;
   textIndent?: Dimension;
   minFontSize?: number | string | Resource;
   maxFontSize?: number | string | Resource;
@@ -124,7 +124,7 @@ export interface SearchOptions {
   onDidDelete?: Callback<DeleteValue>;
 }
 
-export interface OperationOptions {
+export interface OperationParams {
   auxiliaryItem?: OperationOption;
   independentItem?: OperationOption;
 }
@@ -137,8 +137,8 @@ export struct AtomicServiceSearch {
   @State private showImage: boolean = true;
   @Prop @Watch('onParamsChange') value?: ResourceStr = '';
   @Prop placeholder?: ResourceStr = 'Search';
-  @Prop @Watch('onSelectChange') select?: SelectOptions = {};
-  @Prop @Watch('onSearchChange') search?: SearchOptions = {
+  @Prop @Watch('onSelectChange') select?: SelectParams = {};
+  @Prop @Watch('onSearchChange') search?: SearchParams = {
     componentBackgroundColor: ATOMIC_SERVICE_SEARCH_BG_COLOR,
     placeholderFont: {
       size: TEXT_SIZE_BODY1,
@@ -154,7 +154,7 @@ export struct AtomicServiceSearch {
     },
     pressedBackgroundColor: EFFECT_COLOR
   };
-  operation?: OperationOptions;
+  operation?: OperationParams;
   controller?: SearchController = new SearchController();
 
   aboutToAppear(): void {
