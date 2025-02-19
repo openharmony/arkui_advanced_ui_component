@@ -117,7 +117,7 @@ export class CustomAppBar extends ViewPU {
         this.__contentMarginLeft = new ObservedPropertySimplePU(0, this, 'contentMarginLeft');
         this.__contentMarginRight = new ObservedPropertySimplePU(0, this, 'contentMarginRight');
         this.__contentMarginBottom = new ObservedPropertySimplePU(0, this, 'contentMarginBottom');
-        this.__menuMarginEnd = new ObservedPropertySimplePU(0, this, "menuMarginEnd");
+        this.__menuMarginEnd = new ObservedPropertySimplePU(0, this, 'menuMarginEnd');
         this.__isHalfScreen = new ObservedPropertySimplePU(true, this, 'isHalfScreen');
         this.__containerHeight = new ObservedPropertySimplePU('0%', this, 'containerHeight');
         this.__containerWidth = new ObservedPropertySimplePU('100%', this, 'containerWidth');
