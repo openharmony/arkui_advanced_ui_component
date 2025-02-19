@@ -117,7 +117,7 @@ export class CustomAppBar extends ViewPU {
         this.__contentMarginLeft = new ObservedPropertySimplePU(0, this, 'contentMarginLeft');
         this.__contentMarginRight = new ObservedPropertySimplePU(0, this, 'contentMarginRight');
         this.__contentMarginBottom = new ObservedPropertySimplePU(0, this, 'contentMarginBottom');
-        this.__menuMarginEnd = new ObservedPropertySimplePU(0, this, 'menuMarginEnd');
+        this.__menuMarginEnd = new ObservedPropertySimplePU(SM_MENU_MARGIN_END, this, 'menuMarginEnd');
         this.__isHalfScreen = new ObservedPropertySimplePU(true, this, 'isHalfScreen');
         this.__containerHeight = new ObservedPropertySimplePU('0%', this, 'containerHeight');
         this.__containerWidth = new ObservedPropertySimplePU('100%', this, 'containerWidth');
@@ -537,14 +537,8 @@ export class CustomAppBar extends ViewPU {
             this.windowWidth = px2vp(displayData.width);
             this.windowHeight = px2vp(displayData.height);
         }
-        if (this.breakPoint === BreakPointsType.SM) {
-            this.menuMarginEnd = SM_MENU_MARGIN_END;
-        }
-        else if (this.breakPoint === BreakPointsType.MD) {
-            this.menuMarginEnd = MD_MENU_MARGIN_END;
-        }
-        else if (this.breakPoint === BreakPointsType.LG) {
-            this.menuMarginEnd = LG_MENU_MARGIN_END;
+        if (menuMarginEndMap.has(this.breakPoint)) {
+            this.menuMarginEnd = menuMarginEndMap.get(this.breakPoint);
         }
         if (this.isHalfScreen) {
             if (this.breakPoint === BreakPointsType.SM) {
@@ -1129,6 +1123,12 @@ const BreakPointsType = {
     MD: 'MD',
     LG: 'LG',
 };
+const menuMarginEndMap = new Map([
+    [BreakPointsType.NONE, SM_MENU_MARGIN_END],
+    [BreakPointsType.SM, SM_MENU_MARGIN_END],
+    [BreakPointsType.MD, MD_MENU_MARGIN_END],
+    [BreakPointsType.LG, LG_MENU_MARGIN_END]
+]);
 
 ViewStackProcessor.StartGetAccessRecordingFor(ViewStackProcessor.AllocateNewElmetIdForNextComponent());
 loadCustomAppbar(new CustomAppBar(undefined, {}));

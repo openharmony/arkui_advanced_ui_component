@@ -85,6 +85,13 @@ enum BreakPointsType {
   LG = 'LG'
 }
 
+const menuMarginEndMap: Map<BreakPointsType, number> = new Map<BreakPointsType, number>([
+  [BreakPointsType.NONE, SM_MENU_MARGIN_END],
+  [BreakPointsType.SM, SM_MENU_MARGIN_END],
+  [BreakPointsType.MD, MD_MENU_MARGIN_END],
+  [BreakPointsType.LG, LG_MENU_MARGIN_END]
+]);
+
 const colorMap: Map<string, ColorGroup> = new Map<string, ColorGroup>([
   [ICON_FILL_COLOR_DEFAULT, new ColorGroup('#182431', '#e5ffffff')],
   [BORDER_COLOR_DEFAULT, new ColorGroup('#33182431', '#4Dffffff')],
@@ -121,7 +128,7 @@ export struct CustomAppBar {
   @State contentMarginLeft: number = 0;
   @State contentMarginRight: number = 0;
   @State contentMarginBottom: number = 0;
-  @State menuMarginEnd: number = 0;
+  @State menuMarginEnd: number = SM_MENU_MARGIN_END;
   // 半屏参数
   @State isHalfScreen: boolean = true;
   @State containerHeight: string | number = '0%';
@@ -190,12 +197,8 @@ export struct CustomAppBar {
       this.windowWidth = px2vp(displayData.width);
       this.windowHeight = px2vp(displayData.height);
     }
-    if (this.breakPoint === BreakPointsType.SM) {
-      this.menuMarginEnd = SM_MENU_MARGIN_END;
-    } else if (this.breakPoint === BreakPointsType.MD) {
-      this.menuMarginEnd = MD_MENU_MARGIN_END;
-    } else if (this.breakPoint === BreakPointsType.LG) {
-      this.menuMarginEnd = LG_MENU_MARGIN_END;
+    if (menuMarginEndMap.has(this.breakPoint)) {
+      this.menuMarginEnd = menuMarginEndMap.get(this.breakPoint) as number;
     }
     if (this.isHalfScreen) {
       if (this.breakPoint === BreakPointsType.SM) {
