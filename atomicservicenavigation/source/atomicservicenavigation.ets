@@ -553,7 +553,7 @@ export struct AtomicServiceNavigation {
     return this.mode === NavigationMode.Stack && this.currentBreakPoint !== BREAK_POINT_SM;
   }
 
-  private MenuItemArray(): undefined | Array<NavigationMenuItem> {
+  private getMenuItemArray(): undefined | Array<NavigationMenuItem> {
     return this.isShowMenus() && this.menus instanceof Array ? this.menus : undefined;
   }
 
@@ -575,7 +575,7 @@ export struct AtomicServiceNavigation {
             }
             .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
             .title(this.drawerTitleBuilder(), this.getTitleOption())
-            .menus(this.isShowMenus() && this.menus instanceof Function ? this.menus() : this.MenuItemArray())
+            .menus(this.isShowMenus() && this.menus instanceof Function ? this.menus() : this.getMenuItemArray())
             .titleMode(NavigationTitleMode.Mini)
             .hideBackButton(true)
             .hideTitleBar(this.hideTitleBar)
@@ -623,7 +623,7 @@ export struct AtomicServiceNavigation {
         this.title,
           this.getTitleOption())
         .titleMode(NavigationTitleMode.Mini)
-        .menus(this.isShowMenus() && this.menus instanceof Function ? this.menus() : this.MenuItemArray())
+        .menus(this.isShowMenus() && this.menus instanceof Function ? this.menus() : this.getMenuItemArray())
         .hideBackButton(true)
         .hideTitleBar(this.hideTitleBar)
         .navBarWidth(this.navBarWidth)

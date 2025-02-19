@@ -948,7 +948,7 @@ export class AtomicServiceNavigation extends ViewPU {
     isShowMenus() {
         return this.mode === NavigationMode.Stack && this.currentBreakPoint !== BREAK_POINT_SM;
     }
-    MenuItemArray() {
+    getMenuItemArray() {
         return this.isShowMenus() && this.menus instanceof Array ? this.menus : undefined;
     }
     initialRender() {
@@ -1008,7 +1008,7 @@ export class AtomicServiceNavigation extends ViewPU {
                             } }, this.getTitleOption());
                         Navigation.menus(this.isShowMenus() && this.menus instanceof Function ? { builder: () => {
                                 this.menus.call(this);
-                            } } : this.MenuItemArray());
+                            } } : this.getMenuItemArray());
                         Navigation.titleMode(NavigationTitleMode.Mini);
                         Navigation.hideBackButton(true);
                         Navigation.hideTitleBar(this.hideTitleBar);
@@ -1070,7 +1070,7 @@ export class AtomicServiceNavigation extends ViewPU {
                         Navigation.titleMode(NavigationTitleMode.Mini);
                         Navigation.menus(this.isShowMenus() && this.menus instanceof Function ? { builder: () => {
                                 this.menus.call(this);
-                            } } : this.MenuItemArray());
+                            } } : this.getMenuItemArray());
                         Navigation.hideBackButton(true);
                         Navigation.hideTitleBar(this.hideTitleBar);
                         Navigation.navBarWidth(ObservedObject.GetRawObject(this.navBarWidth));
