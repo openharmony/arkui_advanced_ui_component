@@ -645,7 +645,7 @@ export class CustomAppBar extends ViewPU {
                 'pageName:DETAIL',
                 'ability.want.params.uiExtensionType:sysDialog/atomicServicePanel'
             ]
-        }
+        };
         ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL, info);
     }
     /**
