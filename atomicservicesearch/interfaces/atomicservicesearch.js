@@ -41,7 +41,7 @@ const OPERATION_ITEM1_MARGIN_RIGHT = 2;
 const OPERATION_ITEM2_MARGIN_LEFT = 8;
 
 export class AtomicServiceSearch extends ViewPU {
-    
+
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
         super(parent, __localStorage, elmtId, extraInfo);
         if (typeof paramsLambda === 'function') {
@@ -182,7 +182,7 @@ export class AtomicServiceSearch extends ViewPU {
     set value(newValue) {
         this.__value.set(newValue);
     }
-    
+
     get placeholder() {
         return this.__placeholder.get();
     }
