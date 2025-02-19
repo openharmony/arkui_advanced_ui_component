@@ -276,7 +276,7 @@ export class AtomicServiceSearch extends ViewPU {
                     }, Row);
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Select.create(this.select?.options);
-                        Select.value(this.select?.value);
+                        Select.value(this.select?.selectValue);
                         Select.selected(this.select?.selected);
                         Select.onSelect(this.select?.onSelect);
                         Select.controlSize(this.select?.controlSize);
@@ -350,7 +350,7 @@ export class AtomicServiceSearch extends ViewPU {
                 controller: this.controller
             });
             Search.backgroundColor(Color.Transparent);
-            Search.searchButton(this.search?.searchButton?.value, this.search?.searchButton?.options);
+            Search.searchButton(this.search?.searchButton?.searchButtonValue.toString(), this.search?.searchButton?.options);
             Search.placeholderColor(this.search?.placeholderColor);
             Search.placeholderFont(this.search?.placeholderFont);
             Search.textFont(this.search?.textFont);
@@ -367,9 +367,9 @@ export class AtomicServiceSearch extends ViewPU {
             Search.enterKeyType(this.search?.enterKeyType);
             Search.decoration(this.search?.decoration);
             Search.letterSpacing(this.search?.letterSpacing);
-            Search.fontFeature(this.search?.fontFeature);
+            Search.fontFeature(this.search?.fontFeature?.toString());
             Search.selectedBackgroundColor(this.search?.selectedBackgroundColor);
-            Search.inputFilter(this.search?.inputFilter?.value, this.search?.inputFilter?.error);
+            Search.inputFilter(this.search?.inputFilter?.inputFilterValue, this.search?.inputFilter?.error);
             Search.textIndent(this.search?.textIndent);
             Search.minFontSize(this.search?.minFontSize);
             Search.maxFontSize(this.search?.maxFontSize);

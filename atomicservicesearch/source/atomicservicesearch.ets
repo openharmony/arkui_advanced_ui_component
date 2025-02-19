@@ -14,8 +14,8 @@
  */
 import { LengthMetrics, OperationOption } from '@kit.ArkUI';
 
-declare type OnSelectCallback = (index: number, value?: string) => void;
-declare type OnPasteCallback = (value: string, event: PasteEvent) => void;
+declare type OnSelectCallback = (index: number, selectValue?: string) => void;
+declare type OnPasteCallback = (pasteValue: string, event: PasteEvent) => void;
 declare type OnTextSelectionChangeCallback = (selectionStart: number, selectionEnd: number) => void;
 declare type OnContentScrollCallback = (totalOffsetX: number, totalOffsetY: number) => void;
 
@@ -42,12 +42,12 @@ const OPERATION_ITEM1_MARGIN_RIGHT: number = 2;
 const OPERATION_ITEM2_MARGIN_LEFT: number = 8;
 
 export interface InputFilterOptions {
-  value: ResourceStr,
+  inputFilterValue: ResourceStr,
   error?: Callback<string>
 }
 
 export interface SearchButtonParams {
-  value: string,
+  searchButtonValue: ResourceStr,
   options?: SearchButtonOptions
 }
 
@@ -59,7 +59,7 @@ export interface MenuAlignOptions {
 export interface SelectOptions {
   options?: Array<SelectOption>;
   selected?: number;
-  value?: ResourceStr;
+  selectValue?: ResourceStr;
   onSelect?: OnSelectCallback;
   controlSize?: ControlSize;
   menuItemContentModifier?: ContentModifier<MenuItemConfiguration>;
@@ -101,7 +101,7 @@ export interface SearchOptions {
   enterKeyType?: EnterKeyType;
   decoration?: TextDecorationOptions;
   letterSpacing?: number | string | Resource;
-  fontFeature?: string;
+  fontFeature?: ResourceStr;
   selectedBackgroundColor?: ResourceColor;
   inputFilter?: InputFilterOptions;
   textIndent?: Dimension;
@@ -220,7 +220,7 @@ export struct AtomicServiceSearch {
     if (typeof this.select !== 'undefined' && typeof this.select.options !== 'undefined') {
       Row() {
         Select(this.select?.options)
-          .value(this.select?.value)
+          .value(this.select?.selectValue)
           .selected(this.select?.selected)
           .onSelect(this.select?.onSelect)
           .controlSize(this.select?.controlSize)
@@ -275,7 +275,7 @@ export struct AtomicServiceSearch {
       controller: this.controller
     })
       .backgroundColor(Color.Transparent)
-      .searchButton(this.search?.searchButton?.value, this.search?.searchButton?.options)
+      .searchButton(this.search?.searchButton?.searchButtonValue.toString(), this.search?.searchButton?.options)
       .placeholderColor(this.search?.placeholderColor)
       .placeholderFont(this.search?.placeholderFont)
       .textFont(this.search?.textFont)
@@ -292,9 +292,9 @@ export struct AtomicServiceSearch {
       .enterKeyType(this.search?.enterKeyType)
       .decoration(this.search?.decoration)
       .letterSpacing(this.search?.letterSpacing)
-      .fontFeature(this.search?.fontFeature)
+      .fontFeature(this.search?.fontFeature?.toString())
       .selectedBackgroundColor(this.search?.selectedBackgroundColor)
-      .inputFilter(this.search?.inputFilter?.value, this.search?.inputFilter?.error)
+      .inputFilter(this.search?.inputFilter?.inputFilterValue, this.search?.inputFilter?.error)
       .textIndent(this.search?.textIndent)
       .minFontSize(this.search?.minFontSize)
       .maxFontSize(this.search?.maxFontSize)
