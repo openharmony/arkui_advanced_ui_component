@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to  in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -7,11 +21,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 if (!("finalizeConstruction" in ViewPU.prototype)) {
     Reflect.set(ViewPU.prototype, "finalizeConstruction", () => { });
 }
-import curves from "@ohos.curves";
-import { LengthMetrics as LengthMetrics } from "@ohos.arkui.node";
-import { SymbolGlyphModifier as SymbolGlyphModifier } from "@ohos.arkui.modifier";
-import bundleManager from "@ohos.bundle.bundleManager";
-import hilog from "@ohos.hilog";
+const curves = requireNativeModule('ohos.curves');
+const LengthMetrics = requireNapi('arkui.node').LengthMetrics;
+const SymbolGlyphModifier = requireNapi('arkui.modifier').SymbolGlyphModifier;
+const bundleManager = requireNapi('bundle.bundleManager');
+const hilog = requireNapi('hilog');
 /**
  * 背景渐变色相关数据
  */
