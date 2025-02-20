@@ -14,12 +14,20 @@
  */
 let __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     let c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === 'object' && typeof Reflect.decorate === 'function') r = Reflect.decorate(decorators, target, key, desc);
-    else for (let i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    if (typeof Reflect === 'object' && typeof Reflect.decorate === 'function') {
+        r = Reflect.decorate(decorators, target, key, desc);
+    } else {
+        for (let i = decorators.length - 1; i >= 0; i--) {
+            if (d = decorators[i]) {
+                r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+            }
+        }
+    }
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 if (!('finalizeConstruction' in ViewPU.prototype)) {
-    Reflect.set(ViewPU.prototype, 'finalizeConstruction', () => { });
+    Reflect.set(ViewPU.prototype, 'finalizeConstruction', () => {
+    });
 }
 const curves = requireNativeModule('ohos.curves');
 const LengthMetrics = requireNapi('arkui.node').LengthMetrics;
@@ -232,7 +240,7 @@ export class AtomicServiceNavigation extends ViewPU {
             this.navigationBarVisibility = params.navigationBarVisibility;
         }
     }
-    updateStatelets(params) {
+    updateStateVars(params) {
         this.__title.reset(params.title);
         this.__titleOptions.reset(params.titleOptions);
         this.__gradientBackground.reset(params.gradientBackground);
@@ -243,7 +251,7 @@ export class AtomicServiceNavigation extends ViewPU {
         this.__minContentWidth.reset(params.minContentWidth);
         this.__sideBarOptions.reset(params.sideBarOptions);
     }
-    purgeletiableDependenciesOnElmtId(rmElmtId) {
+    purgeVariableDependenciesOnElmtId(rmElmtId) {
         this.__navPathStack.purgeDependencyOnElmtId(rmElmtId);
         this.__title.purgeDependencyOnElmtId(rmElmtId);
         this.__titleOptions.purgeDependencyOnElmtId(rmElmtId);
@@ -382,10 +390,9 @@ export class AtomicServiceNavigation extends ViewPU {
             Canvas.onReady(() => {
                 if (gradientBackground.secondaryColor === undefined) {
                     //单色渐变
-                    this.drawSingleGradient(this.context, gradientBackground.primaryColor, gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
-                        backGroundColor[gradientBackground.backgroundTheme - 1]);
-                }
-                else {
+                    this.drawSingleGradient(this.context, gradientBackground.primaryColor, gradientBackground.backgroundTheme === undefined ?
+                        backGroundColor[2] : backGroundColor[gradientBackground.backgroundTheme - 1]);
+                } else {
                     if (gradientBackground.mixMode === MixMode.AVERAGE) {
                         //双色渐变五五分
                         this.drawGradientCanvasHalf(this.context, gradientBackground.primaryColor, gradientBackground.secondaryColor);
@@ -474,11 +481,9 @@ export class AtomicServiceNavigation extends ViewPU {
         let newBreakPoint = '';
         if (widthVp < BREAK_POINT_VP_SM) {
             newBreakPoint = BREAK_POINT_SM;
-        }
-        else if (widthVp < BREAK_POINT_VP_MD) {
+        } else if (widthVp < BREAK_POINT_VP_MD) {
             newBreakPoint = BREAK_POINT_MD;
-        }
-        else {
+        } else {
             newBreakPoint = BREAK_POINT_LG;
         }
         if (this.currentBreakPoint !== newBreakPoint) {
@@ -1124,8 +1129,10 @@ export class AtomicServiceNavigation extends ViewPU {
      */
     drawGradientCanvasHalf(context, primaryColor, secondaryColor) {
         let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
-        let grad1 = context.createLinearGradient(COORDINATE_NEGATIVE_ONE * this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, height, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
-        let grad2 = context.createLinearGradient(this.navigationWidth * COLOR_RATIO_ONE_FIFTY_PERCENT, height, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
+        let grad1 = context.createLinearGradient(COORDINATE_NEGATIVE_ONE * this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT,
+            height, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
+        let grad2 = context.createLinearGradient(this.navigationWidth * COLOR_RATIO_ONE_FIFTY_PERCENT, height,
+            this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
         grad1.addColorStop(0, this.resourceColorToString(primaryColor));
         grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.resourceColorToString(primaryColor));
         grad1.addColorStop(1, this.resourceColorToString(secondaryColor));
@@ -1158,7 +1165,8 @@ export class AtomicServiceNavigation extends ViewPU {
         grad2.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.resourceColorToString(secondaryColor));
         grad2.addColorStop(1, this.resourceColorToString(primaryColor));
         context.fillStyle = grad2;
-        context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0, this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE, height * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
+        context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0,
+            this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE, height * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
         let y2 = (COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
             COLOR_RATIO_FIFTY_PERCENT * height + COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth : height;
         let grad3 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y2, this.navigationWidth, height * COLOR_RATIO_FIFTY_PERCENT);
@@ -1166,7 +1174,8 @@ export class AtomicServiceNavigation extends ViewPU {
         grad3.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.resourceColorToString(secondaryColor));
         grad3.addColorStop(1, this.resourceColorToString(primaryColor));
         context.fillStyle = grad3;
-        context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, height * COLOR_RATIO_FIFTY_PERCENT, COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE, height * COLOR_RATIO_FIFTY_PERCENT);
+        context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE,
+            height * COLOR_RATIO_FIFTY_PERCENT, COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE, height * COLOR_RATIO_FIFTY_PERCENT);
     }
     /**
      * 双色渐变的一种实现，从矩形左上角颜色渐变到右下角
