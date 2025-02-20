@@ -1144,7 +1144,7 @@ export class AtomicServiceNavigation extends ViewPU {
                         alpha: () => this.gradientBackground.alpha
                     }));
                 }
-            } , { align: Alignment.Top });
+            }, { align: Alignment.Top });
             Stack.onSizeChange((oldValue, newValue) => {
                 this.navigationWidth = newValue.width;
                 this.navigationHeight = newValue.height;
