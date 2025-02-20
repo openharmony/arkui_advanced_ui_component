@@ -140,8 +140,8 @@ export struct AtomicServiceNavigation {
 
   private settings: RenderingContextSettings = new RenderingContextSettings(true);
   private context: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.settings);
-  private navigationWidth: number = 0;
-  private navigationHeight: number = 0;
+  @State private navigationWidth: number = 0;
+  @State private navigationHeight: number = 0;
 
   private mainWindow?: window.Window;
   private onWindowSizeChangeCallback?: Callback<Size>;
@@ -627,13 +627,14 @@ export struct AtomicServiceNavigation {
     }
     .width('100%')
     .height('100%')
-    .background(this.gradientBackground === undefined ? undefined : this.BackgroundBuilder({
+    .background(this.gradientBackground === undefined || (this.navigationWidth === -1 && this.navigationHeight === -1) ?
+      undefined : this.BackgroundBuilder({
       primaryColor: this.gradientBackground.primaryColor,
       secondaryColor: this.gradientBackground.secondaryColor,
       backgroundTheme: this.gradientBackground.backgroundTheme,
       mixMode: this.gradientBackground.mixMode,
       alpha: this.gradientBackground.alpha
-    }))
+    }), { align: Alignment.Top })
     .onSizeChange((oldValue: SizeOptions, newValue: SizeOptions) => {
       this.navigationWidth = newValue.width as number;
       this.navigationHeight = newValue.height as number;
