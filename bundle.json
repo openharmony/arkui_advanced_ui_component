@@ -25,19 +25,11 @@
         },
         "build": {
             "sub_component": [
-              "//foundation/arkui/advanced_ui_component/interface/filter:filter",
-              "//foundation/arkui/advanced_ui_component/interface/composetitlebar:composetitlebar",
-              "//foundation/arkui/advanced_ui_component/interface/editabletitlebar:editabletitlebar",
-              "//foundation/arkui/advanced_ui_component/interface/selecttitlebar:selecttitlebar",
-              "//foundation/arkui/advanced_ui_component/interface/tabtitlebar:tabtitlebar",
-              "//foundation/arkui/advanced_ui_component/interface/splitlayout:splitlayout",
-              "//foundation/arkui/advanced_ui_component/interface/subheader:subheader",
-              "//foundation/arkui/advanced_ui_component/interface/treeview:treeview",
-              "//foundation/arkui/advanced_ui_component/interface/composelistitem:composelistitem",
-              "//foundation/arkui/advanced_ui_component/interface/swiperefresher:swiperefresher",
-              "//foundation/arkui/advanced_ui_component/interface/arkdialog:arkdialog",
-              "//foundation/arkui/advanced_ui_component/interface/toolbar:toolbar",
-              "//foundation/arkui/advanced_ui_component/interface/progressbutton:progressbutton"
+              "//foundation/arkui/advanced_ui_component/atomicservicenavigation/interfaces:atomicservicenavigation",
+              "//foundation/arkui/advanced_ui_component/atomicservicetabs/interfaces:atomicservicetabs",
+              "//foundation/arkui/advanced_ui_component/atomicserviceweb/interfaces:atomicserviceweb",
+              "//foundation/arkui/advanced_ui_component/innerfullscreenlaunchcomponent/interfaces:innerfullscreenlaunchcomponent",
+              "//foundation/arkui/advanced_ui_component/interstitialdialogaction/interfaces:interstitialdialogaction"
             ],
             "inner_kits": [],
             "test": []
