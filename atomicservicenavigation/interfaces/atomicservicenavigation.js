@@ -12,19 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-let __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    let c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === 'object' && typeof Reflect.decorate === 'function') {
-        r = Reflect.decorate(decorators, target, key, desc);
-    } else {
-        for (let i = decorators.length - 1; i >= 0; i--) {
-            if (d = decorators[i]) {
-                r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-            }
-        }
-    }
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
 if (!('finalizeConstruction' in ViewPU.prototype)) {
     Reflect.set(ViewPU.prototype, 'finalizeConstruction', () => {
     });
@@ -975,9 +962,18 @@ export class AtomicServiceNavigation extends ViewPU {
             Stack.create();
             Stack.width('100%');
             Stack.height('100%');
-            Stack.background(this.gradientBackground === undefined ? undefined : { builder: () => {
-                    this.BackgroundBuilder.call(this, makeBuilderParameterProxy('BackgroundBuilder', { primaryColor: () => this.gradientBackground.primaryColor, secondaryColor: () => this.gradientBackground.secondaryColor, backgroundTheme: () => this.gradientBackground.backgroundTheme, mixMode: () => this.gradientBackground.mixMode, alpha: () => this.gradientBackground.alpha }));
-                } });
+            Stack.background(this.gradientBackground === undefined ? undefined : {
+                builder: () => {
+                    this.BackgroundBuilder.call(this,
+                        makeBuilderParameterProxy('BackgroundBuilder', {
+                            primaryColor: () => this.gradientBackground.primaryColor,
+                            secondaryColor: () => this.gradientBackground.secondaryColor,
+                            backgroundTheme: () => this.gradientBackground.backgroundTheme,
+                            mixMode: () => this.gradientBackground.mixMode,
+                            alpha: () => this.gradientBackground.alpha
+                        })
+                    );
+                }});
             Stack.onSizeChange((oldValue, newValue) => {
                 this.navigationWidth = newValue.width;
                 this.navigationHeight = newValue.height;
@@ -1160,16 +1156,19 @@ export class AtomicServiceNavigation extends ViewPU {
         context.fillRect(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, height);
         let y1 = (COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
             COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth : 0;
-        let grad2 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y1, this.navigationWidth, height * COLOR_RATIO_FIFTY_PERCENT);
+        let grad2 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y1, this.navigationWidth,
+            height * COLOR_RATIO_FIFTY_PERCENT);
         grad2.addColorStop(0, this.resourceColorToString(secondaryColor));
         grad2.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.resourceColorToString(secondaryColor));
         grad2.addColorStop(1, this.resourceColorToString(primaryColor));
         context.fillStyle = grad2;
         context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0,
-            this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE, height * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
+            this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE,
+            height * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
         let y2 = (COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
             COLOR_RATIO_FIFTY_PERCENT * height + COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth : height;
-        let grad3 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y2, this.navigationWidth, height * COLOR_RATIO_FIFTY_PERCENT);
+        let grad3 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y2,
+            this.navigationWidth, height * COLOR_RATIO_FIFTY_PERCENT);
         grad3.addColorStop(0, this.resourceColorToString(secondaryColor));
         grad3.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.resourceColorToString(secondaryColor));
         grad3.addColorStop(1, this.resourceColorToString(primaryColor));
@@ -1243,7 +1242,8 @@ export class AtomicServiceNavigation extends ViewPU {
             catch (error) {
                 let code = error.code;
                 let message = error.message;
-                hilog.error(0x0000, 'AtomicServiceNavigation', `resourceColorToString - systemResourceManager getStringValue failed, error code: ${code}, message: ${message}.`);
+                hilog.error(0x0000, 'AtomicServiceNavigation',
+                    `resourceColorToString - systemResourceManager getStringValue failed, error code: ${code}, message: ${message}.`);
             }
             return '';
         }
@@ -1399,4 +1399,11 @@ export let TitleBarType;
      */
     TitleBarType.DRAWER = 3;
 })(TitleBarType || (TitleBarType = {}));
-//# sourceMappingURL=MainPage.js.map
+//# sourceMappingURL=AtomicServiceNavigation.js.map
+export default {
+    AtomicServiceNavigation,
+    MixMode,
+    GradientAlpha,
+    BackgroundTheme,
+    TitleBarType
+};
