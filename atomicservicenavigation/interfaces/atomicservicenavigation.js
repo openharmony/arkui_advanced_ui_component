@@ -74,20 +74,20 @@ export let GradientAlpha;
      * 不透明度为0.2
      *
      */
-    GradientAlpha[GradientAlpha['OPACITY_20'] = 1] = 'OPACITY_20';
+    GradientAlpha.OPACITY_20 = 1;
     /**
      * 不透明度为0.6
      *
      */
-    GradientAlpha[GradientAlpha['OPACITY_60'] = 2] = 'OPACITY_60';
+    GradientAlpha.OPACITY_60 = 2;
     /**
      * 不透明度为0.8
      */
-    GradientAlpha[GradientAlpha['OPACITY_80'] = 3] = 'OPACITY_80';
+    GradientAlpha.OPACITY_80 = 3;
     /**
      * 不透明度为1.0
      */
-    GradientAlpha[GradientAlpha['OPACITY_100'] = 4] = 'OPACITY_100';
+    GradientAlpha.OPACITY_100 = 4;
 })(GradientAlpha || (GradientAlpha = {}));
 /**
  * 背景颜色融合方式
@@ -99,15 +99,15 @@ export let MixMode;
     /**
      * 两种颜色所占比例相同
      */
-    MixMode[MixMode['AVERAGE'] = 1] = 'AVERAGE';
+    MixMode.AVERAGE = 1;
     /**
      * 一种颜色穿过另一种颜色
      */
-    MixMode[MixMode['CROSS'] = 2] = 'CROSS';
+    MixMode.CROSS = 2;
     /**
      * 一种颜色渐渐转变为另一种颜色
      */
-    MixMode[MixMode['TOWARDS'] = 3] = 'TOWARDS';
+    MixMode.TOWARDS = 3;
 })(MixMode || (MixMode = {}));
 /**
  * 背景底色
@@ -119,15 +119,15 @@ export let BackgroundTheme;
     /**
      * 黑色
      */
-    BackgroundTheme[BackgroundTheme['DARK'] = 1] = 'DARK';
+    BackgroundTheme.DARK = 1;
     /**
      * 白色
      */
-    BackgroundTheme[BackgroundTheme['LIGHT'] = 2] = 'LIGHT';
+    BackgroundTheme.LIGHT = 2;
     /**
      * 颜色值 #F1F3F5
      */
-    BackgroundTheme[BackgroundTheme['DEFAULT'] = 3] = 'DEFAULT';
+    BackgroundTheme.DEFAULT = 3;
 })(BackgroundTheme || (BackgroundTheme = {}));
 export class AtomicServiceNavigation extends ViewPU {
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
@@ -1175,7 +1175,8 @@ export class AtomicServiceNavigation extends ViewPU {
         grad3.addColorStop(1, this.resourceColorToString(primaryColor));
         context.fillStyle = grad3;
         context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE,
-            height * COLOR_RATIO_FIFTY_PERCENT, COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE, height * COLOR_RATIO_FIFTY_PERCENT);
+            height * COLOR_RATIO_FIFTY_PERCENT, COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE,
+            height * COLOR_RATIO_FIFTY_PERCENT);
     }
     /**
      * 双色渐变的一种实现，从矩形左上角颜色渐变到右下角
@@ -1388,14 +1389,14 @@ export let TitleBarType;
     /**
      * 长图标类型标题栏
      */
-    TitleBarType[TitleBarType['SQUARED_ICON'] = 1] = 'SQUARED_ICON';
+    TitleBarType.SQUARED_ICON = 1;
     /**
      * 圆形图标类型标题栏
      */
-    TitleBarType[TitleBarType['ROUND_ICON'] = 2] = 'ROUND_ICON';
+    TitleBarType.ROUND_ICON = 2;
     /**
      * 抽屉类型标题栏
      */
-    TitleBarType[TitleBarType['DRAWER'] = 3] = 'DRAWER';
+    TitleBarType.DRAWER = 3;
 })(TitleBarType || (TitleBarType = {}));
 //# sourceMappingURL=MainPage.js.map
