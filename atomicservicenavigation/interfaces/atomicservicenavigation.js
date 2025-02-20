@@ -149,8 +149,8 @@ export class AtomicServiceNavigation extends ViewPU {
         this.modeChangeCallback = undefined;
         this.settings = new RenderingContextSettings(true);
         this.context = new CanvasRenderingContext2D(this.settings);
-        this.__navigationWidth = new ObservedPropertySimplePU(0, this, "navigationWidth");
-        this.__navigationHeight = new ObservedPropertySimplePU(0, this, "navigationHeight");
+        this.__navigationWidth = new ObservedPropertySimplePU(0, this, 'navigationWidth');
+        this.__navigationHeight = new ObservedPropertySimplePU(0, this, 'navigationHeight');
         this.mainWindow = undefined;
         this.onWindowSizeChangeCallback = undefined;
         this.onAvoidSafeAreaChangeCallback = undefined;
