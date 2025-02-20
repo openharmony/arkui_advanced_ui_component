@@ -12,14 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+let __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    let c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === 'object' && typeof Reflect.decorate === 'function') r = Reflect.decorate(decorators, target, key, desc);
+    else for (let i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-if (!("finalizeConstruction" in ViewPU.prototype)) {
-    Reflect.set(ViewPU.prototype, "finalizeConstruction", () => { });
+if (!('finalizeConstruction' in ViewPU.prototype)) {
+    Reflect.set(ViewPU.prototype, 'finalizeConstruction', () => { });
 }
 const curves = requireNativeModule('ohos.curves');
 const LengthMetrics = requireNapi('arkui.node').LengthMetrics;
@@ -60,91 +60,91 @@ const ATOMIC_SERVICE_CAPSULE_WIDTH = 81.5;
  *
  * @enum { number }.
  */
-export var GradientAlpha;
+export let GradientAlpha;
 (function (GradientAlpha) {
     /**
      * 不透明度为0.2
      *
      */
-    GradientAlpha[GradientAlpha["OPACITY_20"] = 1] = "OPACITY_20";
+    GradientAlpha[GradientAlpha['OPACITY_20'] = 1] = 'OPACITY_20';
     /**
      * 不透明度为0.6
      *
      */
-    GradientAlpha[GradientAlpha["OPACITY_60"] = 2] = "OPACITY_60";
+    GradientAlpha[GradientAlpha['OPACITY_60'] = 2] = 'OPACITY_60';
     /**
      * 不透明度为0.8
      */
-    GradientAlpha[GradientAlpha["OPACITY_80"] = 3] = "OPACITY_80";
+    GradientAlpha[GradientAlpha['OPACITY_80'] = 3] = 'OPACITY_80';
     /**
      * 不透明度为1.0
      */
-    GradientAlpha[GradientAlpha["OPACITY_100"] = 4] = "OPACITY_100";
+    GradientAlpha[GradientAlpha['OPACITY_100'] = 4] = 'OPACITY_100';
 })(GradientAlpha || (GradientAlpha = {}));
 /**
  * 背景颜色融合方式
  *
  * @enum { number }.
  */
-export var MixMode;
+export let MixMode;
 (function (MixMode) {
     /**
      * 两种颜色所占比例相同
      */
-    MixMode[MixMode["AVERAGE"] = 1] = "AVERAGE";
+    MixMode[MixMode['AVERAGE'] = 1] = 'AVERAGE';
     /**
      * 一种颜色穿过另一种颜色
      */
-    MixMode[MixMode["CROSS"] = 2] = "CROSS";
+    MixMode[MixMode['CROSS'] = 2] = 'CROSS';
     /**
      * 一种颜色渐渐转变为另一种颜色
      */
-    MixMode[MixMode["TOWARDS"] = 3] = "TOWARDS";
+    MixMode[MixMode['TOWARDS'] = 3] = 'TOWARDS';
 })(MixMode || (MixMode = {}));
 /**
  * 背景底色
  *
  * @enum { number }.
  */
-export var BackgroundTheme;
+export let BackgroundTheme;
 (function (BackgroundTheme) {
     /**
      * 黑色
      */
-    BackgroundTheme[BackgroundTheme["DARK"] = 1] = "DARK";
+    BackgroundTheme[BackgroundTheme['DARK'] = 1] = 'DARK';
     /**
      * 白色
      */
-    BackgroundTheme[BackgroundTheme["LIGHT"] = 2] = "LIGHT";
+    BackgroundTheme[BackgroundTheme['LIGHT'] = 2] = 'LIGHT';
     /**
      * 颜色值 #F1F3F5
      */
-    BackgroundTheme[BackgroundTheme["DEFAULT"] = 3] = "DEFAULT";
+    BackgroundTheme[BackgroundTheme['DEFAULT'] = 3] = 'DEFAULT';
 })(BackgroundTheme || (BackgroundTheme = {}));
 export class AtomicServiceNavigation extends ViewPU {
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
         super(parent, __localStorage, elmtId, extraInfo);
-        if (typeof paramsLambda === "function") {
+        if (typeof paramsLambda === 'function') {
             this.paramsGenerator_ = paramsLambda;
         }
-        this.__navPathStack = new ObservedPropertyObjectPU(new NavPathStack(), this, "navPathStack");
+        this.__navPathStack = new ObservedPropertyObjectPU(new NavPathStack(), this, 'navPathStack');
         this.navigationContent = undefined;
-        this.__title = new SynchedPropertyObjectOneWayPU(params.title, this, "title");
-        this.__titleOptions = new SynchedPropertyObjectOneWayPU(params.titleOptions, this, "titleOptions");
-        this.__gradientBackground = new SynchedPropertyObjectOneWayPU(params.gradientBackground, this, "gradientBackground");
-        this.__hideTitleBar = new SynchedPropertySimpleOneWayPU(params.hideTitleBar, this, "hideTitleBar");
-        this.__navBarWidth = new SynchedPropertyObjectOneWayPU(params.navBarWidth, this, "navBarWidth");
-        this.__mode = new SynchedPropertySimpleOneWayPU(params.mode, this, "mode");
+        this.__title = new SynchedPropertyObjectOneWayPU(params.title, this, 'title');
+        this.__titleOptions = new SynchedPropertyObjectOneWayPU(params.titleOptions, this, 'titleOptions');
+        this.__gradientBackground = new SynchedPropertyObjectOneWayPU(params.gradientBackground, this, 'gradientBackground');
+        this.__hideTitleBar = new SynchedPropertySimpleOneWayPU(params.hideTitleBar, this, 'hideTitleBar');
+        this.__navBarWidth = new SynchedPropertyObjectOneWayPU(params.navBarWidth, this, 'navBarWidth');
+        this.__mode = new SynchedPropertySimpleOneWayPU(params.mode, this, 'mode');
         this.navDestinationBuilder = this.defaultNavDestinationBuilder;
-        this.__navBarWidthRange = new SynchedPropertyObjectOneWayPU(params.navBarWidthRange, this, "navBarWidthRange");
-        this.__minContentWidth = new SynchedPropertyObjectOneWayPU(params.minContentWidth, this, "minContentWidth");
-        this.__sideBarOptions = new SynchedPropertyObjectOneWayPU(params.sideBarOptions, this, "sideBarOptions");
+        this.__navBarWidthRange = new SynchedPropertyObjectOneWayPU(params.navBarWidthRange, this, 'navBarWidthRange');
+        this.__minContentWidth = new SynchedPropertyObjectOneWayPU(params.minContentWidth, this, 'minContentWidth');
+        this.__sideBarOptions = new SynchedPropertyObjectOneWayPU(params.sideBarOptions, this, 'sideBarOptions');
         this.sideBarContent = undefined;
-        this.__showMaskLayer = new ObservedPropertySimplePU(false, this, "showMaskLayer");
-        this.__marginWindowLeft = new ObservedPropertySimplePU(16, this, "marginWindowLeft");
-        this.__currentBreakPoint = new ObservedPropertySimplePU(BREAK_POINT_SM, this, "currentBreakPoint");
-        this.__sideBarAttribute = new ObservedPropertyObjectPU(new sideBarAttributeSet(), this, "sideBarAttribute");
-        this.__controlButtonVisible = new ObservedPropertySimplePU(true, this, "controlButtonVisible");
+        this.__showMaskLayer = new ObservedPropertySimplePU(false, this, 'showMaskLayer');
+        this.__marginWindowLeft = new ObservedPropertySimplePU(16, this, 'marginWindowLeft');
+        this.__currentBreakPoint = new ObservedPropertySimplePU(BREAK_POINT_SM, this, 'currentBreakPoint');
+        this.__sideBarAttribute = new ObservedPropertyObjectPU(new sideBarAttributeSet(), this, 'sideBarAttribute');
+        this.__controlButtonVisible = new ObservedPropertySimplePU(true, this, 'controlButtonVisible');
         this.menus = undefined;
         this.stateChangeCallback = undefined;
         this.modeChangeCallback = undefined;
@@ -232,7 +232,7 @@ export class AtomicServiceNavigation extends ViewPU {
             this.navigationBarVisibility = params.navigationBarVisibility;
         }
     }
-    updateStateVars(params) {
+    updateStatelets(params) {
         this.__title.reset(params.title);
         this.__titleOptions.reset(params.titleOptions);
         this.__gradientBackground.reset(params.gradientBackground);
@@ -243,7 +243,7 @@ export class AtomicServiceNavigation extends ViewPU {
         this.__minContentWidth.reset(params.minContentWidth);
         this.__sideBarOptions.reset(params.sideBarOptions);
     }
-    purgeVariableDependenciesOnElmtId(rmElmtId) {
+    purgeletiableDependenciesOnElmtId(rmElmtId) {
         this.__navPathStack.purgeDependencyOnElmtId(rmElmtId);
         this.__title.purgeDependencyOnElmtId(rmElmtId);
         this.__titleOptions.purgeDependencyOnElmtId(rmElmtId);
@@ -571,7 +571,7 @@ export class AtomicServiceNavigation extends ViewPU {
                         Text.minFontSize(14);
                         Text.maxFontSize(26);
                         Text.height(36);
-                        Text.fontColor({ "id": -1, "type": 10001, params: ['sys.color.font_primary'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+                        Text.fontColor({ 'id': -1, 'type': 10001, params: ['sys.color.font_primary'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                         Text.textOverflow({ overflow: TextOverflow.Ellipsis });
                         Text.fontWeight(FontWeight.Bold);
                         Text.width(0);
@@ -593,7 +593,7 @@ export class AtomicServiceNavigation extends ViewPU {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Column.create();
             Column.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
-            Column.backgroundColor({ "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_mask_thin'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+            Column.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_mask_thin'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
             Column.transition(TransitionEffect.opacity(0).animation({ duration: 500, curve: Curve.Linear }));
             Column.width('100%');
             Column.height('100%');
@@ -612,7 +612,7 @@ export class AtomicServiceNavigation extends ViewPU {
                             this.ifElseBranchUpdateFunction(0, () => {
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     Button.createWithChild({ type: ButtonType.Circle });
-                                    Button.backgroundColor({ "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_button_normal'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+                                    Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     Button.width(36);
                                     Button.height(36);
                                     Button.borderRadius(18);
@@ -632,10 +632,10 @@ export class AtomicServiceNavigation extends ViewPU {
                                     Button.visibility(this.controlButtonVisible ? Visibility.Visible : Visibility.None);
                                 }, Button);
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
-                                    SymbolGlyph.create({ "id": -1, "type": 40000, params: ['sys.symbol.open_sidebar'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+                                    SymbolGlyph.create({ 'id': -1, 'type': 40000, params: ['sys.symbol.open_sidebar'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     SymbolGlyph.fontWeight(FontWeight.Normal);
-                                    SymbolGlyph.fontSize({ "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_headline7'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
-                                    SymbolGlyph.fontColor([{ "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_titlebar_icon'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" }]);
+                                    SymbolGlyph.fontSize({ 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    SymbolGlyph.fontColor([{ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_titlebar_icon'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' }]);
                                 }, SymbolGlyph);
                                 Button.pop();
                             });
@@ -644,7 +644,7 @@ export class AtomicServiceNavigation extends ViewPU {
                             this.ifElseBranchUpdateFunction(1, () => {
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     Button.createWithChild({ type: ButtonType.Circle });
-                                    Button.backgroundColor({ "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_button_normal'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+                                    Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     Button.width(36);
                                     Button.height(36);
                                     Button.borderRadius(18);
@@ -674,7 +674,7 @@ export class AtomicServiceNavigation extends ViewPU {
                             this.ifElseBranchUpdateFunction(2, () => {
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     Image.create(this.sideBarOptions?.sideBarIcon);
-                                    Image.backgroundColor({ "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_button_normal'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+                                    Image.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     Image.width(36);
                                     Image.height(36);
                                     Image.borderRadius(18);
@@ -707,7 +707,7 @@ export class AtomicServiceNavigation extends ViewPU {
                             this.ifElseBranchUpdateFunction(0, () => {
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     Button.createWithChild({ type: ButtonType.Circle });
-                                    Button.backgroundColor({ "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_button_normal'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+                                    Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     Button.width(36);
                                     Button.height(36);
                                     Button.borderRadius(18);
@@ -727,10 +727,10 @@ export class AtomicServiceNavigation extends ViewPU {
                                     Button.visibility(this.controlButtonVisible ? Visibility.Visible : Visibility.None);
                                 }, Button);
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
-                                    SymbolGlyph.create({ "id": -1, "type": 40000, params: ['sys.symbol.close_sidebar'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+                                    SymbolGlyph.create({ 'id': -1, 'type': 40000, params: ['sys.symbol.close_sidebar'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     SymbolGlyph.fontWeight(FontWeight.Normal);
-                                    SymbolGlyph.fontSize({ "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_headline7'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
-                                    SymbolGlyph.fontColor([{ "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_titlebar_icon'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" }]);
+                                    SymbolGlyph.fontSize({ 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    SymbolGlyph.fontColor([{ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_titlebar_icon'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' }]);
                                 }, SymbolGlyph);
                                 Button.pop();
                             });
@@ -739,7 +739,7 @@ export class AtomicServiceNavigation extends ViewPU {
                             this.ifElseBranchUpdateFunction(1, () => {
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     Button.createWithChild({ type: ButtonType.Circle });
-                                    Button.backgroundColor({ "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_button_normal'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+                                    Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     Button.width(36);
                                     Button.height(36);
                                     Button.borderRadius(18);
@@ -769,7 +769,7 @@ export class AtomicServiceNavigation extends ViewPU {
                             this.ifElseBranchUpdateFunction(2, () => {
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     Image.create(this.titleOptions?.titleIcon);
-                                    Image.backgroundColor({ "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_button_normal'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+                                    Image.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     Image.width(36);
                                     Image.height(36);
                                     Image.borderRadius(18);
@@ -806,7 +806,7 @@ export class AtomicServiceNavigation extends ViewPU {
                     top: 0,
                     bottom: 0
                 },
-                color: { "id": -1, "type": 10001, params: ['sys.color.comp_divider'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" },
+                color: { 'id': -1, 'type': 10001, params: ['sys.color.comp_divider'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' },
                 style: {
                     right: BorderStyle.Solid
                 } });
@@ -816,7 +816,7 @@ export class AtomicServiceNavigation extends ViewPU {
             Row.padding({ top: 56 });
             Row.focusable(true);
             Row.defaultFocus(true);
-            Row.backgroundColor(this.sideBarOptions?.sideBarBackground ?? { "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_sub_background'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+            Row.backgroundColor(this.sideBarOptions?.sideBarBackground ?? { 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_sub_background'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
             Row.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
         }, Row);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -841,7 +841,7 @@ export class AtomicServiceNavigation extends ViewPU {
                 this.ifElseBranchUpdateFunction(0, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Button.createWithChild({ type: ButtonType.Circle });
-                        Button.backgroundColor({ "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_button_normal'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+                        Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                         Button.width(36);
                         Button.height(36);
                         Button.borderRadius(18);
@@ -869,7 +869,7 @@ export class AtomicServiceNavigation extends ViewPU {
                 this.ifElseBranchUpdateFunction(1, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Image.create(this.titleOptions?.titleIcon ?? this.atomicServiceIcon);
-                        Image.backgroundColor({ "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_button_normal'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+                        Image.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                         Image.width(36);
                         Image.height(36);
                         Image.borderRadius(18);
@@ -898,7 +898,7 @@ export class AtomicServiceNavigation extends ViewPU {
                 this.ifElseBranchUpdateFunction(0, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Button.createWithChild();
-                        Button.backgroundColor({ "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_button_normal'], "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+                        Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                         Button.width(36);
                         Button.height(36);
                         Button.margin({
@@ -971,7 +971,7 @@ export class AtomicServiceNavigation extends ViewPU {
             Stack.width('100%');
             Stack.height('100%');
             Stack.background(this.gradientBackground === undefined ? undefined : { builder: () => {
-                    this.BackgroundBuilder.call(this, makeBuilderParameterProxy("BackgroundBuilder", { primaryColor: () => this.gradientBackground.primaryColor, secondaryColor: () => this.gradientBackground.secondaryColor, backgroundTheme: () => this.gradientBackground.backgroundTheme, mixMode: () => this.gradientBackground.mixMode, alpha: () => this.gradientBackground.alpha }));
+                    this.BackgroundBuilder.call(this, makeBuilderParameterProxy('BackgroundBuilder', { primaryColor: () => this.gradientBackground.primaryColor, secondaryColor: () => this.gradientBackground.secondaryColor, backgroundTheme: () => this.gradientBackground.backgroundTheme, mixMode: () => this.gradientBackground.mixMode, alpha: () => this.gradientBackground.alpha }));
                 } });
             Stack.onSizeChange((oldValue, newValue) => {
                 this.navigationWidth = newValue.width;
@@ -1015,7 +1015,7 @@ export class AtomicServiceNavigation extends ViewPU {
                         Stack.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
                     }, Stack);
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        Navigation.create(this.navPathStack, { moduleName: "library", pagePath: "", isUserCreateStack: true });
+                        Navigation.create(this.navPathStack, { moduleName: 'library', pagePath: '', isUserCreateStack: true });
                         Navigation.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
                         Navigation.title({ builder: () => {
                                 this.drawerTitleBuilder.call(this);
@@ -1077,7 +1077,7 @@ export class AtomicServiceNavigation extends ViewPU {
             else {
                 this.ifElseBranchUpdateFunction(1, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        Navigation.create(this.navPathStack, { moduleName: "library", pagePath: "", isUserCreateStack: true });
+                        Navigation.create(this.navPathStack, { moduleName: 'library', pagePath: '', isUserCreateStack: true });
                         Navigation.title((this.titleOptions?.titleIcon || (this.titleOptions?.titleBarType && !this.title)) ? { builder: () => {
                                 this.titleBuilder.call(this);
                             } } : this.title, this.getTitleOption());
@@ -1374,19 +1374,19 @@ class SideBarHelper {
 /**
  * 标题栏类型
  */
-export var TitleBarType;
+export let TitleBarType;
 (function (TitleBarType) {
     /**
      * 长图标类型标题栏
      */
-    TitleBarType[TitleBarType["SQUARED_ICON"] = 1] = "SQUARED_ICON";
+    TitleBarType[TitleBarType['SQUARED_ICON'] = 1] = 'SQUARED_ICON';
     /**
      * 圆形图标类型标题栏
      */
-    TitleBarType[TitleBarType["ROUND_ICON"] = 2] = "ROUND_ICON";
+    TitleBarType[TitleBarType['ROUND_ICON'] = 2] = 'ROUND_ICON';
     /**
      * 抽屉类型标题栏
      */
-    TitleBarType[TitleBarType["DRAWER"] = 3] = "DRAWER";
+    TitleBarType[TitleBarType['DRAWER'] = 3] = 'DRAWER';
 })(TitleBarType || (TitleBarType = {}));
 //# sourceMappingURL=MainPage.js.map
