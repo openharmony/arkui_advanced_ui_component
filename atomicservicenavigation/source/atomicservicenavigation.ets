@@ -187,7 +187,7 @@ export struct AtomicServiceNavigation {
             gradientBackground.backgroundTheme === undefined ? BackgroundTheme.DEFAULT :
             gradientBackground.backgroundTheme);
         }
-      })
+      }).expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
   }
 
   aboutToAppear(): void {
@@ -559,6 +559,16 @@ export struct AtomicServiceNavigation {
 
   build() {
     Stack() {
+      Column(){
+        if(this.gradientBackground !== undefined)
+          this.BackgroundBuilder({
+            primaryColor: this.gradientBackground.primaryColor,
+            secondaryColor: this.gradientBackground.secondaryColor,
+            backgroundTheme: this.gradientBackground.backgroundTheme,
+            mixMode: this.gradientBackground.mixMode,
+            alpha: this.gradientBackground.alpha
+          })
+      }
       if (this.titleOptions?.titleBarType === TitleBarType.DRAWER) {
         this.controlButton();
 
@@ -638,14 +648,6 @@ export struct AtomicServiceNavigation {
     }
     .width('100%')
     .height('100%')
-    .background(this.gradientBackground === undefined || (this.navigationWidth === -1 && this.navigationHeight === -1) ?
-      undefined : this.BackgroundBuilder({
-      primaryColor: this.gradientBackground.primaryColor,
-      secondaryColor: this.gradientBackground.secondaryColor,
-      backgroundTheme: this.gradientBackground.backgroundTheme,
-      mixMode: this.gradientBackground.mixMode,
-      alpha: this.gradientBackground.alpha
-    }), { align: Alignment.Top })
     .onSizeChange((oldValue: SizeOptions, newValue: SizeOptions) => {
       this.navigationWidth = newValue.width as number;
       this.navigationHeight = newValue.height as number;
