@@ -992,7 +992,7 @@ export class AtomicServiceNavigation extends ViewPU {
             If.create();
             if (this.gradientBackground !== undefined) {
                 this.ifElseBranchUpdateFunction(0, () => {
-                    this.BackgroundBuilder.bind(this)(makeBuilderParameterProxy("BackgroundBuilder", { primaryColor: () => this.gradientBackground.primaryColor, secondaryColor: () => this.gradientBackground.secondaryColor, backgroundTheme: () => this.gradientBackground.backgroundTheme, mixMode: () => this.gradientBackground.mixMode, alpha: () => this.gradientBackground.alpha }));
+                    this.BackgroundBuilder.bind(this)(makeBuilderParameterProxy('BackgroundBuilder', { primaryColor: () => this.gradientBackground.primaryColor, secondaryColor: () => this.gradientBackground.secondaryColor, backgroundTheme: () => this.gradientBackground.backgroundTheme, mixMode: () => this.gradientBackground.mixMode, alpha: () => this.gradientBackground.alpha }));
                 });
             }
             else {
