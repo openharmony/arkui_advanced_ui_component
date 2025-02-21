@@ -560,7 +560,7 @@ export struct AtomicServiceNavigation {
   build() {
     Stack() {
       Column() {
-        if (this.gradientBackground !== undefined)
+        if (this.gradientBackground !== undefined) {
           this.BackgroundBuilder({
             primaryColor: this.gradientBackground.primaryColor,
             secondaryColor: this.gradientBackground.secondaryColor,
@@ -568,6 +568,7 @@ export struct AtomicServiceNavigation {
             mixMode: this.gradientBackground.mixMode,
             alpha: this.gradientBackground.alpha
           })
+        }
       }
       if (this.titleOptions?.titleBarType === TitleBarType.DRAWER) {
         this.controlButton();
