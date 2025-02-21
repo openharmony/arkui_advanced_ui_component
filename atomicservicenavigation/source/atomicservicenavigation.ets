@@ -141,8 +141,8 @@ export struct AtomicServiceNavigation {
 
   private settings: RenderingContextSettings = new RenderingContextSettings(true);
   private context: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.settings);
-  private navigationWidth: number = 0;
-  private navigationHeight: number = 0;
+  @State private navigationWidth: number = 0;
+  @State private navigationHeight: number = 0;
 
   private mainWindow?: window.Window;
   private onWindowSizeChangeCallback?: Callback<Size>;
@@ -187,7 +187,7 @@ export struct AtomicServiceNavigation {
             gradientBackground.backgroundTheme === undefined ? BackgroundTheme.DEFAULT :
             gradientBackground.backgroundTheme);
         }
-      })
+      }).expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
   }
 
   aboutToAppear(): void {
@@ -559,6 +559,17 @@ export struct AtomicServiceNavigation {
 
   build() {
     Stack() {
+      Column() {
+        if (this.gradientBackground !== undefined) {
+          this.BackgroundBuilder({
+            primaryColor: this.gradientBackground.primaryColor,
+            secondaryColor: this.gradientBackground.secondaryColor,
+            backgroundTheme: this.gradientBackground.backgroundTheme,
+            mixMode: this.gradientBackground.mixMode,
+            alpha: this.gradientBackground.alpha
+          })
+        }
+      }
       if (this.titleOptions?.titleBarType === TitleBarType.DRAWER) {
         this.controlButton();
 
@@ -638,13 +649,6 @@ export struct AtomicServiceNavigation {
     }
     .width('100%')
     .height('100%')
-    .background(this.gradientBackground === undefined ? undefined : this.BackgroundBuilder({
-      primaryColor: this.gradientBackground.primaryColor,
-      secondaryColor: this.gradientBackground.secondaryColor,
-      backgroundTheme: this.gradientBackground.backgroundTheme,
-      mixMode: this.gradientBackground.mixMode,
-      alpha: this.gradientBackground.alpha
-    }))
     .onSizeChange((oldValue: SizeOptions, newValue: SizeOptions) => {
       this.navigationWidth = newValue.width as number;
       this.navigationHeight = newValue.height as number;
