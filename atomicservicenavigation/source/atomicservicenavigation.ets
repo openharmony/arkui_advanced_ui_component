@@ -559,8 +559,8 @@ export struct AtomicServiceNavigation {
 
   build() {
     Stack() {
-      Column(){
-        if(this.gradientBackground !== undefined)
+      Column() {
+        if (this.gradientBackground !== undefined)
           this.BackgroundBuilder({
             primaryColor: this.gradientBackground.primaryColor,
             secondaryColor: this.gradientBackground.secondaryColor,
