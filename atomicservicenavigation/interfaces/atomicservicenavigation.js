@@ -412,6 +412,7 @@ export class AtomicServiceNavigation extends ViewPU {
                         gradientBackground.backgroundTheme);
                 }
             });
+            Canvas.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
         }, Canvas);
         Canvas.pop();
     }
@@ -978,23 +979,29 @@ export class AtomicServiceNavigation extends ViewPU {
             Stack.create();
             Stack.width('100%');
             Stack.height('100%');
-            Stack.background(this.gradientBackground === undefined || (this.navigationWidth === -1 && this.navigationHeight === -1) ? undefined : {
-                builder: () => {
-                    this.BackgroundBuilder.call(this, makeBuilderParameterProxy('BackgroundBuilder', {
-                        primaryColor: () => this.gradientBackground.primaryColor,
-                        secondaryColor: () => this.gradientBackground.secondaryColor,
-                        backgroundTheme: () => this.gradientBackground.backgroundTheme,
-                        mixMode: () => this.gradientBackground.mixMode,
-                        alpha: () => this.gradientBackground.alpha
-                    }));
-                }
-            }, { align: Alignment.Top });
             Stack.onSizeChange((oldValue, newValue) => {
                 this.navigationWidth = newValue.width;
                 this.navigationHeight = newValue.height;
             });
             Stack.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
         }, Stack);
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            Column.create();
+        }, Column);
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            If.create();
+            if (this.gradientBackground !== undefined) {
+                this.ifElseBranchUpdateFunction(0, () => {
+                    this.BackgroundBuilder.bind(this)(makeBuilderParameterProxy("BackgroundBuilder", { primaryColor: () => this.gradientBackground.primaryColor, secondaryColor: () => this.gradientBackground.secondaryColor, backgroundTheme: () => this.gradientBackground.backgroundTheme, mixMode: () => this.gradientBackground.mixMode, alpha: () => this.gradientBackground.alpha }));
+                });
+            }
+            else {
+                this.ifElseBranchUpdateFunction(1, () => {
+                });
+            }
+        }, If);
+        If.pop();
+        Column.pop();
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
             if (this.titleOptions?.titleBarType === TitleBarType.DRAWER) {
