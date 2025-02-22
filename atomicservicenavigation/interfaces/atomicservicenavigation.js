@@ -52,12 +52,6 @@ const SIDE_BAR_COMMON_WIDTH = 360;
 const CONTENT_MIN_WIDTH = 600;
 const ATOMIC_SERVICE_CAPSULE_WIDTH = 81.5;
 /**
- * 抽屉模式适应不同设备尺寸下menubar的宽度
- */
-const BREAK_POINT_SM_MENUBAR_WIDTH = 16;
-const BREAK_POINT_MD_MENUBAR_WIDTH = 24;
-const BREAK_POINT_LG_MENUBAR_WIDTH = 32;
-/**
  * 背景颜色的不透明度的枚举类型
  *
  * @enum { number }.
@@ -101,7 +95,7 @@ export let MixMode;
     /**
      * 一种颜色渐渐转变为另一种颜色
      */
-    MixMode.TOWARDS = 3;
+    MixMode[MixMode['TOWARDS'] = 3] = 'TOWARDS';
 })(MixMode || (MixMode = {}));
 /**
  * 背景底色
@@ -384,9 +378,10 @@ export class AtomicServiceNavigation extends ViewPU {
             Canvas.onReady(() => {
                 if (gradientBackground.secondaryColor === undefined) {
                     //单色渐变
-                    this.drawSingleGradient(this.context, gradientBackground.primaryColor, gradientBackground.backgroundTheme === undefined ?
-                        backGroundColor[2] : backGroundColor[gradientBackground.backgroundTheme - 1]);
-                } else {
+                    this.drawSingleGradient(this.context, gradientBackground.primaryColor, gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
+                        backGroundColor[gradientBackground.backgroundTheme - 1]);
+                }
+                else {
                     if (gradientBackground.mixMode === MixMode.AVERAGE) {
                         //双色渐变五五分
                         this.drawGradientCanvasHalf(this.context, gradientBackground.primaryColor, gradientBackground.secondaryColor);
@@ -545,25 +540,6 @@ export class AtomicServiceNavigation extends ViewPU {
             }
         }
     }
-    /**
-     * 返回抽屉模式下需要避让menubar的宽度
-     */
-    getMenuBarAvoidAreaWidth() {
-        switch (this.currentBreakPoint) {
-            case BREAK_POINT_SM: {
-                return BREAK_POINT_SM_MENUBAR_WIDTH;
-            }
-            case BREAK_POINT_MD: {
-                return BREAK_POINT_MD_MENUBAR_WIDTH;
-            }
-            case BREAK_POINT_LG: {
-                return BREAK_POINT_LG_MENUBAR_WIDTH;
-            }
-            default: {
-                return BREAK_POINT_SM_MENUBAR_WIDTH;
-            }
-        }
-    }
     drawerTitleBuilder(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
@@ -579,7 +555,7 @@ export class AtomicServiceNavigation extends ViewPU {
                             // 在Stack模式，或者非分栏模式下右侧需要有一定padding值，避免超长文本时不能避让menuBar
                             end: ((this.currentBreakPoint === BREAK_POINT_SM &&
                                 (this.mode === NavigationMode.Auto || !this.mode)) || this.mode === NavigationMode.Stack) ?
-                                LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + this.getMenuBarAvoidAreaWidth()) : LengthMetrics.vp(0)
+                                LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + 16) : LengthMetrics.vp(0)
                         });
                         Row.width('50%');
                     }, Row);
@@ -589,8 +565,7 @@ export class AtomicServiceNavigation extends ViewPU {
                         Text.minFontSize(14);
                         Text.maxFontSize(26);
                         Text.height(36);
-                        Text.fontColor({ 'id': -1, 'type': 10001, params: ['sys.color.font_primary'],
-                            'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                        Text.fontColor({ 'id': -1, 'type': 10001, params: ['sys.color.font_primary'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                         Text.textOverflow({ overflow: TextOverflow.Ellipsis });
                         Text.fontWeight(FontWeight.Bold);
                         Text.width(0);
@@ -1150,10 +1125,8 @@ export class AtomicServiceNavigation extends ViewPU {
      */
     drawGradientCanvasHalf(context, primaryColor, secondaryColor) {
         let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
-        let grad1 = context.createLinearGradient(COORDINATE_NEGATIVE_ONE * this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT,
-            height, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
-        let grad2 = context.createLinearGradient(this.navigationWidth * COLOR_RATIO_ONE_FIFTY_PERCENT, height,
-            this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
+        let grad1 = context.createLinearGradient(COORDINATE_NEGATIVE_ONE * this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, height, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
+        let grad2 = context.createLinearGradient(this.navigationWidth * COLOR_RATIO_ONE_FIFTY_PERCENT, height, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
         grad1.addColorStop(0, this.resourceColorToString(primaryColor));
         grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.resourceColorToString(primaryColor));
         grad1.addColorStop(1, this.resourceColorToString(secondaryColor));
