@@ -394,8 +394,8 @@ export class AtomicServiceNavigation extends ViewPU {
             Canvas.onReady(() => {
                 if (gradientBackground.secondaryColor === undefined) {
                     //单色渐变
-                    this.drawSingleGradient(this.context, gradientBackground.primaryColor, gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
-                        backGroundColor[gradientBackground.backgroundTheme - 1]);
+                    this.drawSingleGradient(this.context, gradientBackground.primaryColor, gradientBackground.backgroundTheme === undefined ?
+                        backGroundColor[2] : backGroundColor[gradientBackground.backgroundTheme - 1]);
                 } else {
                     if (gradientBackground.mixMode === MixMode.AVERAGE) {
                         //双色渐变五五分
