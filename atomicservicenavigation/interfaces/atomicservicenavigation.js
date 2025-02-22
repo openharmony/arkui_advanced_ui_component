@@ -574,7 +574,7 @@ export class AtomicServiceNavigation extends ViewPU {
                                 (this.mode === NavigationMode.Auto || !this.mode)) || this.mode === NavigationMode.Stack) ?
                                 LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + 16) : LengthMetrics.vp(0)
                         });
-                        Row.width('50%');
+                        Row.width('100%');
                     }, Row);
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Text.create(this.title);

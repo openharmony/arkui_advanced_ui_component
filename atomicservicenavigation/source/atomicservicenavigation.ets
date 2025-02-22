@@ -366,7 +366,7 @@ export struct AtomicServiceNavigation {
           (this.mode === NavigationMode.Auto || !this.mode)) || this.mode === NavigationMode.Stack) ?
         LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + 16) : LengthMetrics.vp(0)
       })
-      .width('50%')
+      .width('100%')
     }
   }
 
