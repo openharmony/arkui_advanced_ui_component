@@ -21,6 +21,7 @@ const LengthMetrics = requireNapi('arkui.node').LengthMetrics;
 const SymbolGlyphModifier = requireNapi('arkui.modifier').SymbolGlyphModifier;
 const bundleManager = requireNapi('bundle.bundleManager');
 const hilog = requireNapi('hilog');
+const i18n = requireNapi('i18n');
 /**
  * 背景渐变色相关数据
  */
@@ -568,9 +569,9 @@ export class AtomicServiceNavigation extends ViewPU {
                             top: LengthMetrics.vp(10),
                             bottom: LengthMetrics.vp(10),
                             // 在Stack模式，或者非分栏模式下右侧需要有一定padding值，避免超长文本时不能避让menuBar
-                            end: ((this.currentBreakPoint === BREAK_POINT_SM && (this.mode === NavigationMode.Auto || !this.mode)) ||
-                                this.mode === NavigationMode.Stack) ? LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + 16) :
-                                LengthMetrics.vp(0)
+                            end: ((this.currentBreakPoint === BREAK_POINT_SM &&
+                                (this.mode === NavigationMode.Auto || !this.mode)) || this.mode === NavigationMode.Stack) ?
+                                LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + 16) : LengthMetrics.vp(0)
                         });
                         Row.width('100%');
                     }, Row);
@@ -586,6 +587,7 @@ export class AtomicServiceNavigation extends ViewPU {
                         Text.width(0);
                         Text.layoutWeight(1);
                         Text.clip(true);
+                        Text.textAlign(i18n.isRTL(i18n.System.getSystemLocale()) ? TextAlign.End : TextAlign.Start);
                     }, Text);
                     Text.pop();
                     Row.pop();
@@ -968,9 +970,15 @@ export class AtomicServiceNavigation extends ViewPU {
         }, If);
         If.pop();
     }
+    /**
+     * 根据当前屏幕尺寸判断是否要显示用户插入的布局
+     */
     isShowMenus() {
         return this.mode === NavigationMode.Stack && this.currentBreakPoint !== BREAK_POINT_SM;
     }
+    /**
+     * 根据用户传入的类型和当前屏幕尺寸判断是否要显示NavigationMenuItem列表
+     */
     getMenuItemArray() {
         return this.isShowMenus() && this.menus instanceof Array ? this.menus : undefined;
     }

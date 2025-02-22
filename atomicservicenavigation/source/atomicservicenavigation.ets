@@ -17,6 +17,7 @@ import { BusinessError, Callback } from '@ohos.base';
 import { curves, LengthMetrics, SymbolGlyphModifier, window } from '@kit.ArkUI';
 import { bundleManager, common } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { i18n } from '@kit.LocalizationKit';
 
 /**
  * 背景渐变色相关数据
@@ -353,6 +354,7 @@ export struct AtomicServiceNavigation {
           .width(0)
           .layoutWeight(1)
           .clip(true)
+          .textAlign(i18n.isRTL(i18n.System.getSystemLocale()) ? TextAlign.End : TextAlign.Start)
       }
       .padding({
         start: LengthMetrics.vp(this.currentBreakPoint !== BREAK_POINT_LG ? this.marginWindowLeft + 36 + 8 :
@@ -360,9 +362,9 @@ export struct AtomicServiceNavigation {
         top: LengthMetrics.vp(10),
         bottom: LengthMetrics.vp(10),
         // 在Stack模式，或者非分栏模式下右侧需要有一定padding值，避免超长文本时不能避让menuBar
-        end: ((this.currentBreakPoint === BREAK_POINT_SM && (this.mode === NavigationMode.Auto || !this.mode)) ||
-          this.mode === NavigationMode.Stack) ? LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + 16) :
-        LengthMetrics.vp(0)
+        end: ((this.currentBreakPoint === BREAK_POINT_SM &&
+          (this.mode === NavigationMode.Auto || !this.mode)) || this.mode === NavigationMode.Stack) ?
+        LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + 16) : LengthMetrics.vp(0)
       })
       .width('100%')
     }
@@ -549,10 +551,16 @@ export struct AtomicServiceNavigation {
     }
   }
 
+  /**
+   * 根据当前屏幕尺寸判断是否要显示用户插入的布局
+   */
   private isShowMenus(): boolean {
     return this.mode === NavigationMode.Stack && this.currentBreakPoint !== BREAK_POINT_SM;
   }
 
+  /**
+   * 根据用户传入的类型和当前屏幕尺寸判断是否要显示NavigationMenuItem列表
+   */
   private getMenuItemArray(): undefined | Array<NavigationMenuItem> {
     return this.isShowMenus() && this.menus instanceof Array ? this.menus : undefined;
   }
