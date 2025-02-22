@@ -21,6 +21,7 @@ const LengthMetrics = requireNapi('arkui.node').LengthMetrics;
 const SymbolGlyphModifier = requireNapi('arkui.modifier').SymbolGlyphModifier;
 const bundleManager = requireNapi('bundle.bundleManager');
 const hilog = requireNapi('hilog');
+const i18n = requireNapi('i18n');
 /**
  * 背景渐变色相关数据
  */
@@ -50,6 +51,12 @@ const SIDE_BAR_OVERLAY_WIDTH = 304;
 const SIDE_BAR_COMMON_WIDTH = 360;
 const CONTENT_MIN_WIDTH = 600;
 const ATOMIC_SERVICE_CAPSULE_WIDTH = 81.5;
+/**
+ * 抽屉模式适应不同设备尺寸下menubar的宽度
+ */
+const BREAK_POINT_SM_MENUBAR_WIDTH = 16;
+const BREAK_POINT_MD_MENUBAR_WIDTH = 24;
+const BREAK_POINT_LG_MENUBAR_WIDTH = 32;
 /**
  * 背景颜色的不透明度的枚举类型
  *
@@ -538,6 +545,25 @@ export class AtomicServiceNavigation extends ViewPU {
             }
         }
     }
+    /**
+     * 返回抽屉模式下需要避让menubar的宽度
+     */
+    getMenuBarAvoidAreaWidth() {
+        switch (this.currentBreakPoint) {
+            case BREAK_POINT_SM: {
+                return BREAK_POINT_SM_MENUBAR_WIDTH;
+            }
+            case BREAK_POINT_MD: {
+                return BREAK_POINT_MD_MENUBAR_WIDTH;
+            }
+            case BREAK_POINT_LG: {
+                return BREAK_POINT_LG_MENUBAR_WIDTH;
+            }
+            default: {
+                return BREAK_POINT_SM_MENUBAR_WIDTH;
+            }
+        }
+    }
     drawerTitleBuilder(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
@@ -551,11 +577,11 @@ export class AtomicServiceNavigation extends ViewPU {
                             top: LengthMetrics.vp(10),
                             bottom: LengthMetrics.vp(10),
                             // 在Stack模式，或者非分栏模式下右侧需要有一定padding值，避免超长文本时不能避让menuBar
-                            end: ((this.currentBreakPoint === BREAK_POINT_SM && (this.mode === NavigationMode.Auto || !this.mode)) ||
-                                this.mode === NavigationMode.Stack) ? LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + 16) :
-                                LengthMetrics.vp(0)
+                            end: ((this.currentBreakPoint === BREAK_POINT_SM &&
+                                (this.mode === NavigationMode.Auto || !this.mode)) || this.mode === NavigationMode.Stack) ?
+                                LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + this.getMenuBarAvoidAreaWidth()) : LengthMetrics.vp(0)
                         });
-                        Row.width('100%');
+                        Row.width('50%');
                     }, Row);
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Text.create(this.title);
@@ -563,12 +589,14 @@ export class AtomicServiceNavigation extends ViewPU {
                         Text.minFontSize(14);
                         Text.maxFontSize(26);
                         Text.height(36);
-                        Text.fontColor({ 'id': -1, 'type': 10001, params: ['sys.color.font_primary'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                        Text.fontColor({ 'id': -1, 'type': 10001, params: ['sys.color.font_primary'],
+                            'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                         Text.textOverflow({ overflow: TextOverflow.Ellipsis });
                         Text.fontWeight(FontWeight.Bold);
                         Text.width(0);
                         Text.layoutWeight(1);
                         Text.clip(true);
+                        Text.textAlign(i18n.isRTL(i18n.System.getSystemLocale()) ? TextAlign.End : TextAlign.Start);
                     }, Text);
                     Text.pop();
                     Row.pop();
@@ -951,9 +979,15 @@ export class AtomicServiceNavigation extends ViewPU {
         }, If);
         If.pop();
     }
+    /**
+     * 根据当前屏幕尺寸判断是否要显示用户插入的布局
+     */
     isShowMenus() {
         return this.mode === NavigationMode.Stack && this.currentBreakPoint !== BREAK_POINT_SM;
     }
+    /**
+     * 根据用户传入的类型和当前屏幕尺寸判断是否要显示NavigationMenuItem列表
+     */
     getMenuItemArray() {
         return this.isShowMenus() && this.menus instanceof Array ? this.menus : undefined;
     }
@@ -962,18 +996,9 @@ export class AtomicServiceNavigation extends ViewPU {
             Stack.create();
             Stack.width('100%');
             Stack.height('100%');
-            Stack.background(this.gradientBackground === undefined ? undefined : {
-                builder: () => {
-                    this.BackgroundBuilder.call(this,
-                        makeBuilderParameterProxy('BackgroundBuilder', {
-                            primaryColor: () => this.gradientBackground.primaryColor,
-                            secondaryColor: () => this.gradientBackground.secondaryColor,
-                            backgroundTheme: () => this.gradientBackground.backgroundTheme,
-                            mixMode: () => this.gradientBackground.mixMode,
-                            alpha: () => this.gradientBackground.alpha
-                        })
-                    );
-                }});
+            Stack.background(this.gradientBackground === undefined ? undefined : { builder: () => {
+                    this.BackgroundBuilder.call(this, makeBuilderParameterProxy('BackgroundBuilder', { primaryColor: () => this.gradientBackground.primaryColor, secondaryColor: () => this.gradientBackground.secondaryColor, backgroundTheme: () => this.gradientBackground.backgroundTheme, mixMode: () => this.gradientBackground.mixMode, alpha: () => this.gradientBackground.alpha }));
+                } });
             Stack.onSizeChange((oldValue, newValue) => {
                 this.navigationWidth = newValue.width;
                 this.navigationHeight = newValue.height;

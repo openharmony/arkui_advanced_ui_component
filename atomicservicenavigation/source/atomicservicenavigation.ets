@@ -17,6 +17,7 @@ import { BusinessError, Callback } from '@ohos.base';
 import { curves, LengthMetrics, SymbolGlyphModifier, window } from '@kit.ArkUI';
 import { bundleManager, common } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { i18n } from '@kit.LocalizationKit';
 
 /**
  * 背景渐变色相关数据
@@ -48,6 +49,13 @@ const SIDE_BAR_OVERLAY_WIDTH = 304;
 const SIDE_BAR_COMMON_WIDTH = 360;
 const CONTENT_MIN_WIDTH = 600;
 const ATOMIC_SERVICE_CAPSULE_WIDTH = 81.5;
+
+/**
+ * 抽屉模式适应不同设备尺寸下menubar的宽度
+ */
+const BREAK_POINT_SM_MENUBAR_WIDTH: number = 16;
+const BREAK_POINT_MD_MENUBAR_WIDTH: number = 24;
+const BREAK_POINT_LG_MENUBAR_WIDTH: number = 32;
 
 /**
  * 背景颜色的不透明度的枚举类型
@@ -338,6 +346,26 @@ export struct AtomicServiceNavigation {
     }
   }
 
+  /**
+   * 返回抽屉模式下需要避让menubar的宽度
+   */
+  private getMenuBarAvoidAreaWidth(): number {
+    switch (this.currentBreakPoint) {
+      case BREAK_POINT_SM: {
+        return BREAK_POINT_SM_MENUBAR_WIDTH;
+      }
+      case BREAK_POINT_MD: {
+        return BREAK_POINT_MD_MENUBAR_WIDTH;
+      }
+      case BREAK_POINT_LG: {
+        return BREAK_POINT_LG_MENUBAR_WIDTH;
+      }
+      default: {
+        return BREAK_POINT_SM_MENUBAR_WIDTH;
+      }
+    }
+  }
+
   @Builder
   drawerTitleBuilder() {
     if (this.titleOptions?.titleBarType === TitleBarType.DRAWER && this.title) {
@@ -353,6 +381,7 @@ export struct AtomicServiceNavigation {
           .width(0)
           .layoutWeight(1)
           .clip(true)
+          .textAlign(i18n.isRTL(i18n.System.getSystemLocale()) ? TextAlign.End : TextAlign.Start)
       }
       .padding({
         start: LengthMetrics.vp(this.currentBreakPoint !== BREAK_POINT_LG ? this.marginWindowLeft + 36 + 8 :
@@ -360,11 +389,11 @@ export struct AtomicServiceNavigation {
         top: LengthMetrics.vp(10),
         bottom: LengthMetrics.vp(10),
         // 在Stack模式，或者非分栏模式下右侧需要有一定padding值，避免超长文本时不能避让menuBar
-        end: ((this.currentBreakPoint === BREAK_POINT_SM && (this.mode === NavigationMode.Auto || !this.mode)) ||
-          this.mode === NavigationMode.Stack) ? LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + 16) :
-        LengthMetrics.vp(0)
+        end: ((this.currentBreakPoint === BREAK_POINT_SM &&
+          (this.mode === NavigationMode.Auto || !this.mode)) || this.mode === NavigationMode.Stack) ?
+          LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + this.getMenuBarAvoidAreaWidth()) : LengthMetrics.vp(0)
       })
-      .width('100%')
+      .width('50%')
     }
   }
 
@@ -549,10 +578,16 @@ export struct AtomicServiceNavigation {
     }
   }
 
+  /**
+   * 根据当前屏幕尺寸判断是否要显示用户插入的布局
+   */
   private isShowMenus(): boolean {
     return this.mode === NavigationMode.Stack && this.currentBreakPoint !== BREAK_POINT_SM;
   }
 
+  /**
+   * 根据用户传入的类型和当前屏幕尺寸判断是否要显示NavigationMenuItem列表
+   */
   private getMenuItemArray(): undefined | Array<NavigationMenuItem> {
     return this.isShowMenus() && this.menus instanceof Array ? this.menus : undefined;
   }
