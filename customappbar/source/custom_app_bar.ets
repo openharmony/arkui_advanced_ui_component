@@ -30,6 +30,9 @@ const ICON_FILL_COLOR_DEFAULT: string = '#182431';
 const BORDER_COLOR_DEFAULT: string = '#33000000';
 const MENU_BACK_COLOR: string = '#99FFFFFF';
 const MENU_MARGIN_TOP: number = 10;
+const SM_MENU_MARGIN_END: number = 16;
+const MD_MENU_MARGIN_END: number = 24;
+const LG_MENU_MARGIN_END: number = 32;
 // 半屏参数
 const BUTTON_IMAGE_SIZE: number = 18;
 const HALF_CONTAINER_BORDER_SIZE: number = 32;
@@ -39,7 +42,7 @@ const HALF_MENU_MARGIN: number = 16;
 const EYELASH_HEIGHT: number = 36;
 const CHEVRON_HEIGHT: number = 20;
 const CHEVRON_WIDTH: number = 10;
-const CHEVRON_MAIGIN: number = 4;
+const CHEVRON_MARGIN: number = 4;
 const TITLE_FONT_SIZE: number = 14;
 const TITLE_LINE_HEIGHT: number = 16;
 const TITLE_MARGIN_RIGHT: number = 12;
@@ -82,6 +85,13 @@ enum BreakPointsType {
   LG = 'LG'
 }
 
+const menuMarginEndMap: Map<BreakPointsType, number> = new Map<BreakPointsType, number>([
+  [BreakPointsType.NONE, SM_MENU_MARGIN_END],
+  [BreakPointsType.SM, SM_MENU_MARGIN_END],
+  [BreakPointsType.MD, MD_MENU_MARGIN_END],
+  [BreakPointsType.LG, LG_MENU_MARGIN_END]
+]);
+
 const colorMap: Map<string, ColorGroup> = new Map<string, ColorGroup>([
   [ICON_FILL_COLOR_DEFAULT, new ColorGroup('#182431', '#e5ffffff')],
   [BORDER_COLOR_DEFAULT, new ColorGroup('#33182431', '#4Dffffff')],
@@ -118,6 +128,7 @@ export struct CustomAppBar {
   @State contentMarginLeft: number = 0;
   @State contentMarginRight: number = 0;
   @State contentMarginBottom: number = 0;
+  @State menuMarginEnd: number = SM_MENU_MARGIN_END;
   // 半屏参数
   @State isHalfScreen: boolean = true;
   @State containerHeight: string | number = '0%';
@@ -132,7 +143,7 @@ export struct CustomAppBar {
   @State contentBgColor: ResourceColor = '#FFFFFFFF';
   @State statusBarHeight: number = 0;
   @State ratio: number | undefined = undefined;
-  @State @Watch('onBreakPointChange') breakPoint: BreakPointsType = BreakPointsType.NONE
+  @State @Watch('onBreakPointChange') breakPoint: BreakPointsType = BreakPointsType.NONE;
   private isHalfToFullScreen: boolean = false;
   private isDark: boolean = true;
   private bundleName: string = '';
@@ -141,9 +152,9 @@ export struct CustomAppBar {
   private fullContentMarginTop: number = 0;
   private windowWidth: number = 0;
   private windowHeight: number = 0;
-  private smListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(0vp<width) and (width<600vp)')
-  private mdListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(600vp<=width) and (width<840vp)')
-  private lgListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(840vp<=width)')
+  private smListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(0vp<width) and (width<600vp)');
+  private mdListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(600vp<=width) and (width<840vp)');
+  private lgListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(840vp<=width)');
 
   aboutToAppear(): void {
     if (this.isHalfScreen) {
@@ -165,17 +176,17 @@ export struct CustomAppBar {
   initBreakPointListener(): void {
     this.smListener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
       if (mediaQueryResult.matches) {
-        this.breakPoint = BreakPointsType.SM
+        this.breakPoint = BreakPointsType.SM;
       }
     })
     this.mdListener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
       if (mediaQueryResult.matches) {
-        this.breakPoint = BreakPointsType.MD
+        this.breakPoint = BreakPointsType.MD;
       }
     })
     this.lgListener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
       if (mediaQueryResult.matches) {
-        this.breakPoint = BreakPointsType.LG
+        this.breakPoint = BreakPointsType.LG;
       }
     })
   }
@@ -183,14 +194,17 @@ export struct CustomAppBar {
   onBreakPointChange(): void {
     if (this.windowWidth === 0) {
       let displayData = display.getDefaultDisplaySync();
-      this.windowWidth = px2vp(displayData.width)
+      this.windowWidth = px2vp(displayData.width);
       this.windowHeight = px2vp(displayData.height);
+    }
+    if (menuMarginEndMap.has(this.breakPoint)) {
+      this.menuMarginEnd = menuMarginEndMap.get(this.breakPoint) as number;
     }
     if (this.isHalfScreen) {
       if (this.breakPoint === BreakPointsType.SM) {
         this.containerWidth = '100%';
       } else if (this.breakPoint === BreakPointsType.MD) {
-        this.containerWidth = MD_WIDTH
+        this.containerWidth = MD_WIDTH;
       } else if (this.breakPoint === BreakPointsType.LG) {
         this.containerWidth =
           this.windowWidth > this.windowHeight ? this.windowHeight * LG_WIDTH_LIMIT : this.windowWidth * LG_WIDTH_LIMIT;
@@ -226,7 +240,7 @@ export struct CustomAppBar {
       return;
     }
     if (eventName === ARKUI_APP_BAR_COLOR_CONFIGURATION) {
-      this.onColorConfigurationUpdate(this.parseBoolean(param))
+      this.onColorConfigurationUpdate(this.parseBoolean(param));
     } else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
       if (this.statusBarHeight === px2vp(Number(param))) {
         return;
@@ -475,7 +489,7 @@ export struct CustomAppBar {
       .id('AtomicServiceMenubarId')
     }
     .id('AtomicServiceMenubarRowId')
-    .margin({ top: this.statusBarHeight + MENU_MARGIN_TOP, left: VIEW_MARGIN_RIGHT, right: VIEW_MARGIN_RIGHT })
+    .margin({ top: LengthMetrics.vp(this.statusBarHeight + MENU_MARGIN_TOP), end: LengthMetrics.vp(this.menuMarginEnd) })
     .justifyContent(FlexAlign.End)
     .height(VIEW_HEIGHT)
     .hitTestBehavior(HitTestMode.Transparent)
@@ -489,7 +503,7 @@ export struct CustomAppBar {
         Row() {
           Image(this.icon).height(ICON_SIZE).width(ICON_SIZE)
             .margin({
-              start: LengthMetrics.vp(CHEVRON_MAIGIN)
+              start: LengthMetrics.vp(CHEVRON_MARGIN)
             })
           Text(this.labelName)
             .fontSize(TITLE_FONT_SIZE)
@@ -508,7 +522,7 @@ export struct CustomAppBar {
           SymbolGlyph($r('sys.symbol.chevron_right'))
             .height(CHEVRON_HEIGHT)
             .width(CHEVRON_WIDTH)
-            .margin({ start: LengthMetrics.vp(CHEVRON_MAIGIN), end: LengthMetrics.vp(CHEVRON_MAIGIN) })
+            .margin({ start: LengthMetrics.vp(CHEVRON_MARGIN), end: LengthMetrics.vp(CHEVRON_MARGIN) })
             .fontColor([Color.White])
         }
         .height(EYELASH_HEIGHT)

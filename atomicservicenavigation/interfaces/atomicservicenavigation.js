@@ -146,8 +146,8 @@ export class AtomicServiceNavigation extends ViewPU {
         this.modeChangeCallback = undefined;
         this.settings = new RenderingContextSettings(true);
         this.context = new CanvasRenderingContext2D(this.settings);
-        this.navigationWidth = 0;
-        this.navigationHeight = 0;
+        this.__navigationWidth = new ObservedPropertySimplePU(0, this, 'navigationWidth');
+        this.__navigationHeight = new ObservedPropertySimplePU(0, this, 'navigationHeight');
         this.mainWindow = undefined;
         this.onWindowSizeChangeCallback = undefined;
         this.onAvoidSafeAreaChangeCallback = undefined;
@@ -255,6 +255,8 @@ export class AtomicServiceNavigation extends ViewPU {
         this.__currentBreakPoint.purgeDependencyOnElmtId(rmElmtId);
         this.__sideBarAttribute.purgeDependencyOnElmtId(rmElmtId);
         this.__controlButtonVisible.purgeDependencyOnElmtId(rmElmtId);
+        this.__navigationWidth.purgeDependencyOnElmtId(rmElmtId);
+        this.__navigationHeight.purgeDependencyOnElmtId(rmElmtId);
     }
     aboutToBeDeleted() {
         this.__navPathStack.aboutToBeDeleted();
@@ -272,6 +274,8 @@ export class AtomicServiceNavigation extends ViewPU {
         this.__currentBreakPoint.aboutToBeDeleted();
         this.__sideBarAttribute.aboutToBeDeleted();
         this.__controlButtonVisible.aboutToBeDeleted();
+        this.__navigationWidth.aboutToBeDeleted();
+        this.__navigationHeight.aboutToBeDeleted();
         SubscriberManager.Get().delete(this.id__());
         this.aboutToBeDeletedInternal();
     }
@@ -365,6 +369,18 @@ export class AtomicServiceNavigation extends ViewPU {
     set controlButtonVisible(newValue) {
         this.__controlButtonVisible.set(newValue);
     }
+    get navigationWidth() {
+        return this.__navigationWidth.get();
+    }
+    set navigationWidth(newValue) {
+        this.__navigationWidth.set(newValue);
+    }
+    get navigationHeight() {
+        return this.__navigationHeight.get();
+    }
+    set navigationHeight(newValue) {
+        this.__navigationHeight.set(newValue);
+    }
     defaultNavDestinationBuilder(name, param, parent = null) {
     }
     BackgroundBuilder(gradientBackground, parent = null) {
@@ -398,6 +414,7 @@ export class AtomicServiceNavigation extends ViewPU {
                         gradientBackground.backgroundTheme);
                 }
             });
+            Canvas.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
         }, Canvas);
         Canvas.pop();
     }
@@ -971,15 +988,34 @@ export class AtomicServiceNavigation extends ViewPU {
             Stack.create();
             Stack.width('100%');
             Stack.height('100%');
-            Stack.background(this.gradientBackground === undefined ? undefined : { builder: () => {
-                    this.BackgroundBuilder.call(this, makeBuilderParameterProxy('BackgroundBuilder', { primaryColor: () => this.gradientBackground.primaryColor, secondaryColor: () => this.gradientBackground.secondaryColor, backgroundTheme: () => this.gradientBackground.backgroundTheme, mixMode: () => this.gradientBackground.mixMode, alpha: () => this.gradientBackground.alpha }));
-                } });
             Stack.onSizeChange((oldValue, newValue) => {
                 this.navigationWidth = newValue.width;
                 this.navigationHeight = newValue.height;
             });
             Stack.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
         }, Stack);
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            Column.create();
+        }, Column);
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            If.create();
+            if (this.gradientBackground !== undefined) {
+                this.ifElseBranchUpdateFunction(0, () => {
+                    this.BackgroundBuilder.bind(this)(makeBuilderParameterProxy('BackgroundBuilder', {
+                        primaryColor: () => this.gradientBackground.primaryColor,
+                        secondaryColor: () => this.gradientBackground.secondaryColor,
+                        backgroundTheme: () => this.gradientBackground.backgroundTheme,
+                        mixMode: () => this.gradientBackground.mixMode,
+                        alpha: () => this.gradientBackground.alpha
+                    }));
+                });
+            } else {
+                this.ifElseBranchUpdateFunction(1, () => {
+                });
+            }
+        }, If);
+        If.pop();
+        Column.pop();
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
             if (this.titleOptions?.titleBarType === TitleBarType.DRAWER) {

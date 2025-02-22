@@ -35,6 +35,9 @@ const ICON_FILL_COLOR_DEFAULT = '#182431';
 const BORDER_COLOR_DEFAULT = '#33000000';
 const MENU_BACK_COLOR = '#99FFFFFF';
 const MENU_MARGIN_TOP = 10;
+const SM_MENU_MARGIN_END = 16;
+const MD_MENU_MARGIN_END = 24;
+const LG_MENU_MARGIN_END = 32;
 // 半屏参数
 const BUTTON_IMAGE_SIZE = 18;
 const HALF_CONTAINER_BORDER_SIZE = 32;
@@ -44,7 +47,7 @@ const HALF_MENU_MARGIN = 16;
 const EYELASH_HEIGHT = 36;
 const CHEVRON_HEIGHT = 20;
 const CHEVRON_WIDTH = 10;
-const CHEVRON_MAIGIN = 4;
+const CHEVRON_MARGIN = 4;
 const TITLE_FONT_SIZE = 14;
 const TITLE_LINE_HEIGHT = 16;
 const TITLE_MARGIN_RIGHT = 12;
@@ -114,6 +117,7 @@ export class CustomAppBar extends ViewPU {
         this.__contentMarginLeft = new ObservedPropertySimplePU(0, this, 'contentMarginLeft');
         this.__contentMarginRight = new ObservedPropertySimplePU(0, this, 'contentMarginRight');
         this.__contentMarginBottom = new ObservedPropertySimplePU(0, this, 'contentMarginBottom');
+        this.__menuMarginEnd = new ObservedPropertySimplePU(SM_MENU_MARGIN_END, this, 'menuMarginEnd');
         this.__isHalfScreen = new ObservedPropertySimplePU(true, this, 'isHalfScreen');
         this.__containerHeight = new ObservedPropertySimplePU('0%', this, 'containerHeight');
         this.__containerWidth = new ObservedPropertySimplePU('100%', this, 'containerWidth');
@@ -182,6 +186,9 @@ export class CustomAppBar extends ViewPU {
         }
         if (params.contentMarginBottom !== undefined) {
             this.contentMarginBottom = params.contentMarginBottom;
+        }
+        if (params.menuMarginEnd !== undefined) {
+            this.menuMarginEnd = params.menuMarginEnd;
         }
         if (params.isHalfScreen !== undefined) {
             this.isHalfScreen = params.isHalfScreen;
@@ -275,6 +282,7 @@ export class CustomAppBar extends ViewPU {
         this.__contentMarginLeft.purgeDependencyOnElmtId(rmElmtId);
         this.__contentMarginRight.purgeDependencyOnElmtId(rmElmtId);
         this.__contentMarginBottom.purgeDependencyOnElmtId(rmElmtId);
+        this.__menuMarginEnd.purgeDependencyOnElmtId(rmElmtId);
         this.__isHalfScreen.purgeDependencyOnElmtId(rmElmtId);
         this.__containerHeight.purgeDependencyOnElmtId(rmElmtId);
         this.__containerWidth.purgeDependencyOnElmtId(rmElmtId);
@@ -304,6 +312,7 @@ export class CustomAppBar extends ViewPU {
         this.__contentMarginLeft.aboutToBeDeleted();
         this.__contentMarginRight.aboutToBeDeleted();
         this.__contentMarginBottom.aboutToBeDeleted();
+        this.__menuMarginEnd.aboutToBeDeleted();
         this.__isHalfScreen.aboutToBeDeleted();
         this.__containerHeight.aboutToBeDeleted();
         this.__containerWidth.aboutToBeDeleted();
@@ -398,6 +407,12 @@ export class CustomAppBar extends ViewPU {
     }
     set contentMarginBottom(newValue) {
         this.__contentMarginBottom.set(newValue);
+    }
+    get menuMarginEnd() {
+        return this.__menuMarginEnd.get();
+    }
+    set menuMarginEnd(newValue) {
+        this.__menuMarginEnd.set(newValue);
     }
     get isHalfScreen() {
         return this.__isHalfScreen.get();
@@ -521,6 +536,9 @@ export class CustomAppBar extends ViewPU {
             let displayData = display.getDefaultDisplaySync();
             this.windowWidth = px2vp(displayData.width);
             this.windowHeight = px2vp(displayData.height);
+        }
+        if (menuMarginEndMap.has(this.breakPoint)) {
+            this.menuMarginEnd = menuMarginEndMap.get(this.breakPoint);
         }
         if (this.isHalfScreen) {
             if (this.breakPoint === BreakPointsType.SM) {
@@ -761,7 +779,7 @@ export class CustomAppBar extends ViewPU {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Row.create();
             Row.id('AtomicServiceMenubarRowId');
-            Row.margin({ top: this.statusBarHeight + MENU_MARGIN_TOP, left: VIEW_MARGIN_RIGHT, right: VIEW_MARGIN_RIGHT });
+            Row.margin({ top: LengthMetrics.vp(this.statusBarHeight + MENU_MARGIN_TOP), end: LengthMetrics.vp(this.menuMarginEnd) });
             Row.justifyContent(FlexAlign.End);
             Row.height(VIEW_HEIGHT);
             Row.hitTestBehavior(HitTestMode.Transparent);
@@ -884,7 +902,7 @@ export class CustomAppBar extends ViewPU {
             Image.height(ICON_SIZE);
             Image.width(ICON_SIZE);
             Image.margin({
-                start: LengthMetrics.vp(CHEVRON_MAIGIN)
+                start: LengthMetrics.vp(CHEVRON_MARGIN)
             });
         }, Image);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -911,7 +929,7 @@ export class CustomAppBar extends ViewPU {
             SymbolGlyph.create({ 'id': -1, 'type': 40000, params: ['sys.symbol.chevron_right'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
             SymbolGlyph.height(CHEVRON_HEIGHT);
             SymbolGlyph.width(CHEVRON_WIDTH);
-            SymbolGlyph.margin({ start: LengthMetrics.vp(CHEVRON_MAIGIN), end: LengthMetrics.vp(CHEVRON_MAIGIN) });
+            SymbolGlyph.margin({ start: LengthMetrics.vp(CHEVRON_MARGIN), end: LengthMetrics.vp(CHEVRON_MARGIN) });
             SymbolGlyph.fontColor([Color.White]);
         }, SymbolGlyph);
         Row.pop();
@@ -1116,6 +1134,12 @@ const BreakPointsType = {
     MD: 'MD',
     LG: 'LG',
 };
+const menuMarginEndMap = new Map([
+    [BreakPointsType.NONE, SM_MENU_MARGIN_END],
+    [BreakPointsType.SM, SM_MENU_MARGIN_END],
+    [BreakPointsType.MD, MD_MENU_MARGIN_END],
+    [BreakPointsType.LG, LG_MENU_MARGIN_END]
+]);
 
 ViewStackProcessor.StartGetAccessRecordingFor(ViewStackProcessor.AllocateNewElmetIdForNextComponent());
 loadCustomAppbar(new CustomAppBar(undefined, {}));
