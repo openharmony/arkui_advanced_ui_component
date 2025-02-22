@@ -95,7 +95,7 @@ export let MixMode;
     /**
      * 一种颜色渐渐转变为另一种颜色
      */
-    MixMode[MixMode['TOWARDS'] = 3] = 'TOWARDS';
+    MixMode.TOWARDS = 3;
 })(MixMode || (MixMode = {}));
 /**
  * 背景底色
@@ -396,8 +396,7 @@ export class AtomicServiceNavigation extends ViewPU {
                     //单色渐变
                     this.drawSingleGradient(this.context, gradientBackground.primaryColor, gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
                         backGroundColor[gradientBackground.backgroundTheme - 1]);
-                }
-                else {
+                } else {
                     if (gradientBackground.mixMode === MixMode.AVERAGE) {
                         //双色渐变五五分
                         this.drawGradientCanvasHalf(this.context, gradientBackground.primaryColor, gradientBackground.secondaryColor);
@@ -1161,8 +1160,10 @@ export class AtomicServiceNavigation extends ViewPU {
      */
     drawGradientCanvasHalf(context, primaryColor, secondaryColor) {
         let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
-        let grad1 = context.createLinearGradient(COORDINATE_NEGATIVE_ONE * this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, height, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
-        let grad2 = context.createLinearGradient(this.navigationWidth * COLOR_RATIO_ONE_FIFTY_PERCENT, height, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
+        let grad1 = context.createLinearGradient(COORDINATE_NEGATIVE_ONE * this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT,
+            height, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
+        let grad2 = context.createLinearGradient(this.navigationWidth * COLOR_RATIO_ONE_FIFTY_PERCENT, height,
+            this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
         grad1.addColorStop(0, this.resourceColorToString(primaryColor));
         grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.resourceColorToString(primaryColor));
         grad1.addColorStop(1, this.resourceColorToString(secondaryColor));
