@@ -1,4 +1,4 @@
-/*
+		/*
  * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  */
 import { LengthMetrics, OperationOption } from '@kit.ArkUI';
 
-declare type OnSelectCallback = (index: number, selectValue?: string) => void;
+declare type OnSelectCallback = (index: number, selectValue: string) => void;
 declare type OnPasteCallback = (pasteValue: string, event: PasteEvent) => void;
 declare type OnTextSelectionChangeCallback = (selectionStart: number, selectionEnd: number) => void;
 declare type OnContentScrollCallback = (totalOffsetX: number, totalOffsetY: number) => void;
@@ -61,7 +61,6 @@ export interface SelectParams {
   selected?: number;
   selectValue?: ResourceStr;
   onSelect?: OnSelectCallback;
-  controlSize?: ControlSize;
   menuItemContentModifier?: ContentModifier<MenuItemConfiguration>;
   divider?: Optional<DividerOptions> | null;
   font?: Font;
@@ -223,7 +222,6 @@ export struct AtomicServiceSearch {
           .value(this.select?.selectValue)
           .selected(this.select?.selected)
           .onSelect(this.select?.onSelect)
-          .controlSize(this.select?.controlSize)
           .menuItemContentModifier(this.select?.menuItemContentModifier)
           .divider(this.select?.divider)
           .font(this.select?.font)

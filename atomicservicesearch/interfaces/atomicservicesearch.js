@@ -279,7 +279,6 @@ export class AtomicServiceSearch extends ViewPU {
                         Select.value(this.select?.selectValue);
                         Select.selected(this.select?.selected);
                         Select.onSelect(this.select?.onSelect);
-                        Select.controlSize(this.select?.controlSize);
                         Select.menuItemContentModifier.bind(this)(this.select?.menuItemContentModifier);
                         Select.divider(this.select?.divider);
                         Select.font(this.select?.font);
@@ -548,7 +547,7 @@ export class AtomicServiceSearch extends ViewPU {
     rerender() {
         this.updateDirtyElements();
     }
-    
+
 }
 
 export default { AtomicServiceSearch };
