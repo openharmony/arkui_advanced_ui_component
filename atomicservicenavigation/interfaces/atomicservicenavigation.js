@@ -50,7 +50,12 @@ const SIDE_BAR_EMBED_MIN_WIDTH = 240;
 const SIDE_BAR_OVERLAY_WIDTH = 304;
 const SIDE_BAR_COMMON_WIDTH = 360;
 const CONTENT_MIN_WIDTH = 600;
-const ATOMIC_SERVICE_CAPSULE_WIDTH = 81.5;
+/**
+ * menubar避让区域宽度计算修正时用到的数据
+ */
+const MENUBAR_X_FIRST_THRESHOLD = 200;
+const MENUBAR_X_SECOND_THRESHOLD = 40;
+const MENUBAR_CORRECTION_OFFSET_VALUE = 92;
 /**
  * 背景颜色的不透明度的枚举类型
  *
@@ -141,6 +146,7 @@ export class AtomicServiceNavigation extends ViewPU {
         this.__currentBreakPoint = new ObservedPropertySimplePU(BREAK_POINT_SM, this, 'currentBreakPoint');
         this.__sideBarAttribute = new ObservedPropertyObjectPU(new sideBarAttributeSet(), this, 'sideBarAttribute');
         this.__controlButtonVisible = new ObservedPropertySimplePU(true, this, 'controlButtonVisible');
+        this.__titleBuilderPaddingEndWidth = new ObservedPropertySimplePU(0, this, 'titleBuilderPaddingEndWidth');
         this.menus = undefined;
         this.stateChangeCallback = undefined;
         this.modeChangeCallback = undefined;
@@ -187,6 +193,9 @@ export class AtomicServiceNavigation extends ViewPU {
         }
         if (params.controlButtonVisible !== undefined) {
             this.controlButtonVisible = params.controlButtonVisible;
+        }
+        if (params.titleBuilderPaddingEndWidth !== undefined) {
+            this.titleBuilderPaddingEndWidth = params.titleBuilderPaddingEndWidth;
         }
         if (params.menus !== undefined) {
             this.menus = params.menus;
@@ -255,6 +264,7 @@ export class AtomicServiceNavigation extends ViewPU {
         this.__currentBreakPoint.purgeDependencyOnElmtId(rmElmtId);
         this.__sideBarAttribute.purgeDependencyOnElmtId(rmElmtId);
         this.__controlButtonVisible.purgeDependencyOnElmtId(rmElmtId);
+        this.__titleBuilderPaddingEndWidth.purgeDependencyOnElmtId(rmElmtId);
         this.__navigationWidth.purgeDependencyOnElmtId(rmElmtId);
         this.__navigationHeight.purgeDependencyOnElmtId(rmElmtId);
     }
@@ -274,6 +284,7 @@ export class AtomicServiceNavigation extends ViewPU {
         this.__currentBreakPoint.aboutToBeDeleted();
         this.__sideBarAttribute.aboutToBeDeleted();
         this.__controlButtonVisible.aboutToBeDeleted();
+        this.__titleBuilderPaddingEndWidth.aboutToBeDeleted();
         this.__navigationWidth.aboutToBeDeleted();
         this.__navigationHeight.aboutToBeDeleted();
         SubscriberManager.Get().delete(this.id__());
@@ -369,6 +380,12 @@ export class AtomicServiceNavigation extends ViewPU {
     set controlButtonVisible(newValue) {
         this.__controlButtonVisible.set(newValue);
     }
+    get titleBuilderPaddingEndWidth() {
+        return this.__titleBuilderPaddingEndWidth.get();
+    }
+    set titleBuilderPaddingEndWidth(newValue) {
+        this.__titleBuilderPaddingEndWidth.set(newValue);
+    }
     get navigationWidth() {
         return this.__navigationWidth.get();
     }
@@ -441,6 +458,24 @@ export class AtomicServiceNavigation extends ViewPU {
         this.sideBarHelper.registerListener(sideBarStatusListener);
     }
     /**
+     * 窗口初始化或者尺寸发生变化时，让menubar避让宽度更新
+     */
+    freshMenubarAvoidAreaWidth(mainWindow) {
+        setTimeout(() => {
+            let menubarX = this.getUIContext().getAtomicServiceBar()?.getBarRect().x;
+            let corretionWidth = 0;
+            if (menubarX > MENUBAR_X_FIRST_THRESHOLD) {
+                const mainWindowWidth = px2vp(mainWindow.getWindowProperties()?.windowRect?.width) - menubarX;
+                corretionWidth = mainWindowWidth > MENUBAR_X_FIRST_THRESHOLD ? 0 : mainWindowWidth;
+            }
+            else if (menubarX < MENUBAR_X_SECOND_THRESHOLD) {
+                corretionWidth = menubarX + MENUBAR_CORRECTION_OFFSET_VALUE;
+            }
+            let width2 = this.getUIContext().getAtomicServiceBar()?.getBarRect().width;
+            this.titleBuilderPaddingEndWidth = corretionWidth > width2 ? corretionWidth : width2;
+        }, 100);
+    }
+    /**
      * 初始化window，并设置windowSizeChange监听，更新断点信息
      */
     initWindow() {
@@ -454,8 +489,10 @@ export class AtomicServiceNavigation extends ViewPU {
                 this.sideBarHelper?.updateLayout(this.currentBreakPoint, this.sideBarAttribute);
             }
             this.updateBreakPoint(mainWindow.getWindowProperties()?.windowRect?.width);
+            this.freshMenubarAvoidAreaWidth(mainWindow);
             this.onWindowSizeChangeCallback = ((windowSize) => {
                 this.updateBreakPoint(windowSize?.width);
+                this.freshMenubarAvoidAreaWidth(mainWindow);
             });
             mainWindow.on('windowSizeChange', this.onWindowSizeChangeCallback);
         }).catch((err) => {
@@ -571,7 +608,7 @@ export class AtomicServiceNavigation extends ViewPU {
                             // 在Stack模式，或者非分栏模式下右侧需要有一定padding值，避免超长文本时不能避让menuBar
                             end: ((this.currentBreakPoint === BREAK_POINT_SM &&
                                 (this.mode === NavigationMode.Auto || !this.mode)) || this.mode === NavigationMode.Stack) ?
-                                LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + 16) : LengthMetrics.vp(0)
+                                LengthMetrics.vp(this.titleBuilderPaddingEndWidth) : LengthMetrics.vp(0)
                         });
                         Row.width('100%');
                     }, Row);
@@ -609,6 +646,9 @@ export class AtomicServiceNavigation extends ViewPU {
             Column.width('100%');
             Column.height('100%');
             Column.accessibilityLevel('no');
+            Column.onClick(() => {
+                this.changeSideBarWithAnimation(false);
+            });
         }, Column);
         Column.pop();
     }
