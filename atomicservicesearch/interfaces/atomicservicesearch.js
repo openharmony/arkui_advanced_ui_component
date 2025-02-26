@@ -31,7 +31,7 @@ const SELECT_MARGIN_LEFT = 2;
 const FLEX_SHRINK = 0;
 const DIVIDER_OPACITY = 0.5;
 const DIVIDER_MARGIN_LEFT = 2;
-const DIVIDER_MARGIN_RIGHT = -2;
+const DIVIDER_MARGIN_RIGHT = 0;
 const ATOMIC_SERVICE_SEARCH_HEIGHT = 40;
 const ATOMIC_SELECT_HEIGHT = 36;
 const ATOMIC_SELECT_BORDER_RADIUS = 20;
@@ -39,6 +39,7 @@ const ATOMIC_DIVIDER_HEIGHT = 20;
 const ICON_WIDTH_AND_HEIGTH = 24;
 const OPERATION_ITEM1_MARGIN_RIGHT = 2;
 const OPERATION_ITEM2_MARGIN_LEFT = 8;
+const SEARCH_OFFSET_X = -5;
 
 export class AtomicServiceSearch extends ViewPU {
 
@@ -150,7 +151,7 @@ export class AtomicServiceSearch extends ViewPU {
     set isFunction1Pressed(newValue) {
         this.__isFunction1Pressed.set(newValue);
     }
-
+    
     get isFunction2Pressed() {
         return this.__isFunction2Pressed.get();
     }
@@ -182,7 +183,7 @@ export class AtomicServiceSearch extends ViewPU {
     set value(newValue) {
         this.__value.set(newValue);
     }
-
+    
     get placeholder() {
         return this.__placeholder.get();
     }
@@ -227,10 +228,13 @@ export class AtomicServiceSearch extends ViewPU {
 
     initSelectStyle() {
         if (typeof this.select !== 'undefined') {
+            if (typeof this.select.selected === 'undefined') {
+                this.select.selected = -1;
+            }
             if (typeof this.select.font === 'undefined') {
                 this.select.font = { size: TEXT_SIZE_BODY1 };
             }
-            if (typeof this.select.fontColor !== 'undefined') {
+            if (typeof this.select.fontColor === 'undefined') {
                 this.select.fontColor = TEXT_COLOR_PRIMARY;
             }
         }
@@ -348,6 +352,7 @@ export class AtomicServiceSearch extends ViewPU {
                 placeholder: this.placeholder,
                 controller: this.controller
             });
+            Search.margin({ left: SEARCH_OFFSET_X });
             Search.backgroundColor(Color.Transparent);
             Search.searchButton(this.search?.searchButton?.searchButtonValue.toString(), this.search?.searchButton?.options);
             Search.placeholderColor(this.search?.placeholderColor);
@@ -547,7 +552,7 @@ export class AtomicServiceSearch extends ViewPU {
     rerender() {
         this.updateDirtyElements();
     }
-
+    
 }
 
 export default { AtomicServiceSearch };

@@ -1,4 +1,4 @@
-		/*
+/*
  * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ const SELECT_MARGIN_LEFT: number = 2;
 const FLEX_SHRINK: number = 0;
 const DIVIDER_OPACITY: number = 0.5;
 const DIVIDER_MARGIN_LEFT: number = 2;
-const DIVIDER_MARGIN_RIGHT: number = -2;
+const DIVIDER_MARGIN_RIGHT: number = 0;
 const ATOMIC_SERVICE_SEARCH_HEIGHT: number = 40;
 const ATOMIC_SELECT_HEIGHT: number = 36;
 const ATOMIC_SELECT_BORDER_RADIUS: number = 20;
@@ -40,6 +40,7 @@ const ATOMIC_DIVIDER_HEIGHT: number = 20;
 const ICON_WIDTH_AND_HEIGTH: number = 24;
 const OPERATION_ITEM1_MARGIN_RIGHT: number = 2;
 const OPERATION_ITEM2_MARGIN_LEFT: number = 8;
+const SEARCH_OFFSET_X: number = -5;
 
 export interface InputFilterParams {
   inputFilterValue: ResourceStr,
@@ -176,10 +177,13 @@ export struct AtomicServiceSearch {
 
   private initSelectStyle(): void {
     if (typeof this.select !== 'undefined') {
+      if (typeof this.select.selected === 'undefined') {
+        this.select.selected = -1;
+      }
       if (typeof this.select.font === 'undefined') {
         this.select.font = { size: TEXT_SIZE_BODY1 };
       }
-      if (typeof this.select.fontColor !== 'undefined') {
+      if (typeof this.select.fontColor === 'undefined') {
         this.select.fontColor = TEXT_COLOR_PRIMARY;
       }
     }
@@ -272,6 +276,7 @@ export struct AtomicServiceSearch {
       placeholder: this.placeholder,
       controller: this.controller
     })
+      .margin({ left: SEARCH_OFFSET_X })
       .backgroundColor(Color.Transparent)
       .searchButton(this.search?.searchButton?.searchButtonValue.toString(), this.search?.searchButton?.options)
       .placeholderColor(this.search?.placeholderColor)
