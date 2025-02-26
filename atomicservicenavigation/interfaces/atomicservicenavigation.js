@@ -92,7 +92,7 @@ export let MixMode;
     /**
      * 两种颜色所占比例相同
      */
-    MixMode[MixMode['AVERAGE'] = 1] = 'AVERAGE';
+    MixMode.AVERAGE = 1;
     /**
      * 一种颜色穿过另一种颜色
      */
