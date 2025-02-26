@@ -151,7 +151,7 @@ export class AtomicServiceSearch extends ViewPU {
     set isFunction1Pressed(newValue) {
         this.__isFunction1Pressed.set(newValue);
     }
-    
+
     get isFunction2Pressed() {
         return this.__isFunction2Pressed.get();
     }
@@ -183,7 +183,7 @@ export class AtomicServiceSearch extends ViewPU {
     set value(newValue) {
         this.__value.set(newValue);
     }
-    
+
     get placeholder() {
         return this.__placeholder.get();
     }
