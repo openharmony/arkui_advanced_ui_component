@@ -13,9 +13,15 @@
 
 import("//build/ohos.gni")
 import("//build/templates/abc/ohos_abc.gni")
+import("//foundation/arkui/advanced_ui_component/atomicservice_config.gni")
 
 ohos_abc("custom_app_bar_abc") {
-  sources = [ "custom_app_bar.js" ]
+  sources = []
+  if (advanced_ui_component_feature_pc) {
+    sources += [ "custom_app_bar_forpc.js" ]
+  } else {
+    sources += [ "custom_app_bar.js" ]
+  }
   output_name = "custom_app_bar"
   install_images = [ "system" ]
   module_install_dir = "etc/abc/arkui"

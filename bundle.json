@@ -10,7 +10,7 @@
         "name": "advanced_ui_component",
         "subsystem": "arkui",
         "syscap": [],
-        "features": [],
+        "features": ["advanced_ui_component_feature_pc"],
         "adapted_system_type": [
             "standard"
         ],
