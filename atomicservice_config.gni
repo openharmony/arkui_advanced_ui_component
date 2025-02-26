@@ -45,6 +45,10 @@ if (is_ohos_standard_system) {
   }
 }
 
+declare_args() {
+  advanced_ui_component_feature_pc = false
+}
+
 use_hilog = is_mingw || is_mac || is_linux || is_ohos || is_ohos_standard_system
 
 # Config gen_obj
