@@ -48,7 +48,12 @@ const SIDE_BAR_EMBED_MIN_WIDTH = 240;
 const SIDE_BAR_OVERLAY_WIDTH = 304;
 const SIDE_BAR_COMMON_WIDTH = 360;
 const CONTENT_MIN_WIDTH = 600;
-const ATOMIC_SERVICE_CAPSULE_WIDTH = 81.5;
+/**
+ * menubar避让区域宽度计算修正时用到的数据
+ */
+const MENUBAR_X_FIRST_THRESHOLD: number = 200;
+const MENUBAR_X_SECOND_THRESHOLD: number = 40;
+const MENUBAR_CORRECTION_OFFSET_VALUE: number = 92;
 
 /**
  * 背景颜色的不透明度的枚举类型
@@ -136,6 +141,7 @@ export struct AtomicServiceNavigation {
   @State private currentBreakPoint: string = BREAK_POINT_SM;
   @State private sideBarAttribute: sideBarAttributeSet = new sideBarAttributeSet();
   @State private controlButtonVisible: boolean = true;
+  @State private titleBuilderPaddingEndWidth: number = 0;
   @BuilderParam menus?: CustomBuilder | Array<NavigationMenuItem>;
   stateChangeCallback?: Callback<boolean>;
   modeChangeCallback?: Callback<NavigationMode>;
@@ -217,6 +223,24 @@ export struct AtomicServiceNavigation {
   }
 
   /**
+   * 窗口初始化或者尺寸发生变化时，让menubar避让宽度更新
+   */
+  private freshMenubarAvoidAreaWidth(mainWindow: window.Window): void {
+    setTimeout(() => {
+      let menubarX: number = this.getUIContext().getAtomicServiceBar()?.getBarRect().x;
+      let corretionWidth: number = 0;
+      if (menubarX > MENUBAR_X_FIRST_THRESHOLD) {
+        const mainWindowWidth: number = px2vp(mainWindow.getWindowProperties()?.windowRect?.width) - menubarX;
+        corretionWidth = mainWindowWidth > MENUBAR_X_FIRST_THRESHOLD ? 0 : mainWindowWidth;
+      } else if (menubarX < MENUBAR_X_SECOND_THRESHOLD) {
+        corretionWidth = menubarX + MENUBAR_CORRECTION_OFFSET_VALUE;
+      }
+      let width2: number = this.getUIContext().getAtomicServiceBar()?.getBarRect().width;
+      this.titleBuilderPaddingEndWidth = corretionWidth > width2 ? corretionWidth : width2;
+    }, 100);
+  }
+
+  /**
    * 初始化window，并设置windowSizeChange监听，更新断点信息
    */
   private initWindow(): void {
@@ -230,8 +254,10 @@ export struct AtomicServiceNavigation {
         this.sideBarHelper?.updateLayout(this.currentBreakPoint, this.sideBarAttribute);
       }
       this.updateBreakPoint(mainWindow.getWindowProperties()?.windowRect?.width);
+      this.freshMenubarAvoidAreaWidth(mainWindow);
       this.onWindowSizeChangeCallback = ((windowSize) => {
         this.updateBreakPoint(windowSize?.width);
+        this.freshMenubarAvoidAreaWidth(mainWindow);
       });
       mainWindow.on('windowSizeChange', this.onWindowSizeChangeCallback);
     }).catch((err: Error) => {
@@ -364,7 +390,7 @@ export struct AtomicServiceNavigation {
         // 在Stack模式，或者非分栏模式下右侧需要有一定padding值，避免超长文本时不能避让menuBar
         end: ((this.currentBreakPoint === BREAK_POINT_SM &&
           (this.mode === NavigationMode.Auto || !this.mode)) || this.mode === NavigationMode.Stack) ?
-        LengthMetrics.vp(ATOMIC_SERVICE_CAPSULE_WIDTH + 16) : LengthMetrics.vp(0)
+        LengthMetrics.vp(this.titleBuilderPaddingEndWidth) : LengthMetrics.vp(0)
       })
       .width('100%')
     }
@@ -380,6 +406,9 @@ export struct AtomicServiceNavigation {
     .width('100%')
     .height('100%')
     .accessibilityLevel('no')
+    .onClick(() => {
+      this.changeSideBarWithAnimation(false);
+    })
   }
 
   @Styles
