@@ -14,7 +14,7 @@
  */
 
 import { BusinessError, Callback } from '@ohos.base';
-import { curves, LengthMetrics, SymbolGlyphModifier, window } from '@kit.ArkUI';
+import { curves, LengthMetrics, SymbolGlyphModifier, window, AtomicServiceBar } from '@kit.ArkUI';
 import { bundleManager, common } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { i18n } from '@kit.LocalizationKit';
@@ -227,7 +227,12 @@ export struct AtomicServiceNavigation {
    */
   private freshMenubarAvoidAreaWidth(mainWindow: window.Window): void {
     setTimeout(() => {
-      let menubarX: number = this.getUIContext().getAtomicServiceBar()?.getBarRect().x;
+      const AtomicServiceBar: Nullable<AtomicServiceBar> = this.getUIContext().getAtomicServiceBar();
+      if (!AtomicServiceBar) {
+        this.titleBuilderPaddingEndWidth = 0;
+        return;
+      }
+      let menubarX: number = AtomicServiceBar.getBarRect().x;
       let corretionWidth: number = 0;
       if (menubarX > MENUBAR_X_FIRST_THRESHOLD) {
         const mainWindowWidth: number = px2vp(mainWindow.getWindowProperties()?.windowRect?.width) - menubarX;
@@ -235,7 +240,7 @@ export struct AtomicServiceNavigation {
       } else if (menubarX < MENUBAR_X_SECOND_THRESHOLD) {
         corretionWidth = menubarX + MENUBAR_CORRECTION_OFFSET_VALUE;
       }
-      let width2: number = this.getUIContext().getAtomicServiceBar()?.getBarRect().width;
+      let width2: number = AtomicServiceBar.getBarRect().width;
       this.titleBuilderPaddingEndWidth = corretionWidth > width2 ? corretionWidth : width2;
     }, 100);
   }
