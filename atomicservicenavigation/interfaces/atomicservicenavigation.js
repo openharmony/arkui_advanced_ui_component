@@ -462,7 +462,12 @@ export class AtomicServiceNavigation extends ViewPU {
      */
     freshMenubarAvoidAreaWidth(mainWindow) {
         setTimeout(() => {
-            let menubarX = this.getUIContext().getAtomicServiceBar()?.getBarRect().x;
+            const AtomicServiceBar = this.getUIContext().getAtomicServiceBar();
+            if (!AtomicServiceBar) {
+                this.titleBuilderPaddingEndWidth = 0;
+                return;
+            }
+            let menubarX = AtomicServiceBar.getBarRect().x;
             let corretionWidth = 0;
             if (menubarX > MENUBAR_X_FIRST_THRESHOLD) {
                 const mainWindowWidth = px2vp(mainWindow.getWindowProperties()?.windowRect?.width) - menubarX;
@@ -471,7 +476,7 @@ export class AtomicServiceNavigation extends ViewPU {
             else if (menubarX < MENUBAR_X_SECOND_THRESHOLD) {
                 corretionWidth = menubarX + MENUBAR_CORRECTION_OFFSET_VALUE;
             }
-            let width2 = this.getUIContext().getAtomicServiceBar()?.getBarRect().width;
+            let width2 = AtomicServiceBar.getBarRect().width;
             this.titleBuilderPaddingEndWidth = corretionWidth > width2 ? corretionWidth : width2;
         }, 100);
     }
