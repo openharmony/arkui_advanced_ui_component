@@ -352,7 +352,8 @@ export class AtomicServiceSearch extends ViewPU {
                 placeholder: this.placeholder,
                 controller: this.controller
             });
-            Search.margin({ left: SEARCH_OFFSET_X });
+            Search.key(this.search?.searchKey?.toString());
+            Search.margin({ start: LengthMetrics.vp(SEARCH_OFFSET_X) });
             Search.backgroundColor(Color.Transparent);
             Search.searchButton(this.search?.searchButton?.searchButtonValue.toString(), this.search?.searchButton?.options);
             Search.placeholderColor(this.search?.placeholderColor);
@@ -396,10 +397,15 @@ export class AtomicServiceSearch extends ViewPU {
             Search.onContentScroll(this.search?.onContentScroll);
             Search.onTextSelectionChange(this.search?.onTextSelectionChange);
             Search.onChange((value, previewText) => {
+                if (previewText?.value.length !== 0) {
+                    this.value = previewText?.value;
+                }
+                else {
+                    this.value = value;
+                }
                 if (typeof this.search?.onChange !== 'undefined') {
                     this.search?.onChange(value, previewText);
                 }
-                this.value = value;
             });
             Search.onTouch((event) => {
                 if (event && event.type === TouchType.Down) {
@@ -548,11 +554,11 @@ export class AtomicServiceSearch extends ViewPU {
         Flex.pop();
         Row.pop();
     }
-
+    
     rerender() {
         this.updateDirtyElements();
     }
-    
+
 }
 
 export default { AtomicServiceSearch };

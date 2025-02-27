@@ -82,6 +82,7 @@ export interface SelectParams {
 }
 
 export interface SearchParams {
+  searchKey?: ResourceStr;
   componentBackgroundColor?: ResourceColor;
   pressedBackgroundColor?: ResourceColor;
   searchButton?: SearchButtonParams;
@@ -276,7 +277,8 @@ export struct AtomicServiceSearch {
       placeholder: this.placeholder,
       controller: this.controller
     })
-      .margin({ left: SEARCH_OFFSET_X })
+      .key(this.search?.searchKey?.toString())
+      .margin({ start: LengthMetrics.vp(SEARCH_OFFSET_X) })
       .backgroundColor(Color.Transparent)
       .searchButton(this.search?.searchButton?.searchButtonValue.toString(), this.search?.searchButton?.options)
       .placeholderColor(this.search?.placeholderColor)
@@ -320,10 +322,14 @@ export struct AtomicServiceSearch {
       .onContentScroll(this.search?.onContentScroll)
       .onTextSelectionChange(this.search?.onTextSelectionChange)
       .onChange((value: string, previewText?: PreviewText) => {
+        if (previewText?.value.length !== 0) {
+          this.value = previewText?.value;
+        } else {
+          this.value = value;
+        }
         if (typeof this.search?.onChange !== 'undefined') {
           this.search?.onChange(value, previewText);
         }
-        this.value = value;
       })
       .onTouch((event?: TouchEvent) => {
         if (event && event.type === TouchType.Down) {
