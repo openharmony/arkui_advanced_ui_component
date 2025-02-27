@@ -25,9 +25,8 @@ const MENU_RADIUS: number = 15.5;
 const DIVIDER_HEIGHT: number = 16.5;
 const DIVIDER_WIDTH: number = 0.5;
 const MENU_BUTTON_MARGIN: number = 2;
-const VIEW_MARGIN_TOP: number = 18;
+const VIEW_MARGIN_TOP: number = 14;
 const VIEW_MARGIN_RIGHT: number = 24;
-const MENU_MARGIN_TOP: number = 10;
 const MENU_BACK_BLUR: number = 5;
 const MENU_BORDER_WIDTH: string = '0.5px';
 
@@ -36,7 +35,6 @@ const BORDER_COLOR_DEFAULT: string = '#33000000';
 const MENU_BACK_COLOR: string = '#99FFFFFF';
 
 const ARKUI_APP_BAR_COLOR_CONFIGURATION: string = 'arkui_app_bar_color_configuration';
-const ARKUI_APP_BAR_MENU_SAFE_AREA: string = 'arkui_app_bar_menu_safe_area';
 const ARKUI_APP_BAR_CONTENT_SAFE_AREA: string = 'arkui_app_bar_content_safe_area';
 const ARKUI_APP_BG_COLOR: string = 'arkui_app_bg_color';
 const maximizeButtonResourceId: number = 125829923;
@@ -88,7 +86,6 @@ export struct CustomAppBarForPC {
   @State contentMarginLeft: string = '0vp';
   @State contentMarginRight: string = '0vp';
   @State contentMarginBottom: string = '0vp';
-  @State menuMarginTop: string = '10vp';
   @State isAdaptPC: boolean = false;
   @State maximizeResource: Resource = this.getIconResource(maximizeButtonResourceId);
   private isDark: boolean = true;
@@ -121,13 +118,10 @@ export struct CustomAppBarForPC {
         this.windowClass = data;
         this.windowClass?.setWindowDecorVisible(false);
         this.windowClass?.setWindowTitleButtonVisible(false, false, false);
+        this.updateMaximizeResource(this.windowClass?.getWindowStatus());
         this.windowClass?.on('windowStatusChange', (windowStatusType) => {
           console.info('windowStatusChange  windowStatusType: ' + JSON.stringify(windowStatusType));
-          if (windowStatusType === window.WindowStatusType.FULL_SCREEN) {
-            this.maximizeResource = this.getIconResource(recoverButtonResourceId);
-          } else {
-            this.maximizeResource = this.getIconResource(maximizeButtonResourceId);
-          }
+          this.updateMaximizeResource(windowStatusType);
         });
       }
     ).catch((err: BusinessError) => {
@@ -135,6 +129,15 @@ export struct CustomAppBarForPC {
         console.error(`Failed to obtain the main window. Cause code: ${err.code}, message: ${err.message}`);
       }
     });
+  }
+
+  updateMaximizeResource(windowStatusType: window.WindowStatusType): void {
+    if (windowStatusType === window.WindowStatusType.FULL_SCREEN ||
+      windowStatusType === window.WindowStatusType.SPLIT_SCREEN) {
+      this.maximizeResource = this.getIconResource(recoverButtonResourceId);
+    } else {
+      this.maximizeResource = this.getIconResource(maximizeButtonResourceId);
+    }
   }
 
   aboutToDisappear(): void {
@@ -166,9 +169,6 @@ export struct CustomAppBarForPC {
   setCustomCallback(eventName: string, param: string) {
     if (eventName === ARKUI_APP_BAR_COLOR_CONFIGURATION) {
       this.onColorConfigurationUpdate(this.parseBoolean(param));
-    } else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
-      let value = Number(param) + MENU_MARGIN_TOP;
-      this.menuMarginTop = value.toString();
     } else if (eventName === ARKUI_APP_BAR_CONTENT_SAFE_AREA) {
       //top left right bottom
       let splitArray: string[] = param.split('|');

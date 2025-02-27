@@ -28,16 +28,14 @@ const MENU_RADIUS = 15.5;
 const DIVIDER_HEIGHT = 16.5;
 const DIVIDER_WIDTH = 0.5;
 const MENU_BUTTON_MARGIN = 2;
-const VIEW_MARGIN_TOP = 18;
+const VIEW_MARGIN_TOP = 14;
 const VIEW_MARGIN_RIGHT = 24;
-const MENU_MARGIN_TOP = 10;
 const MENU_BACK_BLUR = 5;
 const MENU_BORDER_WIDTH = '0.5px';
 const ICON_FILL_COLOR_DEFAULT = '#182431';
 const BORDER_COLOR_DEFAULT = '#33000000';
 const MENU_BACK_COLOR = '#99FFFFFF';
 const ARKUI_APP_BAR_COLOR_CONFIGURATION = 'arkui_app_bar_color_configuration';
-const ARKUI_APP_BAR_MENU_SAFE_AREA = 'arkui_app_bar_menu_safe_area';
 const ARKUI_APP_BAR_CONTENT_SAFE_AREA = 'arkui_app_bar_content_safe_area';
 const ARKUI_APP_BG_COLOR = 'arkui_app_bg_color';
 const maximizeButtonResourceId = 125829923;
@@ -90,7 +88,6 @@ export class CustomAppBarForPC extends ViewPU {
         this.__contentMarginLeft = new ObservedPropertySimplePU('0vp', this, 'contentMarginLeft');
         this.__contentMarginRight = new ObservedPropertySimplePU('0vp', this, 'contentMarginRight');
         this.__contentMarginBottom = new ObservedPropertySimplePU('0vp', this, 'contentMarginBottom');
-        this.__menuMarginTop = new ObservedPropertySimplePU('10vp', this, 'menuMarginTop');
         this.__isAdaptPC = new ObservedPropertySimplePU(false, this, 'isAdaptPC');
         this.__maximizeResource = new ObservedPropertyObjectPU(this.getIconResource(maximizeButtonResourceId), this, 'maximizeResource');
         this.isDark = true;
@@ -132,9 +129,6 @@ export class CustomAppBarForPC extends ViewPU {
         if (params.contentMarginBottom !== undefined) {
             this.contentMarginBottom = params.contentMarginBottom;
         }
-        if (params.menuMarginTop !== undefined) {
-            this.menuMarginTop = params.menuMarginTop;
-        }
         if (params.isAdaptPC !== undefined) {
             this.isAdaptPC = params.isAdaptPC;
         }
@@ -162,7 +156,6 @@ export class CustomAppBarForPC extends ViewPU {
         this.__contentMarginLeft.purgeDependencyOnElmtId(rmElmtId);
         this.__contentMarginRight.purgeDependencyOnElmtId(rmElmtId);
         this.__contentMarginBottom.purgeDependencyOnElmtId(rmElmtId);
-        this.__menuMarginTop.purgeDependencyOnElmtId(rmElmtId);
         this.__isAdaptPC.purgeDependencyOnElmtId(rmElmtId);
         this.__maximizeResource.purgeDependencyOnElmtId(rmElmtId);
     }
@@ -178,7 +171,6 @@ export class CustomAppBarForPC extends ViewPU {
         this.__contentMarginLeft.aboutToBeDeleted();
         this.__contentMarginRight.aboutToBeDeleted();
         this.__contentMarginBottom.aboutToBeDeleted();
-        this.__menuMarginTop.aboutToBeDeleted();
         this.__isAdaptPC.aboutToBeDeleted();
         this.__maximizeResource.aboutToBeDeleted();
         SubscriberManager.Get().delete(this.id__());
@@ -250,12 +242,6 @@ export class CustomAppBarForPC extends ViewPU {
     set contentMarginBottom(newValue) {
         this.__contentMarginBottom.set(newValue);
     }
-    get menuMarginTop() {
-        return this.__menuMarginTop.get();
-    }
-    set menuMarginTop(newValue) {
-        this.__menuMarginTop.set(newValue);
-    }
     get isAdaptPC() {
         return this.__isAdaptPC.get();
     }
@@ -293,21 +279,24 @@ export class CustomAppBarForPC extends ViewPU {
             this.windowClass = data;
             this.windowClass?.setWindowDecorVisible(false);
             this.windowClass?.setWindowTitleButtonVisible(false, false, false);
+            this.updateMaximizeResource(this.windowClass?.getWindowStatus());
             this.windowClass?.on('windowStatusChange', (windowStatusType) => {
                 console.info('windowStatusChange  windowStatusType: ' + JSON.stringify(windowStatusType));
-                if (windowStatusType === window.WindowStatusType.FULL_SCREEN) {
-                    this.maximizeResource = this.getIconResource(recoverButtonResourceId);
-                }
-                else {
-                    this.maximizeResource = this.getIconResource(maximizeButtonResourceId);
-                }
+                this.updateMaximizeResource(windowStatusType);
             });
-            
         }).catch((err) => {
             if (err.code) {
                 console.error(`Failed to obtain the main window. Cause code: ${err.code}, message: ${err.message}`);
             }
         });
+    }
+    updateMaximizeResource(windowStatusType) {
+        if (windowStatusType === window.WindowStatusType.FULL_SCREEN ||
+            windowStatusType === window.WindowStatusType.SPLIT_SCREEN) {
+            this.maximizeResource = this.getIconResource(recoverButtonResourceId);
+        } else {
+            this.maximizeResource = this.getIconResource(maximizeButtonResourceId);
+        }
     }
     aboutToDisappear() {
         this.windowClass?.off('windowStatusChange');
@@ -335,10 +324,6 @@ export class CustomAppBarForPC extends ViewPU {
     setCustomCallback(eventName, param) {
         if (eventName === ARKUI_APP_BAR_COLOR_CONFIGURATION) {
             this.onColorConfigurationUpdate(this.parseBoolean(param));
-        }
-        else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
-            let value = Number(param) + MENU_MARGIN_TOP;
-            this.menuMarginTop = value.toString();
         }
         else if (eventName === ARKUI_APP_BAR_CONTENT_SAFE_AREA) {
             //top left right bottom
