@@ -227,12 +227,12 @@ export struct AtomicServiceNavigation {
    */
   private freshMenubarAvoidAreaWidth(mainWindow: window.Window): void {
     setTimeout(() => {
-      const AtomicServiceBar: Nullable<AtomicServiceBar> = this.getUIContext().getAtomicServiceBar();
-      if (!AtomicServiceBar) {
+      const atomicServiceBar: Nullable<AtomicServiceBar> = this.getUIContext().getAtomicServiceBar();
+      if (!atomicServiceBar) {
         this.titleBuilderPaddingEndWidth = 0;
         return;
       }
-      let menubarX: number = AtomicServiceBar.getBarRect().x;
+      let menubarX: number = atomicServiceBar.getBarRect().x;
       let corretionWidth: number = 0;
       if (menubarX > MENUBAR_X_FIRST_THRESHOLD) {
         const mainWindowWidth: number = px2vp(mainWindow.getWindowProperties()?.windowRect?.width) - menubarX;
@@ -240,8 +240,8 @@ export struct AtomicServiceNavigation {
       } else if (menubarX < MENUBAR_X_SECOND_THRESHOLD) {
         corretionWidth = menubarX + MENUBAR_CORRECTION_OFFSET_VALUE;
       }
-      let width2: number = AtomicServiceBar.getBarRect().width;
-      this.titleBuilderPaddingEndWidth = corretionWidth > width2 ? corretionWidth : width2;
+      let currentWidth: number = atomicServiceBar.getBarRect().width;
+      this.titleBuilderPaddingEndWidth = corretionWidth > currentWidth ? corretionWidth : currentWidth;
     }, 100);
   }
 
