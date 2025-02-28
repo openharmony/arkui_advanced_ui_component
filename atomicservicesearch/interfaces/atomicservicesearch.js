@@ -31,7 +31,7 @@ const SELECT_MARGIN_LEFT = 2;
 const FLEX_SHRINK = 0;
 const DIVIDER_OPACITY = 0.5;
 const DIVIDER_MARGIN_LEFT = 2;
-const DIVIDER_MARGIN_RIGHT = -2;
+const DIVIDER_MARGIN_RIGHT = 0;
 const ATOMIC_SERVICE_SEARCH_HEIGHT = 40;
 const ATOMIC_SELECT_HEIGHT = 36;
 const ATOMIC_SELECT_BORDER_RADIUS = 20;
@@ -39,6 +39,7 @@ const ATOMIC_DIVIDER_HEIGHT = 20;
 const ICON_WIDTH_AND_HEIGTH = 24;
 const OPERATION_ITEM1_MARGIN_RIGHT = 2;
 const OPERATION_ITEM2_MARGIN_LEFT = 8;
+const SEARCH_OFFSET_X = -5;
 
 export class AtomicServiceSearch extends ViewPU {
 
@@ -227,10 +228,13 @@ export class AtomicServiceSearch extends ViewPU {
 
     initSelectStyle() {
         if (typeof this.select !== 'undefined') {
+            if (typeof this.select.selected === 'undefined') {
+                this.select.selected = -1;
+            }
             if (typeof this.select.font === 'undefined') {
                 this.select.font = { size: TEXT_SIZE_BODY1 };
             }
-            if (typeof this.select.fontColor !== 'undefined') {
+            if (typeof this.select.fontColor === 'undefined') {
                 this.select.fontColor = TEXT_COLOR_PRIMARY;
             }
         }
@@ -276,10 +280,9 @@ export class AtomicServiceSearch extends ViewPU {
                     }, Row);
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Select.create(this.select?.options);
-                        Select.value(this.select?.value);
+                        Select.value(this.select?.selectValue);
                         Select.selected(this.select?.selected);
                         Select.onSelect(this.select?.onSelect);
-                        Select.controlSize(this.select?.controlSize);
                         Select.menuItemContentModifier.bind(this)(this.select?.menuItemContentModifier);
                         Select.divider(this.select?.divider);
                         Select.font(this.select?.font);
@@ -349,28 +352,29 @@ export class AtomicServiceSearch extends ViewPU {
                 placeholder: this.placeholder,
                 controller: this.controller
             });
+            Search.key(this.search?.searchKey?.toString());
+            Search.margin({ start: LengthMetrics.vp(SEARCH_OFFSET_X) });
             Search.backgroundColor(Color.Transparent);
-            Search.searchButton(this.search?.searchButton?.value, this.search?.searchButton?.option);
+            Search.searchButton(this.search?.searchButton?.searchButtonValue.toString(), this.search?.searchButton?.options);
             Search.placeholderColor(this.search?.placeholderColor);
             Search.placeholderFont(this.search?.placeholderFont);
             Search.textFont(this.search?.textFont);
             Search.textAlign(this.search?.textAlign);
-            Search.copyOption(this.search?.copyOption);
+            Search.copyOption(this.search?.copyOptions);
             Search.searchIcon(this.search?.searchIcon);
             Search.cancelButton({ icon: this.search?.cancelIcon });
             Search.fontColor(this.search?.fontColor);
             Search.caretStyle(this.search?.caretStyle);
             Search.enableKeyboardOnFocus(this.search?.enableKeyboardOnFocus);
             Search.selectionMenuHidden(this.search?.hideSelectionMenu);
-            Search.customKeyboard(null, { supportAvoidance: this.search?.avoidKeyboard });
             Search.type(this.search?.type);
             Search.maxLength(this.search?.maxLength);
             Search.enterKeyType(this.search?.enterKeyType);
             Search.decoration(this.search?.decoration);
             Search.letterSpacing(this.search?.letterSpacing);
-            Search.fontFeature(this.search?.fontFeature);
+            Search.fontFeature(this.search?.fontFeature?.toString());
             Search.selectedBackgroundColor(this.search?.selectedBackgroundColor);
-            Search.inputFilter(this.search?.inputFilter?.value, this.search?.inputFilter?.error);
+            Search.inputFilter(this.search?.inputFilter?.inputFilterValue, this.search?.inputFilter?.error);
             Search.textIndent(this.search?.textIndent);
             Search.minFontSize(this.search?.minFontSize);
             Search.maxFontSize(this.search?.maxFontSize);
@@ -393,10 +397,15 @@ export class AtomicServiceSearch extends ViewPU {
             Search.onContentScroll(this.search?.onContentScroll);
             Search.onTextSelectionChange(this.search?.onTextSelectionChange);
             Search.onChange((value, previewText) => {
+                if (previewText?.value.length !== 0) {
+                    this.value = previewText?.value;
+                }
+                else {
+                    this.value = value;
+                }
                 if (typeof this.search?.onChange !== 'undefined') {
                     this.search?.onChange(value, previewText);
                 }
-                this.value = value;
             });
             Search.onTouch((event) => {
                 if (event && event.type === TouchType.Down) {
@@ -424,7 +433,7 @@ export class AtomicServiceSearch extends ViewPU {
                         Row.justifyContent(FlexAlign.Center);
                         Row.width(ATOMIC_SELECT_HEIGHT);
                         Row.height(ATOMIC_SELECT_HEIGHT);
-                        Row.margin({ right: OPERATION_ITEM1_MARGIN_RIGHT });
+                        Row.margin({ end: LengthMetrics.vp(OPERATION_ITEM1_MARGIN_RIGHT) });
                         Row.backgroundColor(this.isFunction1Pressed ? this.search?.pressedBackgroundColor : Color.Transparent);
                         Row.onTouch((event) => {
                             if (event && event.type === TouchType.Down) {
@@ -467,7 +476,7 @@ export class AtomicServiceSearch extends ViewPU {
                         Row.justifyContent(FlexAlign.Center);
                         Row.width(ATOMIC_SERVICE_SEARCH_HEIGHT);
                         Row.height(ATOMIC_SERVICE_SEARCH_HEIGHT);
-                        Row.margin(OPERATION_ITEM2_MARGIN_LEFT);
+                        Row.margin({ start: LengthMetrics.vp(OPERATION_ITEM2_MARGIN_LEFT) });
                         Row.backgroundColor(this.isFunction2Pressed ?
                             this.search?.pressedBackgroundColor : this.search?.componentBackgroundColor);
                         Row.onTouch((event) => {
@@ -545,11 +554,11 @@ export class AtomicServiceSearch extends ViewPU {
         Flex.pop();
         Row.pop();
     }
-
+    
     rerender() {
         this.updateDirtyElements();
     }
-    
+
 }
 
 export default { AtomicServiceSearch };

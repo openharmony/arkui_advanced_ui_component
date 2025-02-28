@@ -14,8 +14,8 @@
  */
 import { LengthMetrics, OperationOption } from '@kit.ArkUI';
 
-declare type OnSelectCallback = (index: number, value?: string) => void;
-declare type OnPasteCallback = (value: string, event: PasteEvent) => void;
+declare type OnSelectCallback = (index: number, selectValue: string) => void;
+declare type OnPasteCallback = (pasteValue: string, event: PasteEvent) => void;
 declare type OnTextSelectionChangeCallback = (selectionStart: number, selectionEnd: number) => void;
 declare type OnContentScrollCallback = (totalOffsetX: number, totalOffsetY: number) => void;
 
@@ -32,7 +32,7 @@ const SELECT_MARGIN_LEFT: number = 2;
 const FLEX_SHRINK: number = 0;
 const DIVIDER_OPACITY: number = 0.5;
 const DIVIDER_MARGIN_LEFT: number = 2;
-const DIVIDER_MARGIN_RIGHT: number = -2;
+const DIVIDER_MARGIN_RIGHT: number = 0;
 const ATOMIC_SERVICE_SEARCH_HEIGHT: number = 40;
 const ATOMIC_SELECT_HEIGHT: number = 36;
 const ATOMIC_SELECT_BORDER_RADIUS: number = 20;
@@ -40,28 +40,28 @@ const ATOMIC_DIVIDER_HEIGHT: number = 20;
 const ICON_WIDTH_AND_HEIGTH: number = 24;
 const OPERATION_ITEM1_MARGIN_RIGHT: number = 2;
 const OPERATION_ITEM2_MARGIN_LEFT: number = 8;
+const SEARCH_OFFSET_X: number = -5;
 
-export interface InputFilterOptions {
-  value: ResourceStr,
+export interface InputFilterParams {
+  inputFilterValue: ResourceStr,
   error?: Callback<string>
 }
 
 export interface SearchButtonParams {
-  value: string,
-  option?: SearchButtonOptions
+  searchButtonValue: ResourceStr,
+  options?: SearchButtonOptions
 }
 
-export interface MenuAlignOption {
+export interface MenuAlignParams {
   alignType: MenuAlignType,
   offset?: Offset
 }
 
-export interface SelectOptions {
+export interface SelectParams {
   options?: Array<SelectOption>;
   selected?: number;
-  value?: string;
+  selectValue?: ResourceStr;
   onSelect?: OnSelectCallback;
-  controlSize?: ControlSize;
   menuItemContentModifier?: ContentModifier<MenuItemConfiguration>;
   divider?: Optional<DividerOptions> | null;
   font?: Font;
@@ -76,12 +76,13 @@ export interface SelectOptions {
   optionHeight?: Dimension;
   space?: Length;
   arrowPosition?: ArrowPosition;
-  menuAlign?: MenuAlignOption;
+  menuAlign?: MenuAlignParams;
   menuBackgroundColor?: ResourceColor;
   menuBackgroundBlurStyle?: BlurStyle;
 }
 
-export interface SearchOptions {
+export interface SearchParams {
+  searchKey?: ResourceStr;
   componentBackgroundColor?: ResourceColor;
   pressedBackgroundColor?: ResourceColor;
   searchButton?: SearchButtonParams;
@@ -89,22 +90,21 @@ export interface SearchOptions {
   placeholderFont?: Font;
   textFont?: Font;
   textAlign?: TextAlign;
-  copyOption?: CopyOptions;
+  copyOptions?: CopyOptions;
   searchIcon?: IconOptions | SymbolGlyphModifier;
   cancelIcon?: IconOptions;
   fontColor?: ResourceColor;
   caretStyle?: CaretStyle;
   enableKeyboardOnFocus?: boolean;
   hideSelectionMenu?: boolean;
-  avoidKeyboard?: boolean;
   type?: SearchType;
   maxLength?: number;
   enterKeyType?: EnterKeyType;
   decoration?: TextDecorationOptions;
   letterSpacing?: number | string | Resource;
-  fontFeature?: string;
+  fontFeature?: ResourceStr;
   selectedBackgroundColor?: ResourceColor;
-  inputFilter?: InputFilterOptions;
+  inputFilter?: InputFilterParams;
   textIndent?: Dimension;
   minFontSize?: number | string | Resource;
   maxFontSize?: number | string | Resource;
@@ -125,7 +125,7 @@ export interface SearchOptions {
   onDidDelete?: Callback<DeleteValue>;
 }
 
-export interface OperationOptions {
+export interface OperationParams {
   auxiliaryItem?: OperationOption;
   independentItem?: OperationOption;
 }
@@ -138,8 +138,8 @@ export struct AtomicServiceSearch {
   @State private showImage: boolean = true;
   @Prop @Watch('onParamsChange') value?: ResourceStr = '';
   @Prop placeholder?: ResourceStr = 'Search';
-  @Prop @Watch('onSelectChange') select?: SelectOptions = {};
-  @Prop @Watch('onSearchChange') search?: SearchOptions = {
+  @Prop @Watch('onSelectChange') select?: SelectParams = {};
+  @Prop @Watch('onSearchChange') search?: SearchParams = {
     componentBackgroundColor: ATOMIC_SERVICE_SEARCH_BG_COLOR,
     placeholderFont: {
       size: TEXT_SIZE_BODY1,
@@ -155,7 +155,7 @@ export struct AtomicServiceSearch {
     },
     pressedBackgroundColor: EFFECT_COLOR
   };
-  operation?: OperationOptions;
+  operation?: OperationParams;
   controller?: SearchController = new SearchController();
 
   aboutToAppear(): void {
@@ -178,10 +178,13 @@ export struct AtomicServiceSearch {
 
   private initSelectStyle(): void {
     if (typeof this.select !== 'undefined') {
+      if (typeof this.select.selected === 'undefined') {
+        this.select.selected = -1;
+      }
       if (typeof this.select.font === 'undefined') {
         this.select.font = { size: TEXT_SIZE_BODY1 };
       }
-      if (typeof this.select.fontColor !== 'undefined') {
+      if (typeof this.select.fontColor === 'undefined') {
         this.select.fontColor = TEXT_COLOR_PRIMARY;
       }
     }
@@ -221,10 +224,9 @@ export struct AtomicServiceSearch {
     if (typeof this.select !== 'undefined' && typeof this.select.options !== 'undefined') {
       Row() {
         Select(this.select?.options)
-          .value(this.select?.value)
+          .value(this.select?.selectValue)
           .selected(this.select?.selected)
           .onSelect(this.select?.onSelect)
-          .controlSize(this.select?.controlSize)
           .menuItemContentModifier(this.select?.menuItemContentModifier)
           .divider(this.select?.divider)
           .font(this.select?.font)
@@ -275,28 +277,29 @@ export struct AtomicServiceSearch {
       placeholder: this.placeholder,
       controller: this.controller
     })
+      .key(this.search?.searchKey?.toString())
+      .margin({ start: LengthMetrics.vp(SEARCH_OFFSET_X) })
       .backgroundColor(Color.Transparent)
-      .searchButton(this.search?.searchButton?.value, this.search?.searchButton?.option)
+      .searchButton(this.search?.searchButton?.searchButtonValue.toString(), this.search?.searchButton?.options)
       .placeholderColor(this.search?.placeholderColor)
       .placeholderFont(this.search?.placeholderFont)
       .textFont(this.search?.textFont)
       .textAlign(this.search?.textAlign)
-      .copyOption(this.search?.copyOption)
+      .copyOption(this.search?.copyOptions)
       .searchIcon(this.search?.searchIcon)
       .cancelButton({ icon: this.search?.cancelIcon })
       .fontColor(this.search?.fontColor)
       .caretStyle(this.search?.caretStyle)
       .enableKeyboardOnFocus(this.search?.enableKeyboardOnFocus)
       .selectionMenuHidden(this.search?.hideSelectionMenu)
-      .customKeyboard(null, { supportAvoidance: this.search?.avoidKeyboard })
       .type(this.search?.type)
       .maxLength(this.search?.maxLength)
       .enterKeyType(this.search?.enterKeyType)
       .decoration(this.search?.decoration)
       .letterSpacing(this.search?.letterSpacing)
-      .fontFeature(this.search?.fontFeature)
+      .fontFeature(this.search?.fontFeature?.toString())
       .selectedBackgroundColor(this.search?.selectedBackgroundColor)
-      .inputFilter(this.search?.inputFilter?.value, this.search?.inputFilter?.error)
+      .inputFilter(this.search?.inputFilter?.inputFilterValue, this.search?.inputFilter?.error)
       .textIndent(this.search?.textIndent)
       .minFontSize(this.search?.minFontSize)
       .maxFontSize(this.search?.maxFontSize)
@@ -319,10 +322,14 @@ export struct AtomicServiceSearch {
       .onContentScroll(this.search?.onContentScroll)
       .onTextSelectionChange(this.search?.onTextSelectionChange)
       .onChange((value: string, previewText?: PreviewText) => {
+        if (previewText?.value.length !== 0) {
+          this.value = previewText?.value;
+        } else {
+          this.value = value;
+        }
         if (typeof this.search?.onChange !== 'undefined') {
           this.search?.onChange(value, previewText);
         }
-        this.value = value;
       })
       .onTouch((event?: TouchEvent) => {
         if (event && event.type === TouchType.Down) {
@@ -350,7 +357,7 @@ export struct AtomicServiceSearch {
       .justifyContent(FlexAlign.Center)
       .width(ATOMIC_SELECT_HEIGHT)
       .height(ATOMIC_SELECT_HEIGHT)
-      .margin({ right: OPERATION_ITEM1_MARGIN_RIGHT })
+      .margin({ end: LengthMetrics.vp(OPERATION_ITEM1_MARGIN_RIGHT) })
       .backgroundColor(this.isFunction1Pressed ? this.search?.pressedBackgroundColor : Color.Transparent)
       .onTouch((event?: TouchEvent) => {
         if (event && event.type === TouchType.Down) {
@@ -379,7 +386,7 @@ export struct AtomicServiceSearch {
       .justifyContent(FlexAlign.Center)
       .width(ATOMIC_SERVICE_SEARCH_HEIGHT)
       .height(ATOMIC_SERVICE_SEARCH_HEIGHT)
-      .margin(OPERATION_ITEM2_MARGIN_LEFT)
+      .margin({ start: LengthMetrics.vp(OPERATION_ITEM2_MARGIN_LEFT) })
       .backgroundColor(this.isFunction2Pressed ?
         this.search?.pressedBackgroundColor : this.search?.componentBackgroundColor)
       .onTouch((event?: TouchEvent) => {
