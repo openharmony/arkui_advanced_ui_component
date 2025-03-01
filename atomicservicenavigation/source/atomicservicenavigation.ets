@@ -455,7 +455,10 @@ export struct AtomicServiceNavigation {
           SymbolGlyph()
             .attributeModifier(this.sideBarOptions?.sideBarIcon)
             .fontSize($r('sys.float.ohos_id_text_size_headline7'))
-            .size({ width: 36, height: 36 })
+            .size({
+              width: $r('sys.float.ohos_id_text_size_headline7'),
+              height: $r('sys.float.ohos_id_text_size_headline7')
+            })
         }
         .controlButtonStyle()
       } else {
@@ -476,7 +479,10 @@ export struct AtomicServiceNavigation {
           SymbolGlyph()
             .attributeModifier(this.titleOptions?.titleIcon)
             .fontSize($r('sys.float.ohos_id_text_size_headline7'))
-            .size({ width: 36, height: 36 })
+            .size({
+              width: $r('sys.float.ohos_id_text_size_headline7'),
+              height: $r('sys.float.ohos_id_text_size_headline7')
+            })
         }
         .controlButtonStyle()
       } else {
@@ -541,7 +547,10 @@ export struct AtomicServiceNavigation {
         SymbolGlyph()
           .attributeModifier(this.titleOptions?.titleIcon)
           .fontSize($r('sys.float.ohos_id_text_size_headline7'))
-          .size({ width: 36, height: 36 })
+          .size({
+            width: $r('sys.float.ohos_id_text_size_headline7'),
+            height: $r('sys.float.ohos_id_text_size_headline7')
+          })
       }
       .roundIconStyle()
     } else {
@@ -574,10 +583,14 @@ export struct AtomicServiceNavigation {
         SymbolGlyph()
           .attributeModifier(this.titleOptions?.titleIcon)
           .fontSize($r('sys.float.ohos_id_text_size_headline7'))
-          .size({ width: 36, height: 36 })
+          .size({
+            width: $r('sys.float.ohos_id_text_size_headline7'),
+            height: $r('sys.float.ohos_id_text_size_headline7')
+          })
       }
       .backgroundColor($r('sys.color.ohos_id_color_button_normal'))
       .longIconStyles()
+      .type(ButtonType.Normal)
     } else {
       Image(this.titleOptions?.titleIcon ?? this.atomicServiceIcon)
         .longIconStyles()
