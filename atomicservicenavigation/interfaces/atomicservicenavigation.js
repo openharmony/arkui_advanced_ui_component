@@ -979,7 +979,6 @@ export class AtomicServiceNavigation extends ViewPU {
                 this.ifElseBranchUpdateFunction(0, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Button.createWithChild();
-                        Button.borderRadius(0);
                         Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'],
                             'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                         Button.height(36);
