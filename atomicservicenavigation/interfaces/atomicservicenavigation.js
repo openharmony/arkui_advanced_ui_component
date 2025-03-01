@@ -405,7 +405,8 @@ export class AtomicServiceNavigation extends ViewPU {
             Canvas.create(this.context);
             Canvas.opacity(transparencyMapArray[(gradientBackground.alpha === undefined) ? GradientAlpha.OPACITY_20 :
                 gradientBackground.alpha]);
-            Canvas.blur(BLUR_CONSTANT);
+            Canvas.backdropBlur(BLUR_CONSTANT);
+            Canvas.height(this.navigationHeight);
             Canvas.backgroundColor(gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
                 backGroundColor[gradientBackground.backgroundTheme - 1]);
             Canvas.onReady(() => {
@@ -722,6 +723,8 @@ export class AtomicServiceNavigation extends ViewPU {
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     SymbolGlyph.create();
                                     SymbolGlyph.attributeModifier.bind(this)(this.sideBarOptions?.sideBarIcon);
+                                    SymbolGlyph.fontSize({ 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    SymbolGlyph.size({ width: 36, height: 36 });
                                 }, SymbolGlyph);
                                 Button.pop();
                             });
@@ -813,10 +816,13 @@ export class AtomicServiceNavigation extends ViewPU {
                                         top: LengthMetrics.vp(8)
                                     });
                                     Button.visibility(this.controlButtonVisible ? Visibility.Visible : Visibility.None);
+                                    Button.align(Alignment.Top);
                                 }, Button);
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     SymbolGlyph.create();
                                     SymbolGlyph.attributeModifier.bind(this)(this.titleOptions?.titleIcon);
+                                    SymbolGlyph.fontSize({ 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    SymbolGlyph.size({ width: 36, height: 36 });
                                 }, SymbolGlyph);
                                 Button.pop();
                             });
@@ -917,6 +923,8 @@ export class AtomicServiceNavigation extends ViewPU {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         SymbolGlyph.create();
                         SymbolGlyph.attributeModifier.bind(this)(this.titleOptions?.titleIcon);
+                        SymbolGlyph.fontSize({ 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                        SymbolGlyph.size({ width: 36, height: 36 });
                     }, SymbolGlyph);
                     Button.pop();
                 });
@@ -972,6 +980,8 @@ export class AtomicServiceNavigation extends ViewPU {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         SymbolGlyph.create();
                         SymbolGlyph.attributeModifier.bind(this)(this.titleOptions?.titleIcon);
+                        SymbolGlyph.fontSize({ 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                        SymbolGlyph.size({ width: 36, height: 36 });
                     }, SymbolGlyph);
                     Button.pop();
                 });
@@ -981,6 +991,7 @@ export class AtomicServiceNavigation extends ViewPU {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Image.create(this.titleOptions?.titleIcon ?? this.atomicServiceIcon);
                         Image.height(36);
+                        Image.width(36);
                         Image.margin({
                             start: LengthMetrics.vp(this.marginWindowLeft),
                             end: LengthMetrics.vp(-12),
@@ -1030,6 +1041,7 @@ export class AtomicServiceNavigation extends ViewPU {
     initialRender() {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Stack.create();
+            Stack.align(Alignment.TopStart);
             Stack.width('100%');
             Stack.height('100%');
             Stack.onSizeChange((oldValue, newValue) => {

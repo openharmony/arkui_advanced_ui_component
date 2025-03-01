@@ -167,7 +167,8 @@ export struct AtomicServiceNavigation {
     Canvas(this.context)
       .opacity(transparencyMapArray[(gradientBackground.alpha === undefined) ? GradientAlpha.OPACITY_20 :
       gradientBackground.alpha])
-      .blur(BLUR_CONSTANT)
+      .backdropBlur(BLUR_CONSTANT)
+      .height(this.navigationHeight)
       .backgroundColor(gradientBackground.backgroundTheme === undefined ? backGroundColor[2] :
       backGroundColor[gradientBackground.backgroundTheme - 1])
       .onReady(() => {
@@ -453,6 +454,8 @@ export struct AtomicServiceNavigation {
         Button({ type: ButtonType.Circle }) {
           SymbolGlyph()
             .attributeModifier(this.sideBarOptions?.sideBarIcon)
+            .fontSize($r('sys.float.ohos_id_text_size_headline7'))
+            .size({ width: 36, height: 36 })
         }
         .controlButtonStyle()
       } else {
@@ -472,8 +475,11 @@ export struct AtomicServiceNavigation {
         Button({ type: ButtonType.Circle }) {
           SymbolGlyph()
             .attributeModifier(this.titleOptions?.titleIcon)
+            .fontSize($r('sys.float.ohos_id_text_size_headline7'))
+            .size({ width: 36, height: 36 })
         }
         .controlButtonStyle()
+        .align(Alignment.Top)
       } else {
         Image(this.titleOptions?.titleIcon)
           .controlButtonStyle()
@@ -535,6 +541,8 @@ export struct AtomicServiceNavigation {
       Button({ type: ButtonType.Circle }) {
         SymbolGlyph()
           .attributeModifier(this.titleOptions?.titleIcon)
+          .fontSize($r('sys.float.ohos_id_text_size_headline7'))
+          .size({ width: 36, height: 36 })
       }
       .roundIconStyle()
     } else {
@@ -546,6 +554,7 @@ export struct AtomicServiceNavigation {
   @Styles
   longIconStyles() {
     .height(36)
+    .width(36)
     .margin({
       start: LengthMetrics.vp(this.marginWindowLeft),
       end: LengthMetrics.vp(-12),
@@ -565,9 +574,10 @@ export struct AtomicServiceNavigation {
       Button() {
         SymbolGlyph()
           .attributeModifier(this.titleOptions?.titleIcon)
+          .fontSize($r('sys.float.ohos_id_text_size_headline7'))
+          .size({ width: 36, height: 36 })
       }
       .backgroundColor($r('sys.color.ohos_id_color_button_normal'))
-      .width(36)
       .longIconStyles()
     } else {
       Image(this.titleOptions?.titleIcon ?? this.atomicServiceIcon)
@@ -689,6 +699,7 @@ export struct AtomicServiceNavigation {
         .onNavigationModeChange(this.modeChangeCallback)
       }
     }
+    .align(Alignment.TopStart)
     .width('100%')
     .height('100%')
     .onSizeChange((oldValue: SizeOptions, newValue: SizeOptions) => {
