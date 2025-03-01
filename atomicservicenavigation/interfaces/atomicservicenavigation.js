@@ -879,7 +879,8 @@ export class AtomicServiceNavigation extends ViewPU {
                     top: 0,
                     bottom: 0
                 },
-                color: { 'id': -1, 'type': 10001, params: ['sys.color.comp_divider'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' },
+                color: { "id": -1, "type": 10001, params: ['sys.color.comp_divider'],
+                    "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" },
                 style: {
                     right: BorderStyle.Solid
                 } });
@@ -889,7 +890,9 @@ export class AtomicServiceNavigation extends ViewPU {
             Row.padding({ top: 56 });
             Row.focusable(true);
             Row.defaultFocus(true);
-            Row.backgroundColor(this.sideBarOptions?.sideBarBackground ?? { 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_sub_background'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+            Row.backgroundColor(this.sideBarOptions?.sideBarBackground ?? { "id": -1, "type": 10001,
+                params: ['sys.color.ohos_id_color_sub_background'], "bundleName": "__harDefaultBundleName__",
+                "moduleName": "__harDefaultModuleName__" });
             Row.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
         }, Row);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -914,7 +917,8 @@ export class AtomicServiceNavigation extends ViewPU {
                 this.ifElseBranchUpdateFunction(0, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Button.createWithChild({ type: ButtonType.Circle });
-                        Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                        Button.stateEffect(false);
+                        Button.backgroundColor('rgba(0, 0, 0, 0)');
                         Button.width(36);
                         Button.height(36);
                         Button.borderRadius(18);
@@ -934,13 +938,13 @@ export class AtomicServiceNavigation extends ViewPU {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         SymbolGlyph.create();
                         SymbolGlyph.attributeModifier.bind(this)(this.titleOptions?.titleIcon);
-                        SymbolGlyph.fontSize({ 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'],
-                            'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                        SymbolGlyph.fontSize({ "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_headline7'],
+                            "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
                         SymbolGlyph.size({
-                            width: { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'],
-                                'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' },
-                            height: { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'],
-                                'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' }
+                            width: { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_headline7'],
+                                "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" },
+                            height: { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_headline7'],
+                                "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" }
                         });
                     }, SymbolGlyph);
                     Button.pop();
@@ -950,7 +954,7 @@ export class AtomicServiceNavigation extends ViewPU {
                 this.ifElseBranchUpdateFunction(1, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Image.create(this.titleOptions?.titleIcon ?? this.atomicServiceIcon);
-                        Image.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                        Image.backgroundColor('rgba(0, 0, 0, 0)');
                         Image.width(36);
                         Image.height(36);
                         Image.borderRadius(18);
@@ -979,8 +983,6 @@ export class AtomicServiceNavigation extends ViewPU {
                 this.ifElseBranchUpdateFunction(0, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Button.createWithChild();
-                        Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'],
-                            'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                         Button.height(36);
                         Button.width(36);
                         Button.margin({
@@ -994,18 +996,20 @@ export class AtomicServiceNavigation extends ViewPU {
                             start: LengthMetrics.vp(0),
                             top: LengthMetrics.vp(0)
                         });
+                        Button.backgroundColor('rgba(0, 0, 0, 0)');
+                        Button.stateEffect(false);
                         Button.type(ButtonType.Normal);
                     }, Button);
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         SymbolGlyph.create();
                         SymbolGlyph.attributeModifier.bind(this)(this.titleOptions?.titleIcon);
-                        SymbolGlyph.fontSize({ 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'],
-                            'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                        SymbolGlyph.fontSize({ "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_headline7'],
+                            "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
                         SymbolGlyph.size({
-                            width: { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'],
-                                'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' },
-                            height: { 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'],
-                                'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' }
+                            width: { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_headline7'],
+                                "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" },
+                            height: { "id": -1, "type": 10002, params: ['sys.float.ohos_id_text_size_headline7'],
+                                "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" }
                         });
                     }, SymbolGlyph);
                     Button.pop();
@@ -1028,6 +1032,7 @@ export class AtomicServiceNavigation extends ViewPU {
                             start: LengthMetrics.vp(0),
                             top: LengthMetrics.vp(0)
                         });
+                        Image.backgroundColor('rgba(0, 0, 0, 0)');
                         Image.objectFit(ImageFit.Auto);
                     }, Image);
                 });

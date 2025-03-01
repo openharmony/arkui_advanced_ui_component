@@ -522,7 +522,7 @@ export struct AtomicServiceNavigation {
 
   @Styles
   roundIconStyle() {
-    .backgroundColor($r('sys.color.ohos_id_color_button_normal'))
+    .backgroundColor('rgba(0, 0, 0, 0)')
     .width(36)
     .height(36)
     .borderRadius(18)
@@ -552,6 +552,7 @@ export struct AtomicServiceNavigation {
             height: $r('sys.float.ohos_id_text_size_headline7')
           })
       }
+      .stateEffect(false)
       .roundIconStyle()
     } else {
       Image(this.titleOptions?.titleIcon ?? this.atomicServiceIcon)
@@ -574,6 +575,7 @@ export struct AtomicServiceNavigation {
       start: LengthMetrics.vp(0),
       top: LengthMetrics.vp(0)
     })
+    .backgroundColor('rgba(0, 0, 0, 0)')
   }
 
   @Builder
@@ -588,8 +590,8 @@ export struct AtomicServiceNavigation {
             height: $r('sys.float.ohos_id_text_size_headline7')
           })
       }
-      .backgroundColor($r('sys.color.ohos_id_color_button_normal'))
       .longIconStyles()
+      .stateEffect(false)
       .type(ButtonType.Normal)
     } else {
       Image(this.titleOptions?.titleIcon ?? this.atomicServiceIcon)
