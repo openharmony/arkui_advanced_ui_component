@@ -816,7 +816,6 @@ export class AtomicServiceNavigation extends ViewPU {
                                         top: LengthMetrics.vp(8)
                                     });
                                     Button.visibility(this.controlButtonVisible ? Visibility.Visible : Visibility.None);
-                                    Button.align(Alignment.Top);
                                 }, Button);
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     SymbolGlyph.create();

@@ -479,7 +479,6 @@ export struct AtomicServiceNavigation {
             .size({ width: 36, height: 36 })
         }
         .controlButtonStyle()
-        .align(Alignment.Top)
       } else {
         Image(this.titleOptions?.titleIcon)
           .controlButtonStyle()
