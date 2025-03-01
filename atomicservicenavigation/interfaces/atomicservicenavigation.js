@@ -624,7 +624,8 @@ export class AtomicServiceNavigation extends ViewPU {
                         Text.minFontSize(14);
                         Text.maxFontSize(26);
                         Text.height(36);
-                        Text.fontColor({ 'id': -1, 'type': 10001, params: ['sys.color.font_primary'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                        Text.fontColor({ 'id': -1, 'type': 10001, params: ['sys.color.font_primary'],
+                            'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                         Text.textOverflow({ overflow: TextOverflow.Ellipsis });
                         Text.fontWeight(FontWeight.Bold);
                         Text.width(0);
@@ -647,7 +648,8 @@ export class AtomicServiceNavigation extends ViewPU {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Column.create();
             Column.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
-            Column.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_mask_thin'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+            Column.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_mask_thin'],
+                'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
             Column.transition(TransitionEffect.opacity(0).animation({ duration: 500, curve: Curve.Linear }));
             Column.width('100%');
             Column.height('100%');
@@ -669,7 +671,8 @@ export class AtomicServiceNavigation extends ViewPU {
                             this.ifElseBranchUpdateFunction(0, () => {
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     Button.createWithChild({ type: ButtonType.Circle });
-                                    Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'],
+                                        'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     Button.width(36);
                                     Button.height(36);
                                     Button.borderRadius(18);
@@ -689,10 +692,13 @@ export class AtomicServiceNavigation extends ViewPU {
                                     Button.visibility(this.controlButtonVisible ? Visibility.Visible : Visibility.None);
                                 }, Button);
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
-                                    SymbolGlyph.create({ 'id': -1, 'type': 40000, params: ['sys.symbol.open_sidebar'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    SymbolGlyph.create({ 'id': -1, 'type': 40000, params: ['sys.symbol.open_sidebar'],
+                                        'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     SymbolGlyph.fontWeight(FontWeight.Normal);
-                                    SymbolGlyph.fontSize({ 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
-                                    SymbolGlyph.fontColor([{ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_titlebar_icon'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' }]);
+                                    SymbolGlyph.fontSize({ 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'],
+                                        'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    SymbolGlyph.fontColor([{ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_titlebar_icon'],
+                                        'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' }]);
                                 }, SymbolGlyph);
                                 Button.pop();
                             });
@@ -701,7 +707,8 @@ export class AtomicServiceNavigation extends ViewPU {
                             this.ifElseBranchUpdateFunction(1, () => {
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     Button.createWithChild({ type: ButtonType.Circle });
-                                    Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'],
+                                        'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     Button.width(36);
                                     Button.height(36);
                                     Button.borderRadius(18);
@@ -739,7 +746,8 @@ export class AtomicServiceNavigation extends ViewPU {
                             this.ifElseBranchUpdateFunction(2, () => {
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     Image.create(this.sideBarOptions?.sideBarIcon);
-                                    Image.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    Image.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'],
+                                        'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     Image.width(36);
                                     Image.height(36);
                                     Image.borderRadius(18);
@@ -772,7 +780,8 @@ export class AtomicServiceNavigation extends ViewPU {
                             this.ifElseBranchUpdateFunction(0, () => {
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     Button.createWithChild({ type: ButtonType.Circle });
-                                    Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'],
+                                        'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     Button.width(36);
                                     Button.height(36);
                                     Button.borderRadius(18);
@@ -792,10 +801,13 @@ export class AtomicServiceNavigation extends ViewPU {
                                     Button.visibility(this.controlButtonVisible ? Visibility.Visible : Visibility.None);
                                 }, Button);
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
-                                    SymbolGlyph.create({ 'id': -1, 'type': 40000, params: ['sys.symbol.close_sidebar'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    SymbolGlyph.create({ 'id': -1, 'type': 40000, params: ['sys.symbol.close_sidebar'], 'bundleName':
+                                        '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     SymbolGlyph.fontWeight(FontWeight.Normal);
-                                    SymbolGlyph.fontSize({ 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
-                                    SymbolGlyph.fontColor([{ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_titlebar_icon'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' }]);
+                                    SymbolGlyph.fontSize({ 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'],
+                                        'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    SymbolGlyph.fontColor([{ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_titlebar_icon'],
+                                        'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' }]);
                                 }, SymbolGlyph);
                                 Button.pop();
                             });
@@ -804,7 +816,8 @@ export class AtomicServiceNavigation extends ViewPU {
                             this.ifElseBranchUpdateFunction(1, () => {
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     Button.createWithChild({ type: ButtonType.Circle });
-                                    Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    Button.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'],
+                                        'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     Button.width(36);
                                     Button.height(36);
                                     Button.borderRadius(18);
@@ -842,7 +855,8 @@ export class AtomicServiceNavigation extends ViewPU {
                             this.ifElseBranchUpdateFunction(2, () => {
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
                                     Image.create(this.titleOptions?.titleIcon);
-                                    Image.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    Image.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_button_normal'],
+                                        'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     Image.width(36);
                                     Image.height(36);
                                     Image.borderRadius(18);
