@@ -44,6 +44,7 @@ const EVENT_NAME_CUSTOM_APP_BAR_DID_BUILD = 'arkui_custom_app_bar_did_build';
 const EVENT_NAME_MIN_CLICK: string = 'arkui_custom_min_click';
 const EVENT_NAME_CLOSE_CLICK: string = 'arkui_custom_close_click';
 const EVENT_NAME_CUSTOM_MAX_CLICK: string = 'arkui_custom_max_click';
+const ARKUI_APP_BAR_MENU_SAFE_AREA: string = 'arkui_app_bar_menu_safe_area';
 
 class ColorGroup {
   public light: string = '#000000';
@@ -88,6 +89,8 @@ export struct CustomAppBarForPC {
   @State contentMarginBottom: string = '0vp';
   @State isAdaptPC: boolean = false;
   @State maximizeResource: Resource = this.getIconResource(maximizeButtonResourceId);
+  @State statusBarHeight: number = 0;
+
   private isDark: boolean = true;
   private windowClass: window.Window | undefined = undefined;
 
@@ -181,6 +184,11 @@ export struct CustomAppBarForPC {
       this.contentMarginBottom = splitArray[3];
     } else if (eventName === ARKUI_APP_BG_COLOR) {
       this.contentBgColor = param;
+    } else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
+      if (this.statusBarHeight === px2vp(Number(param))) {
+        return;
+      }
+      this.statusBarHeight = Number(param);
     }
   }
 
@@ -331,7 +339,7 @@ export struct CustomAppBarForPC {
         }
         .id('AtomicServiceMenubarRowId')
         .justifyContent(FlexAlign.End)
-        .margin({ top: LengthMetrics.vp(VIEW_MARGIN_TOP), end: LengthMetrics.vp(VIEW_MARGIN_RIGHT) })
+        .margin({ top: LengthMetrics.vp(this.statusBarHeight + VIEW_MARGIN_TOP), end: LengthMetrics.vp(VIEW_MARGIN_RIGHT) })
         .height(VIEW_HEIGHT)
         .hitTestBehavior(HitTestMode.Transparent)
       }
