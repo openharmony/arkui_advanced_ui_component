@@ -297,6 +297,9 @@ export class CustomAppBarForPC extends ViewPU {
                 console.info('windowStatusChange  windowStatusType: ' + JSON.stringify(windowStatusType));
                 this.updateMaximizeResource(windowStatusType);
             });
+            if (!this.isAdaptPC) {
+                this.windowClass?.setWindowTitleMoveEnabled(false);
+            }
         }).catch((err) => {
             if (err.code) {
                 console.error(`Failed to obtain the main window. Cause code: ${err.code}, message: ${err.message}`);
@@ -344,6 +347,7 @@ export class CustomAppBarForPC extends ViewPU {
             if (splitArray.length < 4) {
                 return;
             }
+            this.statusBarHeight = Number(splitArray[0]);
             this.contentMarginTop = splitArray[0];
             this.contentMarginLeft = splitArray[1];
             this.contentMarginRight = splitArray[2];
@@ -352,12 +356,6 @@ export class CustomAppBarForPC extends ViewPU {
         else if (eventName === ARKUI_APP_BG_COLOR) {
             this.contentBgColor = param;
         }
-        else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
-            if (this.statusBarHeight === px2vp(Number(param))) {
-              return;
-            }
-            this.statusBarHeight = Number(param);
-          }
     }
     /**
      * menu按钮点击

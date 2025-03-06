@@ -126,6 +126,9 @@ export struct CustomAppBarForPC {
           console.info('windowStatusChange  windowStatusType: ' + JSON.stringify(windowStatusType));
           this.updateMaximizeResource(windowStatusType);
         });
+        if (!this.isAdaptPC) {
+          this.windowClass?.setWindowTitleMoveEnabled(false);
+        }
       }
     ).catch((err: BusinessError) => {
       if (err.code) {
@@ -178,17 +181,13 @@ export struct CustomAppBarForPC {
       if (splitArray.length < 4) {
         return;
       }
+      this.statusBarHeight = Number(splitArray[0]);
       this.contentMarginTop = splitArray[0];
       this.contentMarginLeft = splitArray[1];
       this.contentMarginRight = splitArray[2];
       this.contentMarginBottom = splitArray[3];
     } else if (eventName === ARKUI_APP_BG_COLOR) {
       this.contentBgColor = param;
-    } else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
-      if (this.statusBarHeight === px2vp(Number(param))) {
-        return;
-      }
-      this.statusBarHeight = Number(param);
     }
   }
 
