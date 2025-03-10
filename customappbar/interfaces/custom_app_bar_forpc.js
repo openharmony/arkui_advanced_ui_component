@@ -308,7 +308,8 @@ export class CustomAppBarForPC extends ViewPU {
     }
     updateMaximizeResource(windowStatusType) {
         if (windowStatusType === window.WindowStatusType.FULL_SCREEN ||
-            windowStatusType === window.WindowStatusType.SPLIT_SCREEN) {
+            windowStatusType === window.WindowStatusType.SPLIT_SCREEN ||
+            windowStatusType === window.WindowStatusType.MAXIMIZE) {
             this.maximizeResource = this.getIconResource(recoverButtonResourceId);
         } else {
             this.maximizeResource = this.getIconResource(maximizeButtonResourceId);
