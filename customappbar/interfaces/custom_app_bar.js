@@ -34,6 +34,7 @@ const ICON_SIZE = 27;
 const ICON_FILL_COLOR_DEFAULT = '#182431';
 const BORDER_COLOR_DEFAULT = '#33000000';
 const MENU_BACK_COLOR = '#99FFFFFF';
+const MENU_BACK_BLUR = 5;
 const MENU_MARGIN_TOP = 10;
 const SM_MENU_MARGIN_END = 16;
 const MD_MENU_MARGIN_END = 24;
@@ -825,6 +826,7 @@ export class CustomAppBar extends ViewPU {
             Row.borderWidth(BORDER_WIDTH);
             Row.borderColor(this.menubarBorderColor);
             Row.backgroundColor(this.menubarBackColor);
+            Row.backdropBlur(MENU_BACK_BLUR);
             Row.height(VIEW_HEIGHT);
             Row.width(VIEW_WIDTH);
             Row.align(Alignment.Top);
@@ -1141,6 +1143,7 @@ export class CustomAppBar extends ViewPU {
             Row.clip(true);
             Row.alignItems(VerticalAlign.Bottom);
             Row.hitTestBehavior(HitTestMode.Transparent);
+            Row.width('100%');
             Row.id('AtomicServiceStageId');
         }, Row);
         Row.pop();
