@@ -29,6 +29,7 @@ const ICON_SIZE: number = 27;
 const ICON_FILL_COLOR_DEFAULT: string = '#182431';
 const BORDER_COLOR_DEFAULT: string = '#33000000';
 const MENU_BACK_COLOR: string = '#99FFFFFF';
+const MENU_BACK_BLUR: number = 5;
 const MENU_MARGIN_TOP: number = 10;
 const SM_MENU_MARGIN_END: number = 16;
 const MD_MENU_MARGIN_END: number = 24;
@@ -501,6 +502,7 @@ export struct CustomAppBar {
       .borderWidth(BORDER_WIDTH)
       .borderColor(this.menubarBorderColor)
       .backgroundColor(this.menubarBackColor)
+      .backdropBlur(MENU_BACK_BLUR)
       .height(VIEW_HEIGHT)
       .width(VIEW_WIDTH)
       .align(Alignment.Top)
@@ -669,6 +671,7 @@ export struct CustomAppBar {
             .clip(true)
             .alignItems(VerticalAlign.Bottom)
             .hitTestBehavior(HitTestMode.Transparent)
+            .width('100%')
             .id('AtomicServiceStageId')
           }
           .height(this.containerHeight)
