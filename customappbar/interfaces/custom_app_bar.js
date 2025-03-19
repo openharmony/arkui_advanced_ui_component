@@ -20,7 +20,7 @@ const curves = requireNativeModule('ohos.curves');
 const display = requireNapi('display');
 const mediaquery = requireNapi('mediaquery');
 const LengthMetrics = requireNapi('arkui.node').LengthMetrics;
-
+const systemParameterEnhance = requireNapi('systemParameterEnhance');
 const LOG_TAG = 'CustomAppBar';
 const VIEW_WIDTH = 80;
 const VIEW_HEIGHT = 36;
@@ -145,6 +145,7 @@ export class CustomAppBar extends ViewPU {
         this.fullContentMarginTop = 0;
         this.windowWidth = 0;
         this.windowHeight = 0;
+        this.deviceBorderRadius = '0';
         this.smListener = mediaquery.matchMediaSync('(0vp<width) and (width<600vp)');
         this.mdListener = mediaquery.matchMediaSync('(600vp<=width) and (width<840vp)');
         this.lgListener = mediaquery.matchMediaSync('(840vp<=width)');
@@ -266,6 +267,9 @@ export class CustomAppBar extends ViewPU {
         }
         if (params.windowHeight !== undefined) {
             this.windowHeight = params.windowHeight;
+        }
+        if (params.deviceBorderRadius !== undefined) {
+            this.deviceBorderRadius = params.deviceBorderRadius;
         }
         if (params.smListener !== undefined) {
             this.smListener = params.smListener;
@@ -535,11 +539,20 @@ export class CustomAppBar extends ViewPU {
             this.containerHeight = '100%';
             this.containerWidth = '100%';
         }
+        this.getDeviceRadiusConfig();
     }
     aboutToDisappear() {
         this.smListener.off('change');
         this.mdListener.off('change');
         this.lgListener.off('change');
+    }
+    getDeviceRadiusConfig() {
+        try {
+          this.deviceBorderRadius = systemParameterEnhance.getSync('const.product.device_radius');
+          console.info(LOG_TAG, `read device_radius success, device_radius: ${this.deviceBorderRadius}`);
+        } catch (error) {
+          console.error(LOG_TAG, `read device_radius failed`);
+        }
     }
     initBreakPointListener() {
         this.smListener.on('change', (mediaQueryResult) => {
@@ -1137,8 +1150,8 @@ export class CustomAppBar extends ViewPU {
             Row.backgroundColor(Color.Transparent);
             Row.backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK);
             Row.borderRadius({
-                topLeft: HALF_CONTAINER_BORDER_SIZE,
-                topRight: HALF_CONTAINER_BORDER_SIZE,
+                topLeft: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : this.deviceBorderRadius,
+                topRight: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : this.deviceBorderRadius,
             });
             Row.clip(true);
             Row.alignItems(VerticalAlign.Bottom);
