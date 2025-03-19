@@ -15,6 +15,7 @@
 
 import { curves, display, LengthMetrics, mediaquery } from '@kit.ArkUI';
 import { image } from '@kit.ImageKit';
+import { systemParameterEnhance } from '@kit.BasicServicesKit';
 
 const LOG_TAG: string = 'CustomAppBar';
 const VIEW_WIDTH: number = 80;
@@ -156,6 +157,7 @@ export struct CustomAppBar {
   private fullContentMarginTop: number = 0;
   private windowWidth: number = 0;
   private windowHeight: number = 0;
+  private deviceBorderRadius: string = '0';
   private smListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(0vp<width) and (width<600vp)');
   private mdListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(600vp<=width) and (width<840vp)');
   private lgListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(840vp<=width)');
@@ -169,12 +171,22 @@ export struct CustomAppBar {
       this.containerHeight = '100%';
       this.containerWidth = '100%';
     }
+    this.getDeviceRadiusConfig();
   }
 
   aboutToDisappear(): void {
     this.smListener.off('change');
     this.mdListener.off('change');
     this.lgListener.off('change');
+  }
+
+  getDeviceRadiusConfig(): void {
+    try {
+      this.deviceBorderRadius = systemParameterEnhance.getSync('const.product.device_radius');
+      console.info(LOG_TAG, ` read device_radius success, device_radius: ${this.deviceBorderRadius}`);
+    } catch (error) {
+      console.error(LOG_TAG, `read device_radius failed`);
+    }
   }
 
   initBreakPointListener(): void {
@@ -665,8 +677,8 @@ export struct CustomAppBar {
             .backgroundColor(Color.Transparent)
             .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
             .borderRadius({
-              topLeft: HALF_CONTAINER_BORDER_SIZE,
-              topRight: HALF_CONTAINER_BORDER_SIZE,
+              topLeft: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : this.deviceBorderRadius,
+              topRight: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : this.deviceBorderRadius,
             })
             .clip(true)
             .alignItems(VerticalAlign.Bottom)
