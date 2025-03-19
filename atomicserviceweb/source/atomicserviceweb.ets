@@ -31,6 +31,8 @@ import picker from '@ohos.multimedia.cameraPicker';
 import filePicker from '@ohos.file.picker';
 import { BusinessError } from '@ohos.base';
 import { call } from '@kit.TelephonyKit';
+import { authentication } from '@kit.AccountKit';
+import { paymentService } from '@kit.PaymentKit';
 
 let atomicBasicEngine: ESObject | null = null;
 
@@ -87,7 +89,7 @@ const registerJsApi = (apiNameAlias: string, apiName: string, minVersion: string
   ATOMIC_SERVICE_JS_API_MAP.set(apiNameAlias, new JsApiConfig(apiName, minVersion, maxVersion, requiredFieldNames));
 };
 const MAX_VERSION = '99.99.99';
-const ATOMIC_SERVICE_JS_SDK_CURRENT_VERSION = '1.0.0';
+const ATOMIC_SERVICE_JS_SDK_CURRENT_VERSION = '1.0.1';
 const PERMISSION_APPROXIMATELY_LOCATION: Permissions = 'ohos.permission.APPROXIMATELY_LOCATION';
 const TEL_PROTOCOL: string = 'tel:';
 const MAILTO_PROTOCOL: string = 'mailto:';
@@ -116,6 +118,9 @@ const UPLOAD_FILE_ERROR: AsError = new AsError(200013, 'Upload file error.');
 const IMAGE_CAN_NOT_PREVIEW_ERROR: AsError = new AsError(200014, 'The filePath can not preview.');
 const NETWORK_NO_ACTIVE_ERROR: AsError = new AsError(200015, 'The network is not active.');
 const PERMISSION_LOCATION_USER_REFUSED_ERROR: number = 200016;
+const LOGIN_STATE_INVALID_ERROR: AsError = new AsError(200017, 'Login state is invalid.');
+const LOGIN_RESPONSE_DATA_NULL_ERROR: AsError = new AsError(200018, 'Response data is null.');
+const REQUEST_PAYMENT_ORDER_STR_INVALID_ERROR: AsError = new AsError(200019, 'orderStr is not type string.');
 
 registerJsApi('router.pushUrl', 'pushUrl', '1.0.0', MAX_VERSION, ['url']);
 registerJsApi('router.replaceUrl', 'replaceUrl', '1.0.0', MAX_VERSION, ['url']);
@@ -135,6 +140,8 @@ registerJsApi('request.uploadFile', 'uploadFile', '1.0.0', MAX_VERSION, ['url', 
 registerJsApi('request.downloadFile', 'downloadFile', '1.0.0', MAX_VERSION, ['url']);
 registerJsApi('connection.getNetworkType', 'getNetworkType', '1.0.0', MAX_VERSION, []);
 registerJsApi('location.getLocation', 'getLocation', '1.0.0', MAX_VERSION, []);
+registerJsApi('account.login', 'login', '1.0.1', MAX_VERSION, []);
+registerJsApi('payment.requestPayment', 'requestPayment', '1.0.1', MAX_VERSION, ['orderStr']);
 
 @Component
 export struct AtomicServiceWeb {
@@ -1245,6 +1252,50 @@ class AtomicServiceApi extends AtomicService {
       });
     });
   }
+
+  /**
+   * 静默登录
+   *
+   * @param options 接口参数
+   */
+  public login(options: LoginOptions): void {
+    let loginRequest: authentication.LoginWithHuaweiIDRequest =
+      new authentication.HuaweiIDProvider().createLoginWithHuaweiIDRequest();
+    loginRequest.forceLogin = false;
+    loginRequest.state = util.generateRandomUUID();
+    let controller: authentication.AuthenticationController = new authentication.AuthenticationController();
+    controller.executeRequest(loginRequest).then((response: authentication.LoginWithHuaweiIDResponse) => {
+      if (!response || !response.data) {
+        this.errorWithCodeAndMsg(LOGIN_RESPONSE_DATA_NULL_ERROR, options);
+        return;
+      }
+      if (loginRequest.state !== response.state) {
+        this.errorWithCodeAndMsg(LOGIN_STATE_INVALID_ERROR, options);
+        return;
+      }
+      this.success(new LoginResult(response.data.openID, response.data.unionID, response.data.authorizationCode,
+        response.data.idToken), options);
+    }).catch((err: BusinessError) => {
+      this.error(err, options);
+    });
+  }
+
+  /**
+   * 请求拉起华为支付
+   *
+   * @param options 接口参数
+   */
+  public requestPayment(options: RequestPaymentOptions): void {
+    if (typeof options.orderStr !== 'string') {
+      this.errorWithCodeAndMsg(REQUEST_PAYMENT_ORDER_STR_INVALID_ERROR, options);
+      return;
+    }
+    paymentService.requestPayment(this.context, options.orderStr).then(() => {
+      this.success(new RequestPaymentResult(), options);
+    }).catch((err: BusinessError) => {
+      this.error(err, options);
+    });
+  }
 }
 
 class NavPathInfo {
@@ -1610,4 +1661,40 @@ class GetLocationResult {
     this.additions = additions;
     this.additionSize = additionSize;
   }
+}
+
+/**
+ * login接口参数
+ */
+class LoginOptions extends BaseOptions<LoginResult> {
+}
+
+/**
+ * login接口结果
+ */
+class LoginResult {
+  public code?: string;
+  public idToken?: string;
+  public openID: string;
+  public unionID: string;
+
+  constructor(openID: string, unionID: string, code?: string, idToken?: string) {
+    this.code = code;
+    this.idToken = idToken;
+    this.openID = openID;
+    this.unionID = unionID;
+  }
+}
+
+/**
+ * requestPayment接口参数
+ */
+class RequestPaymentOptions extends BaseOptions<RequestPaymentResult> {
+  public orderStr?: string;
+}
+
+/**
+ * requestPayment接口结果
+ */
+class RequestPaymentResult {
 }

@@ -48,6 +48,8 @@ const fileUri = requireNapi('file.fileuri');
 const picker = requireNapi('multimedia.cameraPicker');
 const filePicker = requireNapi('file.picker');
 const call = requireNapi('telephony.call');
+const authentication = globalThis.requireNapi('core.authentication', false, '', 'hms');
+const paymentService = globalThis.requireNapi('core.payment.paymentService', false, '', 'hms');
 const atomicServiceWebNapi = requireInternal('atomicservice.AtomicServiceWeb');
 
 let atomicBasicEngine = null;
@@ -93,7 +95,7 @@ const registerJsApi = (u11, v11, w11, x11, y11) => {
     ATOMIC_SERVICE_JS_API_MAP.set(u11, new JsApiConfig(v11, w11, x11, y11));
 };
 const MAX_VERSION = '99.99.99';
-const ATOMIC_SERVICE_JS_SDK_CURRENT_VERSION = '1.0.0';
+const ATOMIC_SERVICE_JS_SDK_CURRENT_VERSION = '1.0.1';
 const PERMISSION_APPROXIMATELY_LOCATION = 'ohos.permission.APPROXIMATELY_LOCATION';
 const TEL_PROTOCOL = 'tel:';
 const MAILTO_PROTOCOL = 'mailto:';
@@ -121,7 +123,9 @@ const UPLOAD_FILE_ERROR = new AsError(200013, 'Upload file error.');
 const IMAGE_CAN_NOT_PREVIEW_ERROR = new AsError(200014, 'The filePath can not preview.');
 const NETWORK_NO_ACTIVE_ERROR = new AsError(200015, 'The network is not active.');
 const PERMISSION_LOCATION_USER_REFUSED_ERROR = 200016;
-
+const LOGIN_STATE_INVALID_ERROR = new AsError(200017, 'Login state is invalid.');
+const LOGIN_RESPONSE_DATA_NULL_ERROR = new AsError(200018, 'Response data is null.');
+const REQUEST_PAYMENT_ORDER_STR_INVALID_ERROR = new AsError(200019, 'orderStr is not type string.');
 registerJsApi('router.pushUrl', 'pushUrl', '1.0.0', MAX_VERSION, ['url']);
 registerJsApi('router.replaceUrl', 'replaceUrl', '1.0.0', MAX_VERSION, ['url']);
 registerJsApi('router.back', 'backUrl', '1.0.0', MAX_VERSION, []);
@@ -140,6 +144,8 @@ registerJsApi('request.uploadFile', 'uploadFile', '1.0.0', MAX_VERSION, ['url', 
 registerJsApi('request.downloadFile', 'downloadFile', '1.0.0', MAX_VERSION, ['url']);
 registerJsApi('connection.getNetworkType', 'getNetworkType', '1.0.0', MAX_VERSION, []);
 registerJsApi('location.getLocation', 'getLocation', '1.0.0', MAX_VERSION, []);
+registerJsApi('account.login', 'login', '1.0.1', MAX_VERSION, []);
+registerJsApi('payment.requestPayment', 'requestPayment', '1.0.1', MAX_VERSION, ['orderStr']);
 
 export class AtomicServiceWeb extends ViewPU {
     constructor(s10, t10, u10, v10 = -1, w10 = undefined, x10) {
@@ -1319,6 +1325,39 @@ class AtomicServiceApi extends AtomicService {
             });
         });
     }
+
+    login(c2) {
+        let d2 = new authentication.HuaweiIDProvider().createLoginWithHuaweiIDRequest();
+        d2.forceLogin = false;
+        d2.state = util.generateRandomUUID();
+        let e2 = new authentication.AuthenticationController();
+        e2.executeRequest(d2).then((g2) => {
+            if (!g2 || !g2.data) {
+                this.errorWithCodeAndMsg(LOGIN_RESPONSE_DATA_NULL_ERROR, c2);
+                return;
+            }
+            if (d2.state !== g2.state) {
+                this.errorWithCodeAndMsg(LOGIN_STATE_INVALID_ERROR, c2);
+                return;
+            }
+            this.success(new LoginResult(g2.data.openID, g2.data.unionID, g2.data.authorizationCode, g2.data.idToken),
+                c2);
+        }).catch((f2) => {
+            this.error(f2, c2);
+        });
+    }
+
+    requestPayment(a2) {
+        if (typeof a2.orderStr !== 'string') {
+            this.errorWithCodeAndMsg(REQUEST_PAYMENT_ORDER_STR_INVALID_ERROR, a2);
+            return;
+        }
+        paymentService.requestPayment(this.context, a2.orderStr).then(() => {
+            this.success(new RequestPaymentResult(), a2);
+        }).catch((b2) => {
+            this.error(b2, a2);
+        });
+    }
 }
 
 class NavPathInfo {
@@ -1552,6 +1591,24 @@ class GetLocationResult {
         this.additions = i;
         this.additionSize = j;
     }
+}
+
+class LoginOptions extends BaseOptions {
+}
+
+class LoginResult {
+    constructor(a, b, c, d) {
+        this.code = c;
+        this.idToken = d;
+        this.openID = a;
+        this.unionID = b;
+    }
+}
+
+class RequestPaymentOptions extends BaseOptions {
+}
+
+class RequestPaymentResult {
 }
 
 export default {
