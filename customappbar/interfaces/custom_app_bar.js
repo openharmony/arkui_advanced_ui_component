@@ -70,6 +70,7 @@ const EVENT_NAME_CUSTOM_APP_BAR_DID_BUILD = 'arkui_custom_app_bar_did_build';
 const EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL = 'arkui_custom_app_bar_create_service_panel';
 const ARKUI_APP_BAR_SERVICE_PANEL = 'arkui_app_bar_service_panel';
 const ARKUI_APP_BAR_CLOSE = 'arkui_app_bar_close';
+const ARKUI_APP_BAR_PROVIDE_SERVICE = 'arkui_app_bar_provide_service';
 
 /**
  * 适配不同颜色模式集合
@@ -137,10 +138,11 @@ export class CustomAppBar extends ViewPU {
         this.__breakPoint = new ObservedPropertySimplePU(BreakPointsType.NONE, this, 'breakPoint');
         this.__serviceMenuRead = new ObservedPropertySimplePU(this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL), this, 'serviceMenuRead');
         this.__closeRead = new ObservedPropertySimplePU(this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE), this, 'closeRead');
+        this.__provideService = new ObservedPropertySimplePU('', this, 'provideService');
+        this.__labelName = new ObservedPropertySimplePU('', this, 'labelName');
         this.isHalfToFullScreen = false;
         this.isDark = true;
         this.bundleName = '';
-        this.labelName = '';
         this.icon = { 'id': -1, 'type': 20000, params: ['sys.media.ohos_app_icon'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
         this.fullContentMarginTop = 0;
         this.windowWidth = 0;
@@ -244,6 +246,9 @@ export class CustomAppBar extends ViewPU {
         if (params.closeRead !== undefined) {
             this.closeRead = params.closeRead;
         }
+        if (params.provideService !== undefined) {
+            this.provideService = params.provideService;
+        }
         if (params.isHalfToFullScreen !== undefined) {
             this.isHalfToFullScreen = params.isHalfToFullScreen;
         }
@@ -314,6 +319,8 @@ export class CustomAppBar extends ViewPU {
         this.__breakPoint.purgeDependencyOnElmtId(rmElmtId);
         this.__serviceMenuRead.purgeDependencyOnElmtId(rmElmtId);
         this.__closeRead.purgeDependencyOnElmtId(rmElmtId);
+        this.__provideService.purgeDependencyOnElmtId(rmElmtId);
+        this.__labelName.purgeDependencyOnElmtId(rmElmtId);
     }
     aboutToBeDeleted() {
         this.__menuResource.aboutToBeDeleted();
@@ -346,6 +353,8 @@ export class CustomAppBar extends ViewPU {
         this.__breakPoint.aboutToBeDeleted();
         this.__serviceMenuRead.aboutToBeDeleted();
         this.__closeRead.aboutToBeDeleted();
+        this.__provideService.aboutToBeDeleted();
+        this.__labelName.aboutToBeDeleted();
         SubscriberManager.Get().delete(this.id__());
         this.aboutToBeDeletedInternal();
     }
@@ -529,10 +538,23 @@ export class CustomAppBar extends ViewPU {
     set closeRead(newValue) {
         this.__closeRead.set(newValue);
     }
+    get provideService() {
+        return this.__provideService.get();
+    }
+    set provideService(newValue) {
+        this.__provideService.set(newValue);
+    }
+    get labelName() {
+        return this.__labelName.get();
+    }
+    set labelName(newValue) {
+        this.__labelName.set(newValue);
+    }
     aboutToAppear() {
         if (this.isHalfScreen) {
             this.contentBgColor = Color.Transparent;
             this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
+            this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE);
             this.halfScreenShowAnimation();
         }
         else {
@@ -655,6 +677,7 @@ export class CustomAppBar extends ViewPU {
             }
             this.bundleName = splitArray[0];
             this.labelName = splitArray[1];
+            this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE);
         }
         else if (eventName === ARKUI_APP_BAR_SCREEN) {
             this.isHalfScreen = this.parseBoolean(param);
@@ -975,7 +998,7 @@ export class CustomAppBar extends ViewPU {
         }, Text);
         Text.pop();
         this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Text.create('提供服务');
+            Text.create(this.provideService);
             Text.fontSize(TITLE_FONT_SIZE);
             Text.lineHeight(TITLE_LINE_HEIGHT);
             Text.fontColor('#FFFFFF');
