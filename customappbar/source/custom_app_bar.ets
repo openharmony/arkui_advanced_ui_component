@@ -63,6 +63,7 @@ const ARKUI_APP_BAR_SCREEN: string = 'arkui_app_bar_screen';
 const ARKUI_APP_BG_COLOR: string = 'arkui_app_bg_color';
 const ARKUI_APP_BAR_SERVICE_PANEL: string = 'arkui_app_bar_service_panel';
 const ARKUI_APP_BAR_CLOSE: string = 'arkui_app_bar_close';
+const ARKUI_APP_BAR_PROVIDE_SERVICE: string = 'arkui_app_bar_provide_service';
 const EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK = 'arkui_custom_app_bar_menu_click';
 const EVENT_NAME_CUSTOM_APP_BAR_CLOSE_CLICK = 'arkui_custom_app_bar_close_click';
 const EVENT_NAME_CUSTOM_APP_BAR_DID_BUILD = 'arkui_custom_app_bar_did_build';
@@ -149,10 +150,11 @@ export struct CustomAppBar {
   @State @Watch('onBreakPointChange') breakPoint: BreakPointsType = BreakPointsType.NONE;
   @State serviceMenuRead: string = this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL);
   @State closeRead: string = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
+  @State provideService: string = '';
   private isHalfToFullScreen: boolean = false;
   private isDark: boolean = true;
   private bundleName: string = '';
-  private labelName: string = '';
+  @State labelName: string = '';
   private icon: Resource | string | PixelMap = $r('sys.media.ohos_app_icon');
   private fullContentMarginTop: number = 0;
   private windowWidth: number = 0;
@@ -166,6 +168,7 @@ export struct CustomAppBar {
     if (this.isHalfScreen) {
       this.contentBgColor = Color.Transparent;
       this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
+      this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE);
       this.halfScreenShowAnimation();
     } else {
       this.containerHeight = '100%';
@@ -290,6 +293,8 @@ export struct CustomAppBar {
       }
       this.bundleName = splitArray[0];
       this.labelName = splitArray[1];
+      this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE);
+      
     } else if (eventName === ARKUI_APP_BAR_SCREEN) {
       this.isHalfScreen = this.parseBoolean(param);
       this.initBreakPointListener();
@@ -548,7 +553,7 @@ export struct CustomAppBar {
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
             .ellipsisMode(EllipsisMode.END)
-          Text('提供服务')
+          Text(this.provideService)
             .fontSize(TITLE_FONT_SIZE)
             .lineHeight(TITLE_LINE_HEIGHT)
             .fontColor('#FFFFFF')
