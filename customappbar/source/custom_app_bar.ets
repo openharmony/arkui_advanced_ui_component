@@ -68,6 +68,7 @@ const EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK = 'arkui_custom_app_bar_menu_click';
 const EVENT_NAME_CUSTOM_APP_BAR_CLOSE_CLICK = 'arkui_custom_app_bar_close_click';
 const EVENT_NAME_CUSTOM_APP_BAR_DID_BUILD = 'arkui_custom_app_bar_did_build';
 const EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL = 'arkui_custom_app_bar_create_service_panel';
+const ARKUI_APP_BAR_MAXIMIZE: string = 'arkui_app_bar_maximize';
 
 /**
  * 适配不同颜色模式集合
@@ -150,6 +151,7 @@ export struct CustomAppBar {
   @State @Watch('onBreakPointChange') breakPoint: BreakPointsType = BreakPointsType.NONE;
   @State serviceMenuRead: string = this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL);
   @State closeRead: string = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
+  @State maximizeRead: string = this.getStringByResourceToken(ARKUI_APP_BAR_MAXIMIZE);
   @State provideService: string = '';
   private isHalfToFullScreen: boolean = false;
   private isDark: boolean = true;
@@ -168,12 +170,12 @@ export struct CustomAppBar {
     if (this.isHalfScreen) {
       this.contentBgColor = Color.Transparent;
       this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
-      this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE);
       this.halfScreenShowAnimation();
     } else {
       this.containerHeight = '100%';
       this.containerWidth = '100%';
     }
+    this.updateStringByResource();
     this.getDeviceRadiusConfig();
   }
 
@@ -257,6 +259,15 @@ export struct CustomAppBar {
     return '';
   }
 
+  updateStringByResource(): void {
+    if (this.isHalfScreen) {
+      this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE);
+      this.maximizeRead = this.getStringByResourceToken(ARKUI_APP_BAR_MAXIMIZE);
+    }
+    this.closeRead = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
+    this.serviceMenuRead = this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL);
+  }
+
   /**
    * atomicservice侧的事件变化回调
    * @param eventName 事件名称
@@ -293,8 +304,7 @@ export struct CustomAppBar {
       }
       this.bundleName = splitArray[0];
       this.labelName = splitArray[1];
-      this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE);
-      
+      this.updateStringByResource();
     } else if (eventName === ARKUI_APP_BAR_SCREEN) {
       this.isHalfScreen = this.parseBoolean(param);
       this.initBreakPointListener();
@@ -477,9 +487,6 @@ export struct CustomAppBar {
         .width(BUTTON_SIZE)
         .height(VIEW_HEIGHT)
         .accessibilityText(this.serviceMenuRead)
-        .onAccessibilityHover(() => {
-          this.serviceMenuRead = this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL);
-        })
         .gesture(TapGesture().onAction(() => {
           this.onMenuButtonClick();
         }))
@@ -508,9 +515,6 @@ export struct CustomAppBar {
         .width(BUTTON_SIZE)
         .height(VIEW_HEIGHT)
         .accessibilityText(this.closeRead)
-        .onAccessibilityHover(() => {
-          this.closeRead = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
-        })
         .gesture(TapGesture().onAction(() => {
           this.closeContainerAnimation();
         }))
@@ -611,7 +615,7 @@ export struct CustomAppBar {
           .onClick(() => {
             this.expendContainerAnimation();
           })
-
+          .accessibilityText(this.maximizeRead)
           Button({ type: ButtonType.Circle }) {
             SymbolGlyph($r('sys.symbol.xmark'))
               .fontSize(BUTTON_IMAGE_SIZE)
@@ -627,6 +631,7 @@ export struct CustomAppBar {
           .onClick(() => {
             this.closeContainerAnimation();
           })
+          .accessibilityText(this.closeRead)
         }
         .geometryTransition('menubar')
         .justifyContent(FlexAlign.End)
