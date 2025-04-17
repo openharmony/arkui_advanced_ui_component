@@ -71,6 +71,7 @@ const EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL = 'arkui_custom_app_bar_cre
 const ARKUI_APP_BAR_SERVICE_PANEL = 'arkui_app_bar_service_panel';
 const ARKUI_APP_BAR_CLOSE = 'arkui_app_bar_close';
 const ARKUI_APP_BAR_PROVIDE_SERVICE = 'arkui_app_bar_provide_service';
+const ARKUI_APP_BAR_MAXIMIZE = 'arkui_app_bar_maximize';
 
 /**
  * 适配不同颜色模式集合
@@ -138,6 +139,7 @@ export class CustomAppBar extends ViewPU {
         this.__breakPoint = new ObservedPropertySimplePU(BreakPointsType.NONE, this, 'breakPoint');
         this.__serviceMenuRead = new ObservedPropertySimplePU(this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL), this, 'serviceMenuRead');
         this.__closeRead = new ObservedPropertySimplePU(this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE), this, 'closeRead');
+        this.__maximizeRead = new ObservedPropertySimplePU(this.getStringByResourceToken(ARKUI_APP_BAR_MAXIMIZE), this, 'maximizeRead');
         this.__provideService = new ObservedPropertySimplePU('', this, 'provideService');
         this.__labelName = new ObservedPropertySimplePU('', this, 'labelName');
         this.isHalfToFullScreen = false;
@@ -246,6 +248,9 @@ export class CustomAppBar extends ViewPU {
         if (params.closeRead !== undefined) {
             this.closeRead = params.closeRead;
         }
+        if (params.maximizeRead !== undefined) {
+            this.maximizeRead = params.maximizeRead;
+        }
         if (params.provideService !== undefined) {
             this.provideService = params.provideService;
         }
@@ -319,6 +324,7 @@ export class CustomAppBar extends ViewPU {
         this.__breakPoint.purgeDependencyOnElmtId(rmElmtId);
         this.__serviceMenuRead.purgeDependencyOnElmtId(rmElmtId);
         this.__closeRead.purgeDependencyOnElmtId(rmElmtId);
+        this.__maximizeRead.purgeDependencyOnElmtId(rmElmtId);
         this.__provideService.purgeDependencyOnElmtId(rmElmtId);
         this.__labelName.purgeDependencyOnElmtId(rmElmtId);
     }
@@ -353,6 +359,7 @@ export class CustomAppBar extends ViewPU {
         this.__breakPoint.aboutToBeDeleted();
         this.__serviceMenuRead.aboutToBeDeleted();
         this.__closeRead.aboutToBeDeleted();
+        this.__maximizeRead.aboutToBeDeleted();
         this.__provideService.aboutToBeDeleted();
         this.__labelName.aboutToBeDeleted();
         SubscriberManager.Get().delete(this.id__());
@@ -538,6 +545,12 @@ export class CustomAppBar extends ViewPU {
     set closeRead(newValue) {
         this.__closeRead.set(newValue);
     }
+    get maximizeRead() {
+        return this.__maximizeRead.get();
+    }
+    set maximizeRead(newValue) {
+        this.__maximizeRead.set(newValue);
+    }
     get provideService() {
         return this.__provideService.get();
     }
@@ -561,6 +574,7 @@ export class CustomAppBar extends ViewPU {
             this.containerHeight = '100%';
             this.containerWidth = '100%';
         }
+        this.updateStringByResource();
         this.getDeviceRadiusConfig();
     }
     aboutToDisappear() {
@@ -638,6 +652,14 @@ export class CustomAppBar extends ViewPU {
         }
         return '';
     }
+    updateStringByResource() {
+        if (this.isHalfScreen) {
+          this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE);
+          this.maximizeRead = this.getStringByResourceToken(ARKUI_APP_BAR_MAXIMIZE);
+        }
+        this.closeRead = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
+        this.serviceMenuRead = this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL);
+      }
     /**
      * atomicservice侧的事件变化回调
      * @param eventName 事件名称
@@ -677,7 +699,7 @@ export class CustomAppBar extends ViewPU {
             }
             this.bundleName = splitArray[0];
             this.labelName = splitArray[1];
-            this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE);
+            this.updateStringByResource();
         }
         else if (eventName === ARKUI_APP_BAR_SCREEN) {
             this.isHalfScreen = this.parseBoolean(param);
@@ -879,9 +901,6 @@ export class CustomAppBar extends ViewPU {
             Button.width(BUTTON_SIZE);
             Button.height(VIEW_HEIGHT);
             Button.accessibilityText(this.serviceMenuRead);
-            Button.onAccessibilityHover(() => {
-                this.serviceMenuRead = this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL);
-            });
             Gesture.create(GesturePriority.Low);
             TapGesture.create();
             TapGesture.onAction(() => {
@@ -918,9 +937,6 @@ export class CustomAppBar extends ViewPU {
             Button.width(BUTTON_SIZE);
             Button.height(VIEW_HEIGHT);
             Button.accessibilityText(this.closeRead);
-            Button.onAccessibilityHover(() => {
-                this.closeRead = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
-            });
             Gesture.create(GesturePriority.Low);
             TapGesture.create();
             TapGesture.onAction(() => {
@@ -1053,6 +1069,7 @@ export class CustomAppBar extends ViewPU {
             Button.onClick(() => {
                 this.expendContainerAnimation();
             });
+            Button.accessibilityText(this.maximizeRead);
         }, Button);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             SymbolGlyph.create({ 'id': -1, 'type': 40000, params: ['sys.symbol.arrow_up_left_and_arrow_down_right'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
@@ -1072,6 +1089,7 @@ export class CustomAppBar extends ViewPU {
             Button.onClick(() => {
                 this.closeContainerAnimation();
             });
+            Button.accessibilityText(this.closeRead);
         }, Button);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             SymbolGlyph.create({ 'id': -1, 'type': 40000, params: ['sys.symbol.xmark'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
