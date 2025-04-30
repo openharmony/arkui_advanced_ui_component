@@ -33,6 +33,7 @@ import { BusinessError } from '@ohos.base';
 import { call } from '@kit.TelephonyKit';
 import { authentication } from '@kit.AccountKit';
 import { paymentService } from '@kit.PaymentKit';
+import { hiAppEvent } from '@kit.PerformanceAnalysisKit';
 
 let atomicBasicEngine: ESObject | null = null;
 
@@ -121,6 +122,9 @@ const PERMISSION_LOCATION_USER_REFUSED_ERROR: number = 200016;
 const LOGIN_STATE_INVALID_ERROR: AsError = new AsError(200017, 'Login state is invalid.');
 const LOGIN_RESPONSE_DATA_NULL_ERROR: AsError = new AsError(200018, 'Response data is null.');
 const REQUEST_PAYMENT_ORDER_STR_INVALID_ERROR: AsError = new AsError(200019, 'orderStr is not type string.');
+const NEED_REPORTED_API_LIST: string[] =
+  ['has.cameraPicker.pick', 'has.photoViewPicker.select', 'has.filePreview.openPreview', 'has.request.uploadFile', 'has.request.downloadFile',
+    'has.connection.getNetworkType', 'has.location.getLocation'];
 
 registerJsApi('router.pushUrl', 'pushUrl', '1.0.0', MAX_VERSION, ['url']);
 registerJsApi('router.replaceUrl', 'replaceUrl', '1.0.0', MAX_VERSION, ['url']);
@@ -190,6 +194,7 @@ export struct AtomicServiceWeb {
     }
 
     this.initDomainCheckLog();
+    HiAnalyticsUtil.reportComponentEvent();
   }
 
   aboutToDisappear(): void {
@@ -615,7 +620,11 @@ class AtomicServiceProxy {
 
   invokeJsApi<T>(apiNameAlias: string, options: BaseOptions<T>): void {
     try {
+      this.atomicService.reportBeginEvent(apiNameAlias);
       options = options || {};
+      if (options instanceof Object) {
+        options.apiNameAlias = apiNameAlias;
+      }
       if (!apiNameAlias || !ATOMIC_SERVICE_JS_API_MAP.has(apiNameAlias)) {
         this.atomicService.errorWithCodeAndMsg(JS_API_INVALID_INVOKE_ERROR, options);
         return;
@@ -647,6 +656,7 @@ class AtomicService {
   }
 
   success<T>(res: T, options: BaseOptions<T>): void {
+    this.reportSuccessEvent(options.apiNameAlias);
     try {
       options?.callback && options?.callback(undefined, res);
     } catch (err) {
@@ -655,6 +665,7 @@ class AtomicService {
   }
 
   error<T>(err: BusinessError, options: BaseOptions<T>,): void {
+    this.reportFailEvent(options.apiNameAlias, err.code);
     try {
       options?.callback && options?.callback(new AsError(err.code ? err.code : SYSTEM_INTERNAL_ERROR.code,
         err.message ? err.message : SYSTEM_INTERNAL_ERROR.message));
@@ -664,6 +675,7 @@ class AtomicService {
   }
 
   errorWithCodeAndMsg<T>(error: AsError, options: BaseOptions<T>): void {
+    this.reportFailEvent(options.apiNameAlias, error.code);
     try {
       options?.callback && options?.callback(error);
     } catch (err) {
@@ -971,6 +983,53 @@ class AtomicService {
     }).catch((err: BusinessError) => {
       grantCallback(err);
     });
+  }
+
+  /**
+   * 判断是否需要打点
+   *
+   * @param apiNameAlias 接口别名
+   * @return 是否需要打点
+   */
+  public isNeedReport(apiName: string): boolean {
+    return NEED_REPORTED_API_LIST.includes(apiName);
+  }
+
+  /**
+   * 上报Api调用开始的打点
+   *
+   * @param apiNameAlias 接口别名
+   */
+  public reportBeginEvent(apiNameAlias?: string): void {
+    const apiName: string = `has.${apiNameAlias}`;
+    if (this.isNeedReport(apiName)) {
+      HiAnalyticsUtil.reportApiEvent(apiName, ActionState.BEGIN);
+    }
+  }
+
+  /**
+   * 上报Api调用成功的打点
+   *
+   * @param apiNameAlias 接口别名
+   */
+  public reportSuccessEvent(apiNameAlias?: string): void {
+    const apiName: string = `has.${apiNameAlias}`;
+    if (this.isNeedReport(apiName)) {
+      HiAnalyticsUtil.reportApiEvent(apiName, ActionState.SUCCESS);
+    }
+  }
+
+  /**
+   * 上报Api调用失败的打点
+   *
+   * @param apiNameAlias 接口别名
+   * @param errCode 错误码
+   */
+  public reportFailEvent(apiNameAlias?: string, errCode?: number): void {
+    const apiName: string = `has.${apiNameAlias}`;
+    if (this.isNeedReport(apiName)) {
+      HiAnalyticsUtil.reportApiEvent(apiName, ActionState.FAIL, errCode);
+    }
   }
 }
 
@@ -1321,6 +1380,7 @@ class CheckUploadFileResult {
 
 class BaseOptions<T> {
   public callback?: (err: AsError | undefined, res?: T) => void;
+  public apiNameAlias?: string;
 }
 
 class PushUrlOptions extends BaseOptions<PushUrlResult> {
@@ -1697,4 +1757,146 @@ class RequestPaymentOptions extends BaseOptions<RequestPaymentResult> {
  * requestPayment接口结果
  */
 class RequestPaymentResult {
+}
+
+/**
+ * 大数据打点工具类
+ */
+class HiAnalyticsUtil {
+  private static appIdentifier?: string;
+  private static runningMode?: string;
+  private static processorId: number | undefined = undefined;
+  /**
+   * 打点数据上报
+   *
+   * @param time 时间戳
+   * @param content 打点参数json字符串
+   */
+  private static writeEndEvent(time: number, content: string): void {
+    console.info(`writeEndEvent ->  time: ${time} ,content: ${content} `);
+    let event: hiAppEvent.AppEventInfo = {
+      domain: 'api_diagnostic',
+      name: 'api_exec_end',
+      params: {
+        api_name: 'ascf',
+        sdk_name: 'atomicservice_web',
+        begin_time: time,
+        // 调用次数
+        call_times: 3,
+        // 调用成功次数
+        success_times: 1,
+        contents: content
+      },
+      eventType: hiAppEvent.EventType.BEHAVIOR
+    };
+    hiAppEvent.write(event);
+  }
+
+  /**
+   * 应用的唯一标识
+   */
+  private static initAnalytics(): void {
+    if (!HiAnalyticsUtil.processorId) {
+      HiAnalyticsUtil.addEventProcessor();
+    }
+    if (HiAnalyticsUtil.appIdentifier && HiAnalyticsUtil.runningMode) {
+      return;
+    }
+    let bundleInfo: bundleManager.BundleInfo =
+      bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO |
+      bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+    HiAnalyticsUtil.appIdentifier = bundleInfo.signatureInfo.appIdentifier;
+    HiAnalyticsUtil.runningMode = bundleInfo.appInfo.appProvisionType;
+  }
+
+
+  /**
+   * 添加处理者
+   */
+  private static addEventProcessor(): number {
+    let processor: hiAppEvent.Processor = {
+      name: 'ha_app_event',
+      appId: 'com_huawei_hmos_sdk_ocg',
+      routeInfo: 'AUTO',
+      eventConfigs: [
+        {
+          domain: 'api_diagnostic',
+          name: 'api_exec_end',
+          isRealTime: false
+        },
+        {
+          domain: 'api_diagnostic',
+          name: 'api_called_stat',
+          isRealTime: true
+        },
+        {
+          domain: 'api_diagnostic',
+          name: 'api_called_stat_cnt',
+          isRealTime: true
+        },
+      ],
+      periodReport: 90,
+      batchReport: 30
+    };
+    return hiAppEvent.addProcessor(processor);
+  }
+
+  /**
+   * asweb jssdk API数据打点业务处理
+   *
+   * @param apiName 接口名
+   * @param actionState 接口调用状态
+   * @param errorNumber 错误码
+   */
+  public static reportApiEvent(apiName: string, actionState: string, errorNumber?: number): void {
+    try {
+      if (!apiName || !actionState) {
+        return;
+      }
+      HiAnalyticsUtil.initAnalytics();
+      const ascfAction: string = 'APICaller_' + apiName;
+      const content: string = JSON.stringify({
+        appIdentify: HiAnalyticsUtil.appIdentifier, // 获取元服务appid
+        ascfVersionName: deviceInfo.displayVersion,  // rom版本号
+        runningMode: HiAnalyticsUtil.runningMode,
+        ascfAction,
+        caller: 'ASWeb',
+        actionState,
+        errorNumber
+      });
+      HiAnalyticsUtil.writeEndEvent(new Date().getTime(), content);
+    } catch (err) {
+      console.error(`reportApiEvent -> reportApiEvent error, message: ${err.message}`);
+    }
+  }
+  /**
+   * asweb 组件创建打点
+   *
+   * @param apiName 接口名
+   * @param actionState 接口调用状态
+   * @param errorNumber 错误码
+   */
+  public static reportComponentEvent(): void {
+    try {
+      HiAnalyticsUtil.initAnalytics();
+      const content: string = JSON.stringify({
+        appIdentify: HiAnalyticsUtil.appIdentifier, // 获取元服务appid
+        ascfVersionName: deviceInfo.displayVersion,  // rom版本号
+        runningMode: HiAnalyticsUtil.runningMode,
+        caller: 'ASWeb',
+      });
+      HiAnalyticsUtil.writeEndEvent(new Date().getTime(), content);
+    } catch (err) {
+      console.error(`reportComponentEvent -> reportComponentEvent error, message: ${err.message}`);
+    }
+  }
+}
+
+/**
+ * 数据打点的接口状态
+ */
+enum ActionState {
+  BEGIN = 'begin',
+  SUCCESS = 'success',
+  FAIL = 'fail'
 }

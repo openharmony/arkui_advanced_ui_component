@@ -51,6 +51,7 @@ const call = requireNapi('telephony.call');
 const authentication = globalThis.requireNapi('core.authentication', false, '', 'hms');
 const paymentService = globalThis.requireNapi('core.payment.paymentService', false, '', 'hms');
 const atomicServiceWebNapi = requireInternal('atomicservice.AtomicServiceWeb');
+const hiAppEvent = globalThis.requireNapi('hiviewdfx.hiAppEvent');
 
 let atomicBasicEngine = null;
 
@@ -126,6 +127,8 @@ const PERMISSION_LOCATION_USER_REFUSED_ERROR = 200016;
 const LOGIN_STATE_INVALID_ERROR = new AsError(200017, 'Login state is invalid.');
 const LOGIN_RESPONSE_DATA_NULL_ERROR = new AsError(200018, 'Response data is null.');
 const REQUEST_PAYMENT_ORDER_STR_INVALID_ERROR = new AsError(200019, 'orderStr is not type string.');
+const NEED_REPORTED_API_LIST = ['has.cameraPicker.pick', 'has.photoViewPicker.select', 'has.filePreview.openPreview', 'has.request.uploadFile', 'has.request.downloadFile',
+    'has.connection.getNetworkType', 'has.location.getLocation'];
 registerJsApi('router.pushUrl', 'pushUrl', '1.0.0', MAX_VERSION, ['url']);
 registerJsApi('router.replaceUrl', 'replaceUrl', '1.0.0', MAX_VERSION, ['url']);
 registerJsApi('router.back', 'backUrl', '1.0.0', MAX_VERSION, []);
@@ -309,6 +312,7 @@ export class AtomicServiceWeb extends ViewPU {
             console.error(`AtomicServiceWeb set Web Debug Mode failed, code is ${d2.code}, message is ${d2.message}`);
         }
         this.initDomainCheckLog();
+        HiAnalyticsUtil.reportComponentEvent();
     }
 
     aboutToDisappear() {
@@ -694,22 +698,26 @@ class AtomicServiceProxy {
     constructor(z9) {
         this.atomicService = z9;
     }
-
-    invokeJsApi(u9, v9) {
+    invokeJsApi(apiNameAlias, options) {
         try {
-            v9 = v9 || {};
-            if (!u9 || !ATOMIC_SERVICE_JS_API_MAP.has(u9)) {
-                this.atomicService.errorWithCodeAndMsg(JS_API_INVALID_INVOKE_ERROR, v9);
+            this.atomicService.reportBeginEvent(apiNameAlias);
+            options = options || {};
+            if (options instanceof Object) {
+                options.apiNameAlias = apiNameAlias;
+            }
+            if (!apiNameAlias || !ATOMIC_SERVICE_JS_API_MAP.has(apiNameAlias)) {
+                this.atomicService.errorWithCodeAndMsg(JS_API_INVALID_INVOKE_ERROR, options);
                 return;
             }
-            let x9 = ATOMIC_SERVICE_JS_API_MAP.get(u9);
-            if (!this.atomicService.checkRequiredFieldInOptions(x9, v9)) {
+            let jsApiConfig = ATOMIC_SERVICE_JS_API_MAP.get(apiNameAlias);
+            if (!this.atomicService.checkRequiredFieldInOptions(jsApiConfig, options)) {
                 return;
             }
-            let y9 = this.atomicService;
-            y9[x9?.apiName](v9);
-        } catch (w9) {
-            this.atomicService.error(w9, v9);
+            let atomicService = this.atomicService;
+            atomicService[jsApiConfig?.apiName](options);
+        }
+        catch (err) {
+            this.atomicService.error(err, options);
         }
     }
 }
@@ -725,6 +733,7 @@ class AtomicService {
     }
 
     success(o9, p9) {
+        this.reportSuccessEvent(p9.apiNameAlias);
         try {
             p9?.callback && p9?.callback(undefined, o9);
         } catch (f3) {
@@ -733,6 +742,7 @@ class AtomicService {
     }
 
     error(m9, n9) {
+        this.reportFailEvent(n9.apiNameAlias, m9.code);
         try {
             n9?.callback && n9?.callback(new AsError(m9.code ? m9.code : SYSTEM_INTERNAL_ERROR.code,
                 m9.message ? m9.message : SYSTEM_INTERNAL_ERROR.message));
@@ -742,6 +752,7 @@ class AtomicService {
     }
 
     errorWithCodeAndMsg(k9, l9) {
+        this.reportFailEvent(l9.apiNameAlias, k9.code);
         try {
             l9?.callback && l9?.callback(k9);
         } catch (u2) {
@@ -1046,6 +1057,49 @@ class AtomicService {
         }).catch((n5) => {
             k5(n5);
         });
+    }
+    /**
+     * 判断是否需要打点
+     *
+     * @param apiNameAlias 接口别名
+     * @return 是否需要打点
+     */
+    isNeedReport(apiName) {
+        return NEED_REPORTED_API_LIST.includes(apiName);
+    }
+    /**
+     * 上报Api调用开始的打点
+     *
+     * @param apiNameAlias 接口别名
+     */
+    reportBeginEvent(apiNameAlias) {
+        const apiName = `has.${apiNameAlias}`;
+        if (this.isNeedReport(apiName)) {
+            HiAnalyticsUtil.reportApiEvent(apiName, ActionState.BEGIN);
+        }
+    }
+    /**
+     * 上报Api调用成功的打点
+     *
+     * @param apiNameAlias 接口别名
+     */
+    reportSuccessEvent(apiNameAlias) {
+        const apiName = `has.${apiNameAlias}`;
+        if (this.isNeedReport(apiName)) {
+            HiAnalyticsUtil.reportApiEvent(apiName, ActionState.SUCCESS);
+        }
+    }
+    /**
+     * 上报Api调用失败的打点
+     *
+     * @param apiNameAlias 接口别名
+     * @param errCode 错误码
+     */
+    reportFailEvent(apiNameAlias, errCode) {
+        const apiName = `has.${apiNameAlias}`;
+        if (this.isNeedReport(apiName)) {
+            HiAnalyticsUtil.reportApiEvent(apiName, ActionState.FAIL, errCode);
+        }
     }
 }
 
@@ -1611,6 +1665,139 @@ class RequestPaymentOptions extends BaseOptions {
 class RequestPaymentResult {
 }
 
+class HiAnalyticsUtil {
+    /**
+     * 打点数据上报
+     *
+     * @param time 时间戳
+     * @param content 打点参数json字符串
+     */
+    static writeEndEvent(time, content) {
+        console.info(`writeEndEvent ->  time: ${time} ,content: ${content} `);
+        let event = {
+            domain: 'api_diagnostic',
+            name: 'api_exec_end',
+            params: {
+                api_name: 'ascf',
+                sdk_name: 'atomicservice_web',
+                begin_time: time,
+                // 调用次数
+                call_times: 3,
+                // 调用成功次数
+                success_times: 1,
+                contents: content
+            },
+            eventType: hiAppEvent.EventType.BEHAVIOR
+        };
+        hiAppEvent.write(event);
+    }
+    /**
+     * 应用的唯一标识
+     */
+    static initAnalytics() {
+        if (!HiAnalyticsUtil.processorId) {
+            HiAnalyticsUtil.addEventProcessor();
+        }
+        if (HiAnalyticsUtil.appIdentifier && HiAnalyticsUtil.runningMode) {
+            return;
+        }
+        let bundleInfo = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO |
+            bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+        HiAnalyticsUtil.appIdentifier = bundleInfo.signatureInfo.appIdentifier;
+        HiAnalyticsUtil.runningMode = bundleInfo.appInfo.appProvisionType;
+    }
+    /**
+     * 添加处理者
+     */
+    static addEventProcessor() {
+        let processor = {
+            name: 'ha_app_event',
+            appId: 'com_huawei_hmos_sdk_ocg',
+            routeInfo: 'AUTO',
+            eventConfigs: [
+                {
+                    domain: 'api_diagnostic',
+                    name: 'api_exec_end',
+                    isRealTime: false
+                },
+                {
+                    domain: 'api_diagnostic',
+                    name: 'api_called_stat',
+                    isRealTime: true
+                },
+                {
+                    domain: 'api_diagnostic',
+                    name: 'api_called_stat_cnt',
+                    isRealTime: true
+                },
+            ],
+            periodReport: 90,
+            batchReport: 30
+        };
+        return hiAppEvent.addProcessor(processor);
+    }
+    /**
+     * asweb jssdk API数据打点业务处理
+     *
+     * @param apiName 接口名
+     * @param actionState 接口调用状态
+     * @param errorNumber 错误码
+     */
+    static reportApiEvent(apiName, actionState, errorNumber) {
+        try {
+            if (!apiName || !actionState) {
+                return;
+            }
+            HiAnalyticsUtil.initAnalytics();
+            const ascfAction = 'APICaller_' + apiName;
+            const content = JSON.stringify({
+                appIdentify: HiAnalyticsUtil.appIdentifier,
+                ascfVersionName: deviceInfo.displayVersion,
+                runningMode: HiAnalyticsUtil.runningMode,
+                ascfAction,
+                caller: 'ASWeb',
+                actionState,
+                errorNumber
+            });
+            HiAnalyticsUtil.writeEndEvent(new Date().getTime(), content);
+        }
+        catch (err) {
+            console.error(`reportApiEvent -> reportApiEvent error, message: ${err.message}`);
+        }
+    }
+    /**
+     * asweb 组件创建打点
+     *
+     * @param apiName 接口名
+     * @param actionState 接口调用状态
+     * @param errorNumber 错误码
+     */
+    static reportComponentEvent() {
+        try {
+            HiAnalyticsUtil.initAnalytics();
+            const content = JSON.stringify({
+                appIdentify: HiAnalyticsUtil.appIdentifier,
+                ascfVersionName: deviceInfo.displayVersion,
+                runningMode: HiAnalyticsUtil.runningMode,
+                caller: 'ASWeb',
+            });
+            HiAnalyticsUtil.writeEndEvent(new Date().getTime(), content);
+        }
+        catch (err) {
+            console.error(`reportComponentEvent -> reportComponentEvent error, message: ${err.message}`);
+        }
+    }
+}
+HiAnalyticsUtil.processorId = undefined;
+/**
+ * 数据打点的接口状态
+ */
+const ActionState = {
+    BEGIN: 'begin',
+    SUCCESS: 'success',
+    FAIL: 'fail'
+}
+//# sourceMappingURL=atomicserviceweb.js.map
 export default {
     AtomicServiceWeb,
     AtomicServiceWebController
