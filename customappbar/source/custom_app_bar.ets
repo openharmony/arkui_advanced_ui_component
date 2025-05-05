@@ -250,8 +250,11 @@ export struct CustomAppBar {
     return defaultColor;
   }
 
-  getStringByResourceToken(resName: string): string {
+  getStringByResourceToken(resName: string， value?: string): string {
     try {
+      if (value) {
+        return getContext(this).resourceManager.getStringByNameSync(resName, value);
+      }
         return getContext(this).resourceManager.getStringByNameSync(resName);
     } catch (err) {
         console.error(LOG_TAG, `getAccessibilityDescription, error: ${err.toString()}`);
@@ -261,7 +264,7 @@ export struct CustomAppBar {
 
   updateStringByResource(): void {
     if (this.isHalfScreen) {
-      this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE);
+      this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE, this.labelName);
       this.maximizeRead = this.getStringByResourceToken(ARKUI_APP_BAR_MAXIMIZE);
     }
     this.closeRead = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
@@ -523,7 +526,10 @@ export struct CustomAppBar {
       .borderWidth(BORDER_WIDTH)
       .borderColor(this.menubarBorderColor)
       .backgroundColor(this.menubarBackColor)
-      .backdropBlur(MENU_BACK_BLUR)
+      .backgroundEffect({
+        radius: MENU_BACK_BLUR,
+        color: this.menubarBackColor
+      })
       .height(VIEW_HEIGHT)
       .width(VIEW_WIDTH)
       .align(Alignment.Top)
@@ -548,7 +554,7 @@ export struct CustomAppBar {
             .margin({
               start: LengthMetrics.vp(CHEVRON_MARGIN)
             })
-          Text(this.labelName)
+          Text(this.provideService)
             .fontSize(TITLE_FONT_SIZE)
             .lineHeight(TITLE_LINE_HEIGHT)
             .fontWeight(FontWeight.Medium)
@@ -557,11 +563,6 @@ export struct CustomAppBar {
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
             .ellipsisMode(EllipsisMode.END)
-          Text(this.provideService)
-            .fontSize(TITLE_FONT_SIZE)
-            .lineHeight(TITLE_LINE_HEIGHT)
-            .fontColor('#FFFFFF')
-            .margin({ start: LengthMetrics.vp(TITLE_TEXT_MARGIN) })
           SymbolGlyph($r('sys.symbol.chevron_right'))
             .height(CHEVRON_HEIGHT)
             .width(CHEVRON_WIDTH)
