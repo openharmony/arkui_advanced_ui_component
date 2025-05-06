@@ -51,6 +51,7 @@ const TITLE_MARGIN_RIGHT: number = 12;
 const TITLE_MARGIN_TOP: number = 8;
 const TITLE_LABEL_MARGIN: number = 8.5;
 const TITLE_TEXT_MARGIN: number = 3;
+const TITLE_CONSTRAINT_SIZE: string = 'calc(100% - 73.5vp)';
 const MD_WIDTH: number = 480;
 const LG_WIDTH_LIMIT: number = 0.6;
 const LG_WIDTH_HEIGHT_RATIO: number = 1.95;
@@ -563,6 +564,7 @@ export struct CustomAppBar {
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
             .ellipsisMode(EllipsisMode.END)
+            .constraintSize({ maxWidth: TITLE_CONSTRAINT_SIZE })
           SymbolGlyph($r('sys.symbol.chevron_right'))
             .height(CHEVRON_HEIGHT)
             .width(CHEVRON_WIDTH)
@@ -686,7 +688,7 @@ export struct CustomAppBar {
             })
             .layoutWeight(1)
             .backgroundColor(Color.Transparent)
-            .backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
+            .backgroundBlurStyle(this.isHalfScreen ? BlurStyle.COMPONENT_ULTRA_THICK : undefined)
             .borderRadius({
               topLeft: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : this.deviceBorderRadius,
               topRight: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : this.deviceBorderRadius,
