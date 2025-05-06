@@ -55,6 +55,7 @@ const TITLE_MARGIN_RIGHT = 12;
 const TITLE_MARGIN_TOP = 8;
 const TITLE_LABEL_MARGIN = 8.5;
 const TITLE_TEXT_MARGIN = 3;
+const TITLE_CONSTRAINT_SIZE = 'calc(100% - 73.5vp)';
 const MD_WIDTH = 480;
 const LG_WIDTH_LIMIT = 0.6;
 const LG_WIDTH_HEIGHT_RATIO = 1.95;
@@ -1016,6 +1017,7 @@ export class CustomAppBar extends ViewPU {
             Text.maxLines(1);
             Text.textOverflow({ overflow: TextOverflow.Ellipsis });
             Text.ellipsisMode(EllipsisMode.END);
+            Text.constraintSize({ maxWidth: TITLE_CONSTRAINT_SIZE });
         }, Text);
         Text.pop();
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -1186,7 +1188,7 @@ export class CustomAppBar extends ViewPU {
             });
             Row.layoutWeight(1);
             Row.backgroundColor(Color.Transparent);
-            Row.backgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK);
+            Row.backgroundBlurStyle(this.isHalfScreen ? BlurStyle.COMPONENT_ULTRA_THICK : undefined);
             Row.borderRadius({
                 topLeft: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : this.deviceBorderRadius,
                 topRight: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : this.deviceBorderRadius,
