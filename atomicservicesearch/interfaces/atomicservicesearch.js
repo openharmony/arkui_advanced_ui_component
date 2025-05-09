@@ -450,6 +450,7 @@ export class AtomicServiceSearch extends ViewPU {
                         Image.fillColor(FUNCTION_ICON_COLOR);
                         Image.width(ICON_WIDTH_AND_HEIGTH);
                         Image.height(ICON_WIDTH_AND_HEIGTH);
+                        Image.draggable(false);
                     }, Image);
                     Row.pop();
                 });
@@ -494,6 +495,7 @@ export class AtomicServiceSearch extends ViewPU {
                         Image.fillColor(FUNCTION_ICON_COLOR);
                         Image.width(ICON_WIDTH_AND_HEIGTH);
                         Image.height(ICON_WIDTH_AND_HEIGTH);
+                        Image.draggable(false);
                     }, Image);
                     Row.pop();
                 });
