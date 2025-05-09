@@ -349,6 +349,7 @@ export struct AtomicServiceSearch {
           .fillColor(FUNCTION_ICON_COLOR)
           .width(ICON_WIDTH_AND_HEIGTH)
           .height(ICON_WIDTH_AND_HEIGTH)
+          .draggable(false)
       }
       .onClick(this.operation?.auxiliaryItem.action)
       .flexShrink(FLEX_SHRINK)
@@ -378,6 +379,7 @@ export struct AtomicServiceSearch {
           .fillColor(FUNCTION_ICON_COLOR)
           .width(ICON_WIDTH_AND_HEIGTH)
           .height(ICON_WIDTH_AND_HEIGTH)
+          .draggable(false)
       }
       .onClick(this.operation?.independentItem.action)
       .flexShrink(FLEX_SHRINK)
