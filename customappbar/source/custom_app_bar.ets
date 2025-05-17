@@ -160,8 +160,6 @@ export struct CustomAppBar {
   @State labelName: string = '';
   private icon: Resource | string | PixelMap = $r('sys.media.ohos_app_icon');
   private fullContentMarginTop: number = 0;
-  private windowWidth: number = 0;
-  private windowHeight: number = 0;
   private deviceBorderRadius: string = '0';
   private smListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(0vp<width) and (width<600vp)');
   private mdListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(600vp<=width) and (width<840vp)');
@@ -214,11 +212,6 @@ export struct CustomAppBar {
   }
 
   onBreakPointChange(): void {
-    if (this.windowWidth === 0) {
-      let displayData = display.getDefaultDisplaySync();
-      this.windowWidth = px2vp(displayData.width);
-      this.windowHeight = px2vp(displayData.height);
-    }
     if (menuMarginEndMap.has(this.breakPoint)) {
       this.menuMarginEnd = menuMarginEndMap.get(this.breakPoint) as number;
     }
@@ -228,8 +221,10 @@ export struct CustomAppBar {
       } else if (this.breakPoint === BreakPointsType.MD) {
         this.containerWidth = MD_WIDTH;
       } else if (this.breakPoint === BreakPointsType.LG) {
-        this.containerWidth =
-          this.windowWidth > this.windowHeight ? this.windowHeight * LG_WIDTH_LIMIT : this.windowWidth * LG_WIDTH_LIMIT;
+        let displayData = display.getDefaultDisplaySync();
+        let windowWidth = px2vp(displayData.width);
+        let windowHeight = px2vp(displayData.height);
+        this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
       }
     }
   }
