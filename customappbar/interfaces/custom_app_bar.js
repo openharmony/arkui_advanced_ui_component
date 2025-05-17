@@ -148,8 +148,6 @@ export class CustomAppBar extends ViewPU {
         this.bundleName = '';
         this.icon = { 'id': -1, 'type': 20000, params: ['sys.media.ohos_app_icon'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
         this.fullContentMarginTop = 0;
-        this.windowWidth = 0;
-        this.windowHeight = 0;
         this.deviceBorderRadius = '0';
         this.smListener = mediaquery.matchMediaSync('(0vp<width) and (width<600vp)');
         this.mdListener = mediaquery.matchMediaSync('(600vp<=width) and (width<840vp)');
@@ -272,12 +270,6 @@ export class CustomAppBar extends ViewPU {
         }
         if (params.fullContentMarginTop !== undefined) {
             this.fullContentMarginTop = params.fullContentMarginTop;
-        }
-        if (params.windowWidth !== undefined) {
-            this.windowWidth = params.windowWidth;
-        }
-        if (params.windowHeight !== undefined) {
-            this.windowHeight = params.windowHeight;
         }
         if (params.deviceBorderRadius !== undefined) {
             this.deviceBorderRadius = params.deviceBorderRadius;
@@ -608,11 +600,6 @@ export class CustomAppBar extends ViewPU {
         });
     }
     onBreakPointChange() {
-        if (this.windowWidth === 0) {
-            let displayData = display.getDefaultDisplaySync();
-            this.windowWidth = px2vp(displayData.width);
-            this.windowHeight = px2vp(displayData.height);
-        }
         if (menuMarginEndMap.has(this.breakPoint)) {
             this.menuMarginEnd = menuMarginEndMap.get(this.breakPoint);
         }
@@ -624,8 +611,10 @@ export class CustomAppBar extends ViewPU {
                 this.containerWidth = MD_WIDTH;
             }
             else if (this.breakPoint === BreakPointsType.LG) {
-                this.containerWidth =
-                    this.windowWidth > this.windowHeight ? this.windowHeight * LG_WIDTH_LIMIT : this.windowWidth * LG_WIDTH_LIMIT;
+                let displayData = display.getDefaultDisplaySync();
+                let windowWidth = px2vp(displayData.width);
+                let windowHeight = px2vp(displayData.height);
+                this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
             }
         }
     }
