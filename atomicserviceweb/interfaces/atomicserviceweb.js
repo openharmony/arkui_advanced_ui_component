@@ -128,7 +128,7 @@ const LOGIN_STATE_INVALID_ERROR = new AsError(200017, 'Login state is invalid.')
 const LOGIN_RESPONSE_DATA_NULL_ERROR = new AsError(200018, 'Response data is null.');
 const REQUEST_PAYMENT_ORDER_STR_INVALID_ERROR = new AsError(200019, 'orderStr is not type string.');
 const NEED_REPORTED_API_LIST = ['has.cameraPicker.pick', 'has.photoViewPicker.select', 'has.filePreview.openPreview', 'has.request.uploadFile', 'has.request.downloadFile',
-    'has.connection.getNetworkType', 'has.location.getLocation'];
+    'has.connection.getNetworkType', 'has.location.getLocation', 'has.account.login', 'has.payment.requestPayment'];
 registerJsApi('router.pushUrl', 'pushUrl', '1.0.0', MAX_VERSION, ['url']);
 registerJsApi('router.replaceUrl', 'replaceUrl', '1.0.0', MAX_VERSION, ['url']);
 registerJsApi('router.back', 'backUrl', '1.0.0', MAX_VERSION, []);
