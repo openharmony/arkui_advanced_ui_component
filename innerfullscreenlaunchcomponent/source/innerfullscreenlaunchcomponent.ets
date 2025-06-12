@@ -25,6 +25,7 @@ export class LaunchController {
 }
 
 const EMBEDDED_FULL_MODE: number = 1;
+const atomicServiceDataTag: string = 'ohos.atomicService.window';
 
 @Component
 export struct InnerFullScreenLaunchComponent {
@@ -42,6 +43,7 @@ export struct InnerFullScreenLaunchComponent {
     this.options = options;
     this.checkAbility();
   }
+  onReceive?: Callback<Record<string, Object>>;
 
   aboutToAppear() {
     let subscribeInfo: commonEventManager.CommonEventSubscribeInfo = {
@@ -141,6 +143,22 @@ export struct InnerFullScreenLaunchComponent {
     }
   }
 
+  private handleOnReceiveEvent(data: Object): void {
+    if (data === undefined || data === null) {
+      return;
+    }
+    if (this.onReceive !== undefined) {
+      const sourceKeys = Object.keys(data);
+      let atomicServiceData: Record<string, Object> = {};
+      for (let i = 0; i < sourceKeys.length; i++) {
+        if (sourceKeys[i].includes(atomicServiceDataTag)) {
+          atomicServiceData[sourceKeys[i]] = data[sourceKeys[i]];
+        }
+      }
+      this.onReceive(atomicServiceData);
+    }
+  }
+
   build() {
     Row() {
       this.content();
@@ -165,14 +183,18 @@ export struct InnerFullScreenLaunchComponent {
           hilog.error(0x3900, 'InnerFullScreenLaunchComponent', 'onRelease');
           this.isShow = false;
         }
-      ).onError(
-      err => {
-        this.isShow = false;
-        hilog.error(0x3900, 'InnerFullScreenLaunchComponent', 'call up UIExtension error! %{public}s', err.message);
-        this.getUIContext().showAlertDialog({
-          message: err.message
-        });
-      }
-    )
+      )
+      .onError(
+        err => {
+          this.isShow = false;
+          hilog.error(0x3900, 'InnerFullScreenLaunchComponent', 'call up UIExtension error! %{public}s', err.message);
+          this.getUIContext().showAlertDialog({
+            message: err.message
+          });
+        }
+      )
+      .onReceive(data => {
+        this.handleOnReceiveEvent(data);
+      })
   }
 }
