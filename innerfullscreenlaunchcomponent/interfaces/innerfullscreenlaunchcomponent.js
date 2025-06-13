@@ -19,6 +19,7 @@ if (!("finalizeConstruction" in ViewPU.prototype)) {
 const hilog = requireNapi('hilog');
 const abilityManager = requireNapi('app.ability.abilityManager');
 const commonEventManager = requireNapi('commonEventManager');
+const atomicServiceDataTag = 'ohos.atomicService.window';
 export class LaunchController {
     constructor() {
         this.launchAtomicService = (n1, o1) => { };
@@ -39,6 +40,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
         this.options = undefined;
         this.__isShow = new ObservedPropertySimplePU(false, this, "isShow");
         this.subscriber = null;
+        this.onReceive = undefined;
         this.launchAtomicService = (k1, l1) => {
             hilog.info(0x3900, 'InnerFullScreenLaunchComponent', 'launchAtomicService, appId: %{public}s.', k1);
             this.appId = k1;
@@ -72,6 +74,9 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
         }
         if (c1.launchAtomicService !== undefined) {
             this.launchAtomicService = c1.launchAtomicService;
+        }
+        if (c1.onReceive !== undefined) {
+            this.onReceive = c1.onReceive;
         }
     }
     updateStateVars(b1) {
@@ -177,6 +182,21 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             hilog.error(0x3900, 'InnerFullScreenLaunchComponent', '%{public}s open service error!', l.message);
         }
     }
+    handleOnReceiveEvent(data) {
+        if (data === undefined || data === null) {
+            return;
+        }
+        if (this.onReceive !== undefined) {
+            const sourceKeys = Object.keys(data);
+            let atomicServiceData = {};
+            for (let i = 0; i < sourceKeys.length; i++) {
+                if (sourceKeys[i].includes(atomicServiceDataTag)) {
+                atomicServiceData[sourceKeys[i]] = data[sourceKeys[i]];
+                }
+            }
+            this.onReceive(atomicServiceData);
+        }
+    }
     initialRender() {
         this.observeComponentCreation2((i, j) => {
             Row.create();
@@ -209,6 +229,9 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
                 this.getUIContext().showAlertDialog({
                     message: g.message
                 });
+            });
+            UIExtensionComponent.onReceive(data => {
+                this.handleOnReceiveEvent(data);
             });
         }, UIExtensionComponent);
     }

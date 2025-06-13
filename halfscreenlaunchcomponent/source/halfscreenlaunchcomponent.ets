@@ -21,6 +21,7 @@ import commonEventManager from '@ohos.commonEventManager';
 import Base from '@ohos.base';
 
 const EMBEDDED_HALF_MODE = 2;
+const atomicServiceDataTag: string = 'ohos.atomicService.window';
 @Component
 export struct HalfScreenLaunchComponent {
   @BuilderParam content: Callback<void> = this.doNothingBuilder;
@@ -31,6 +32,7 @@ export struct HalfScreenLaunchComponent {
   private subscriber: commonEventManager.CommonEventSubscriber | null = null;
   onError?: ErrorCallback;
   onTerminated?: Callback<TerminationInfo>;
+  onReceive?: Callback<Record<string, Object>>;
 
   aboutToAppear(): void {
     let subscribeInfo: commonEventManager.CommonEventSubscribeInfo = {
@@ -128,6 +130,22 @@ export struct HalfScreenLaunchComponent {
     }
   }
 
+  private handleOnReceiveEvent(data: Object): void {
+    if (data === undefined || data === null) {
+      return;
+    }
+    if (this.onReceive !== undefined) {
+      const sourceKeys = Object.keys(data);
+      let atomicServiceData: Record<string, Object> = {};
+      for (let i = 0; i < sourceKeys.length; i++) {
+        if (sourceKeys[i].includes(atomicServiceDataTag)) {
+          atomicServiceData[sourceKeys[i]] = data[sourceKeys[i]];
+        }
+      }
+      this.onReceive(atomicServiceData);
+    }
+  }
+
   build() {
     Row() {
       this.content();
@@ -171,6 +189,9 @@ export struct HalfScreenLaunchComponent {
         if (this.onTerminated) {
           this.onTerminated(info);
         }
+      })
+      .onReceive(data => {
+        this.handleOnReceiveEvent(data);
       })
   }
 }

@@ -20,6 +20,7 @@ const hilog = requireNapi('hilog');
 const abilityManager = requireNapi('app.ability.abilityManager');
 const commonEventManager = requireNapi('commonEventManager');
 const EMBEDDED_HALF_MODE = 2;
+const atomicServiceDataTag = 'ohos.atomicService.window';
 export class HalfScreenLaunchComponent extends ViewPU {
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
         super(parent, __localStorage, elmtId, extraInfo);
@@ -34,6 +35,7 @@ export class HalfScreenLaunchComponent extends ViewPU {
         this.subscriber = null;
         this.onError = undefined;
         this.onTerminated = undefined;
+        this.onReceive = undefined;
         this.setInitiallyProvidedValue(params);
         this.finalizeConstruction();
     }
@@ -61,6 +63,9 @@ export class HalfScreenLaunchComponent extends ViewPU {
         }
         if (params.onTerminated !== undefined) {
             this.onTerminated = params.onTerminated;
+        }
+        if (params.onReceive !== undefined) {
+            this.onReceive = params.onReceive;
         }
     }
     updateStateVars(params) {
@@ -165,6 +170,21 @@ export class HalfScreenLaunchComponent extends ViewPU {
             hilog.error(0x3900, 'HalfScreenLaunchComponent', '%{public}s open service error!', e.message);
         }
     }
+    handleOnReceiveEvent(data) {
+        if (data === undefined || data === null) {
+            return;
+        }
+        if (this.onReceive !== undefined) {
+            const sourceKeys = Object.keys(data);
+            let atomicServiceData = {};
+            for (let i = 0; i < sourceKeys.length; i++) {
+                if (sourceKeys[i].includes(atomicServiceDataTag)) {
+                atomicServiceData[sourceKeys[i]] = data[sourceKeys[i]];
+                }
+            }
+            this.onReceive(atomicServiceData);
+        }
+    }
     initialRender() {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Row.create();
@@ -208,6 +228,9 @@ export class HalfScreenLaunchComponent extends ViewPU {
                 if (this.onTerminated) {
                     this.onTerminated(info);
                 }
+            });
+            UIExtensionComponent.onReceive(data => {
+                this.handleOnReceiveEvent(data);
             });
         }, UIExtensionComponent);
     }
