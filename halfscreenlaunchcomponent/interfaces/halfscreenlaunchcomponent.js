@@ -21,6 +21,9 @@ const abilityManager = requireNapi('app.ability.abilityManager');
 const commonEventManager = requireNapi('commonEventManager');
 const EMBEDDED_HALF_MODE = 2;
 const atomicServiceDataTag = 'ohos.atomicService.window';
+const ERR_CODE_ABNORMAL = 100014;
+const ERR_CODE_CAPABILITY_NOT_SUPPORT = 801;
+const LOG_TAG = 'HalfScreenLaunchComponent';
 export class HalfScreenLaunchComponent extends ViewPU {
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
         super(parent, __localStorage, elmtId, extraInfo);
@@ -90,17 +93,17 @@ export class HalfScreenLaunchComponent extends ViewPU {
         };
         commonEventManager.createSubscriber(subscribeInfo, (err, data) => {
             if (err) {
-                hilog.error(0x3900, 'HalfScreenLaunchComponent', 'Failed to create subscriber, err: %{public}s.', JSON.stringify(err));
+                hilog.error(0x3900, LOG_TAG, 'Failed to create subscriber, err: %{public}s.', JSON.stringify(err));
                 return;
             }
             if (data === null || data === undefined) {
-                hilog.error(0x3900, 'HalfScreenLaunchComponent', 'Failed to create subscriber, data is null.');
+                hilog.error(0x3900, LOG_TAG, 'Failed to create subscriber, data is null.');
                 return;
             }
             this.subscriber = data;
             commonEventManager.subscribe(this.subscriber, (err, data) => {
                 if (err) {
-                    hilog.error(0x3900, 'HalfScreenLaunchComponent', 'Failed to subscribe common event, err: %{public}s.', JSON.stringify(err));
+                    hilog.error(0x3900, LOG_TAG, 'Failed to subscribe common event, err: %{public}s.', JSON.stringify(err));
                     return;
                 }
                 this.isShow = false;
@@ -111,10 +114,9 @@ export class HalfScreenLaunchComponent extends ViewPU {
         if (this.subscriber !== null) {
             commonEventManager.unsubscribe(this.subscriber, (err) => {
                 if (err) {
-                    hilog.error(0x3900, 'HalfScreenLaunchComponent', 'UnsubscribeCallBack, err: %{public}s.', JSON.stringify(err));
+                    hilog.error(0x3900, LOG_TAG, 'UnsubscribeCallBack, err: %{public}s.', JSON.stringify(err));
                 }
                 else {
-                    hilog.info(0x3900, 'HalfScreenLaunchComponent', 'Unsubscribe.');
                     this.subscriber = null;
                 }
             });
@@ -127,7 +129,7 @@ export class HalfScreenLaunchComponent extends ViewPU {
             this.options.parameters['ohos.extra.param.key.showMode'] = EMBEDDED_HALF_MODE;
             this.options.parameters['ability.want.params.IsNotifyOccupiedAreaChange'] = true;
             this.options.parameters['ability.want.params.IsModal'] = true;
-            hilog.info(0x3900, 'HalfScreenLaunchComponent', 'replaced options is %{public}s !', JSON.stringify(this.options));
+            hilog.info(0x3900, LOG_TAG, 'replaced options is %{public}s !', JSON.stringify(this.options));
         }
         else {
             this.options = {
@@ -140,34 +142,43 @@ export class HalfScreenLaunchComponent extends ViewPU {
         }
     }
     async checkAbility() {
+        if (this.isShow) {
+            hilog.error(0x3900, LOG_TAG, 'EmbeddedAbility already shows');
+            this.isShow = false;
+            return;
+        }
         this.resetOptions();
         try {
-            const res = await abilityManager.isEmbeddedOpenAllowed(this.context, this.appId);
-            if (res) {
-                if (this.isShow) {
-                    this.isShow = false;
-                    hilog.error(0x3900, 'HalfScreenLaunchComponent', ' EmbeddedOpen is already show!');
-                    return;
-                }
-                this.isShow = true;
-                hilog.info(0x3900, 'HalfScreenLaunchComponent', ' EmbeddedOpen is Allowed!');
-            }
-            else {
-                this.popUp();
-            }
-        }
-        catch (e) {
-            hilog.error(0x3900, 'HalfScreenLaunchComponent', 'isEmbeddedOpenAllowed called error!%{public}s', e.message);
+            abilityManager.queryAtomicServiceStartupRule(this.context, this.appId)
+                .then((data) => {
+                    if (data.isOpenAllowed) {
+                        if (data.isEmbeddedAllowed) {
+                            this.isShow = true;
+                            hilog.info(0x3900, LOG_TAG, 'EmbeddedOpen is Allowed!');
+                        } else {
+                            this.popUp();
+                        }
+                    } else {
+                        hilog.info(0x3900, LOG_TAG, 'is not allowed open!');
+                    }
+                }).catch((err) => {
+                    hilog.error(0x3900, LOG_TAG, 'queryAtomicServiceStartupRule called error!%{public}s', err.message);
+                    if (ERR_CODE_CAPABILITY_NOT_SUPPORT === err.code) {
+                        this.popUp();
+                    }
+                });
+        } catch (err) {
+            hilog.error(0x3900, LOG_TAG, 'AtomicServiceStartupRule failed: %{public}s', err.message);
         }
     }
     async popUp() {
         this.isShow = false;
         try {
             const ability = await this.context.openAtomicService(this.appId, this.options);
-            hilog.info(0x3900, 'HalfScreenLaunchComponent', '%{public}s open service success!', ability.want);
+            hilog.info(0x3900, LOG_TAG, '%{public}s open service success!', ability.want);
         }
         catch (e) {
-            hilog.error(0x3900, 'HalfScreenLaunchComponent', '%{public}s open service error!', e.message);
+            hilog.error(0x3900, LOG_TAG, '%{public}s open service error!', e.message);
         }
     }
     handleOnReceiveEvent(data) {
@@ -179,7 +190,7 @@ export class HalfScreenLaunchComponent extends ViewPU {
             let atomicServiceData = {};
             for (let i = 0; i < sourceKeys.length; i++) {
                 if (sourceKeys[i].includes(atomicServiceDataTag)) {
-                atomicServiceData[sourceKeys[i]] = data[sourceKeys[i]];
+                    atomicServiceData[sourceKeys[i]] = data[sourceKeys[i]];
                 }
             }
             this.onReceive(atomicServiceData);
@@ -190,12 +201,14 @@ export class HalfScreenLaunchComponent extends ViewPU {
             Row.create();
             Row.justifyContent(FlexAlign.Center);
             Row.onClick(() => {
-                hilog.info(0x3900, 'HalfScreenLaunchComponent', 'on start atomicservice');
+                hilog.info(0x3900, LOG_TAG, 'on start atomicservice');
                 this.checkAbility();
             });
-            Row.bindContentCover({ value: this.isShow, changeEvent: newValue => { this.isShow = newValue; } }, { builder: () => {
+            Row.bindContentCover({ value: this.isShow, changeEvent: newValue => { this.isShow = newValue; } }, {
+                builder: () => {
                     this.uiExtensionBuilder.call(this);
-                } }, { modalTransition: ModalTransition.NONE });
+                }
+            }, { modalTransition: ModalTransition.NONE });
         }, Row);
         this.content.bind(this)();
         Row.pop();
@@ -218,10 +231,12 @@ export class HalfScreenLaunchComponent extends ViewPU {
                     this.onError(err);
                 }
                 this.isShow = false;
-                hilog.error(0x3900, 'HalfScreenLaunchComponent', 'call up UIExtension error!%{public}s', err.message);
-                this.getUIContext().showAlertDialog({
-                    message: err.message
-                });
+                hilog.error(0x3900, LOG_TAG, 'call up UIExtension error!%{public}s', err.message);
+                if (err.code !== ERR_CODE_ABNORMAL) {
+                    this.getUIContext().showAlertDialog({
+                        message: err.message
+                    });
+                }
             });
             UIExtensionComponent.onTerminated(info => {
                 this.isShow = false;

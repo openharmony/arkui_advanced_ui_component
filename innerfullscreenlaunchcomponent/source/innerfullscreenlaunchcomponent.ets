@@ -15,7 +15,7 @@
 import hilog from '@ohos.hilog';
 import abilityManager from '@ohos.app.ability.abilityManager';
 import common from '@ohos.app.ability.common';
-import { Callback } from '@ohos.base';
+import { Callback, BusinessError } from '@ohos.base';
 import AtomicServiceOptions from '@ohos.app.ability.AtomicServiceOptions';
 import commonEventManager from '@ohos.commonEventManager';
 import Base from '@ohos.base';
@@ -26,6 +26,9 @@ export class LaunchController {
 
 const EMBEDDED_FULL_MODE: number = 1;
 const atomicServiceDataTag: string = 'ohos.atomicService.window';
+const ERR_CODE_ABNORMAL: number = 100014;
+const ERR_CODE_CAPABILITY_NOT_SUPPORT: number = 801;
+const LOG_TAG: string = 'InnerFullScreenLaunchComponent';
 
 @Component
 export struct InnerFullScreenLaunchComponent {
@@ -37,7 +40,7 @@ export struct InnerFullScreenLaunchComponent {
   @State private isShow: boolean = false;
   private subscriber: commonEventManager.CommonEventSubscriber | null = null;
   private launchAtomicService = (appId: string, options?: AtomicServiceOptions) => {
-    hilog.info(0x3900, 'InnerFullScreenLaunchComponent',
+    hilog.info(0x3900, LOG_TAG,
       'launchAtomicService, appId: %{public}s.', appId);
     this.appId = appId;
     this.options = options;
@@ -53,13 +56,13 @@ export struct InnerFullScreenLaunchComponent {
     commonEventManager.createSubscriber(subscribeInfo,
       (err:Base.BusinessError, data: commonEventManager.CommonEventSubscriber) => {
         if (err) {
-          hilog.error(0x3900, 'InnerFullScreenLaunchComponent',
+          hilog.error(0x3900, LOG_TAG,
             'Failed to create subscriber, err: %{public}s.', err.message);
           return;
         }
 
         if (data == null || data == undefined) {
-          hilog.error(0x3900, 'InnerFullScreenLaunchComponent', 'Failed to create subscriber, data is null.');
+          hilog.error(0x3900, LOG_TAG, 'Failed to create subscriber, data is null.');
           return;
         }
 
@@ -67,12 +70,12 @@ export struct InnerFullScreenLaunchComponent {
         commonEventManager.subscribe(this.subscriber,
           (err: Base.BusinessError, data: commonEventManager.CommonEventData) => {
             if (err) {
-              hilog.error(0x3900, 'InnerFullScreenLaunchComponent',
+              hilog.error(0x3900, LOG_TAG,
                 'Failed to subscribe common event, err: %{public}s.', err.message);
               return;
             }
 
-            hilog.info(0x3900, 'InnerFullScreenLaunchComponent', 'Received account logout event.');
+            hilog.info(0x3900, LOG_TAG, 'Received account logout event.');
             this.isShow = false;
           })
       })
@@ -83,10 +86,9 @@ export struct InnerFullScreenLaunchComponent {
     if (this.subscriber !== null) {
       commonEventManager.unsubscribe(this.subscriber, (err) => {
         if (err) {
-          hilog.error(0x3900, 'InnerFullScreenLaunchComponent',
+          hilog.error(0x3900, LOG_TAG,
             'UnsubscribeCallBack, err: %{public}s.', err.message);
         } else {
-          hilog.info(0x3900, 'InnerFullScreenLaunchComponent', 'Unsubscribe.');
           this.subscriber = null;
         }
       })
@@ -101,7 +103,7 @@ export struct InnerFullScreenLaunchComponent {
     if (this.options?.parameters) {
       this.options.parameters['ohos.extra.param.key.showMode'] = EMBEDDED_FULL_MODE;
       this.options.parameters['ability.want.params.IsNotifyOccupiedAreaChange'] = true;
-      hilog.info(0x3900, 'InnerFullScreenLaunchComponent', 'replaced options is %{public}s !', JSON.stringify(this.options));
+      hilog.info(0x3900, LOG_TAG, 'replaced options is %{public}s !', JSON.stringify(this.options));
     } else {
       this.options = {
         parameters: {
@@ -112,34 +114,44 @@ export struct InnerFullScreenLaunchComponent {
     }
   }
 
-  async checkAbility() {
+  async checkAbility(): Promise<void> {
+    if (this.isShow) {
+      hilog.error(0x3900, LOG_TAG, 'EmbeddedAbility already shows');
+      this.isShow = false;
+      return;
+    }
     this.resetOptions();
     try {
-      const res: boolean = await abilityManager.isEmbeddedOpenAllowed(this.context, this.appId);
-      if (res) {
-        if (this.isShow) {
-          hilog.error(0x3900, 'InnerFullScreenLaunchComponent', ' EmbeddedAbility already shows');
-          this.isShow = false;
-          return;
-        }
-        this.isShow = true;
-        hilog.info(0x3900, 'InnerFullScreenLaunchComponent', ' EmbeddedOpen is Allowed!');
-      } else {
-        hilog.info(0x3900, 'InnerFullScreenLaunchComponent', ' EmbeddedOpen is not Allowed!');
-        this.popUp();
-      }
-    } catch (e) {
-      hilog.error(0x3900, 'InnerFullScreenLaunchComponent', 'isEmbeddedOpenAllowed called error!%{public}s', e.message);
-    }
+      abilityManager.queryAtomicServiceStartupRule(this.context, this.appId)
+        .then((data: abilityManager.AtomicServiceStartupRule) => {
+          if (data.isOpenAllowed) {
+            if (data.isEmbeddedAllowed) {
+              this.isShow = true;
+              hilog.info(0x3900, LOG_TAG, 'EmbeddedOpen is Allowed!');
+            } else {
+              this.popUp();
+            }
+          } else {
+            hilog.info(0x3900, LOG_TAG, 'is not allowed open!');
+          }
+        }).catch((err: BusinessError) => {
+          hilog.error(0x3900, LOG_TAG, 'queryAtomicServiceStartupRule called error!%{public}s', err.message);
+          if (ERR_CODE_CAPABILITY_NOT_SUPPORT === err.code) {
+            this.popUp();
+          }
+      });
+    } catch (err: BusinessError) {
+      hilog.error(0x3900, LOG_TAG, 'AtomicServiceStartupRule failed: %{public}s', err.message);
+    }      
   }
 
-  async popUp() {
+  async popUp(): Promise<void> {
     this.isShow = false;
     try {
       const ability = await this.context.openAtomicService(this.appId, this.options);
-      hilog.info(0x3900, 'InnerFullScreenLaunchComponent', '%{public}s open service success!', ability.want);
+      hilog.info(0x3900, LOG_TAG, '%{public}s open service success!', ability.want);
     } catch (e) {
-      hilog.error(0x3900, 'InnerFullScreenLaunchComponent', '%{public}s open service error!', e.message);
+      hilog.error(0x3900, LOG_TAG, '%{public}s open service error!', e.message);
     }
   }
 
@@ -180,17 +192,19 @@ export struct InnerFullScreenLaunchComponent {
       .width('100%')
       .onRelease(
         () => {
-          hilog.error(0x3900, 'InnerFullScreenLaunchComponent', 'onRelease');
+          hilog.error(0x3900, LOG_TAG, 'onRelease');
           this.isShow = false;
         }
       )
       .onError(
         err => {
           this.isShow = false;
-          hilog.error(0x3900, 'InnerFullScreenLaunchComponent', 'call up UIExtension error! %{public}s', err.message);
-          this.getUIContext().showAlertDialog({
-            message: err.message
-          });
+          hilog.error(0x3900, LOG_TAG, 'call up UIExtension error! %{public}s', err.message);
+          if (err.code !== ERR_CODE_ABNORMAL) {
+            this.getUIContext().showAlertDialog({
+              message: err.message
+            });
+          }
         }
       )
       .onReceive(data => {
