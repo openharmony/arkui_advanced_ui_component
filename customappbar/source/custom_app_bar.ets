@@ -308,7 +308,11 @@ export struct CustomAppBar {
       this.isHalfScreen = this.parseBoolean(param);
       this.initBreakPointListener();
     } else if (eventName === ARKUI_APP_BG_COLOR) {
-      this.contentBgColor = param;
+      if (this.isHalfScreen) {
+        this.contentBgColor = Color.Transparent;
+      } else {
+        this.contentBgColor = param;
+      }
     }
   }
 
