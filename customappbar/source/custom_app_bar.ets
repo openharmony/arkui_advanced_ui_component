@@ -15,7 +15,11 @@
 
 import { curves, display, LengthMetrics, mediaquery } from '@kit.ArkUI';
 import { image } from '@kit.ImageKit';
+import { BusinessError, commonEventManager } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { systemParameterEnhance } from '@kit.BasicServicesKit';
+import { Animator as animator, AnimatorResult, componentUtils } from '@kit.ArkUI';
+import { AnimatorOptions } from '@ohos.animator';
 
 const LOG_TAG: string = 'CustomAppBar';
 const VIEW_WIDTH: number = 80;
@@ -50,11 +54,15 @@ const TITLE_LINE_HEIGHT: number = 16;
 const TITLE_MARGIN_RIGHT: number = 12;
 const TITLE_MARGIN_TOP: number = 8;
 const TITLE_LABEL_MARGIN: number = 8.5;
-const TITLE_TEXT_MARGIN: number = 3;
 const TITLE_CONSTRAINT_SIZE: string = 'calc(100% - 73.5vp)';
 const MD_WIDTH: number = 480;
 const LG_WIDTH_LIMIT: number = 0.6;
 const LG_WIDTH_HEIGHT_RATIO: number = 1.95;
+const PRIVACY_MARGIN: number = 12;
+const PRIVACY_FONT_SIZE: string = '12vp';
+const PRIVACY_TEXT_MARGIN_START: number = 4;
+const PRIVACY_TEXT_MARGIN_END: number = 8;
+const PRIVACY_CONSTRAINT_SIZE: string = 'calc(100% - 136vp)';
 const ARKUI_APP_BAR_COLOR_CONFIGURATION: string = 'arkui_app_bar_color_configuration';
 const ARKUI_APP_BAR_MENU_SAFE_AREA: string = 'arkui_app_bar_menu_safe_area';
 const ARKUI_APP_BAR_CONTENT_SAFE_AREA: string = 'arkui_app_bar_content_safe_area';
@@ -70,6 +78,7 @@ const EVENT_NAME_CUSTOM_APP_BAR_CLOSE_CLICK = 'arkui_custom_app_bar_close_click'
 const EVENT_NAME_CUSTOM_APP_BAR_DID_BUILD = 'arkui_custom_app_bar_did_build';
 const EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL = 'arkui_custom_app_bar_create_service_panel';
 const ARKUI_APP_BAR_MAXIMIZE: string = 'arkui_app_bar_maximize';
+const ARKUI_APP_BAR_PRIVACY_AUTHORIZE: string = 'arkui_app_bar_privacy_authorize';
 
 /**
  * 适配不同颜色模式集合
@@ -123,6 +132,13 @@ export struct CustomAppBar {
     id: 125831084,
     type: 20000
   };
+  @State privacyResource: Resource = {
+    bundleName: '',
+    moduleName: '',
+    params: [],
+    id: 125835516,
+    type: 20000
+  };
   @State menuFillColor: string = this.getResourceColor(ICON_FILL_COLOR_DEFAULT);
   @State closeFillColor: string = this.getResourceColor(ICON_FILL_COLOR_DEFAULT);
   @State menubarBorderColor: string = this.getResourceColor(BORDER_COLOR_DEFAULT);
@@ -130,6 +146,8 @@ export struct CustomAppBar {
   @State dividerBackgroundColor: string = this.getResourceColor(BORDER_COLOR_DEFAULT);
   @State halfButtonBackColor: string = this.getResourceColor(HALF_BUTTON_BACK_COLOR);
   @State halfButtonImageColor: string = this.getResourceColor(HALF_BUTTON_IMAGE_COLOR);
+  @State privacyImageColor: string = this.getResourceColor(HALF_BUTTON_IMAGE_COLOR);
+
   @State contentMarginTop: number = 0;
   @State contentMarginLeft: number = 0;
   @State contentMarginRight: number = 0;
@@ -154,6 +172,14 @@ export struct CustomAppBar {
   @State closeRead: string = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
   @State maximizeRead: string = this.getStringByResourceToken(ARKUI_APP_BAR_MAXIMIZE);
   @State provideService: string = '';
+  @State privacyWidth: string = '0';
+  @State privacySymbolOpacity: number = 0;
+  @State angle: string = '-90deg';
+  @State buttonSize: number = BUTTON_SIZE;
+  @State privacyTextOpacity: number = 0;
+  @State dividerOpacity: number = 0;
+  @State isShowPrivacyAnimation: boolean = false;
+  @State privacyAuthText: string = '';
   private isHalfToFullScreen: boolean = false;
   private isDark: boolean = true;
   private bundleName: string = '';
@@ -161,9 +187,16 @@ export struct CustomAppBar {
   private icon: Resource | string | PixelMap = $r('sys.media.ohos_app_icon');
   private fullContentMarginTop: number = 0;
   private deviceBorderRadius: string = '0';
+  private privacyAnimator: AnimatorResult | undefined = undefined;
   private smListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(0vp<width) and (width<600vp)');
   private mdListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(600vp<=width) and (width<840vp)');
   private lgListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(840vp<=width)');
+  // 订阅者信息, 用于保存创建成功的订阅者对象，后续使用其完成订阅及退订的动作
+  private subscriber: commonEventManager.CommonEventSubscriber | null = null;
+  // 事件列表
+  private subscribeInfo: commonEventManager.CommonEventSubscribeInfo = {
+    events: ['usual.event.PRIVACY_STATE_CHANGED']
+  };
 
   aboutToAppear(): void {
     if (this.isHalfScreen) {
@@ -176,20 +209,67 @@ export struct CustomAppBar {
     }
     this.updateStringByResource();
     this.getDeviceRadiusConfig();
+    this.subscribePrivacyState();
   }
 
   aboutToDisappear(): void {
     this.smListener.off('change');
     this.mdListener.off('change');
     this.lgListener.off('change');
+    if (this.subscriber !== null) {
+      commonEventManager.unsubscribe(this.subscriber, (err) => {
+        if (err) {
+          hilog.error(0x3900, LOG_TAG, `unsubscribe err callback, message is ${err.message}`);
+        } else {
+          this.subscriber = null;
+        }
+      });
+    }
+  }
+
+  /**
+   * 注册监听隐私协议状态
+   */
+  private subscribePrivacyState(): void {
+    try {
+      // 创建订阅者
+      commonEventManager.createSubscriber(this.subscribeInfo).then((commonEventSubscriber) => {
+        this.subscriber = commonEventSubscriber;
+        // 订阅公共事件
+        try {
+          commonEventManager.subscribe(this.subscriber, (err, data) => {
+            if (err) {
+              hilog.error(0x3900, LOG_TAG, `subscribe failed, code is ${err?.code}, message is ${err?.message}`);
+              return;
+            }
+            let result = JSON.parse(data?.data ?? '{}')?.resultType as number;
+            // privacyMgmtType：1 隐私同意完整模式
+            if (result === 1) {
+              if (this.isHalfScreen) {
+                return;
+              }
+              this.isShowPrivacyAnimation = true;
+              this.startPrivacyAnimation();
+            }
+          });
+        } catch (error) {
+          hilog.error(0x3900, LOG_TAG, `init Subscriber failed, code is ${error?.code}, message is ${error?.message}`);
+        }
+      }).catch((error: BusinessError) => {
+        hilog.error(0x3900, LOG_TAG, `createSubscriber failed, code is ${error?.code}, message is ${error?.message}`);
+      });
+    } catch (error) {
+      hilog.error(0x3900, LOG_TAG,
+        `subscribePrivacyState failed, code is ${error?.code}, message is ${error?.message}`);
+    }
   }
 
   getDeviceRadiusConfig(): void {
     try {
       this.deviceBorderRadius = systemParameterEnhance.getSync('const.product.device_radius');
-      console.info(LOG_TAG, ` read device_radius success, device_radius: ${this.deviceBorderRadius}`);
+      hilog.info(0x3900, LOG_TAG, `read device_radius success, device_radius: ${this.deviceBorderRadius}`);
     } catch (error) {
-      console.error(LOG_TAG, `read device_radius failed`);
+      hilog.error(0x3900, LOG_TAG, `read device_radius failed`);
     }
   }
 
@@ -246,14 +326,14 @@ export struct CustomAppBar {
     return defaultColor;
   }
 
-  getStringByResourceToken(resName: string， value?: string): string {
+  getStringByResourceToken(resName: string, value?: string): string {
     try {
       if (value) {
         return getContext(this).resourceManager.getStringByNameSync(resName, value);
       }
-        return getContext(this).resourceManager.getStringByNameSync(resName);
+      return getContext(this).resourceManager.getStringByNameSync(resName);
     } catch (err) {
-        console.error(LOG_TAG, `getAccessibilityDescription, error: ${err.toString()}`);
+      hilog.error(0x3900, LOG_TAG, `getAccessibilityDescription, error: ${err.toString()}`);
     }
     return '';
   }
@@ -265,6 +345,7 @@ export struct CustomAppBar {
     }
     this.closeRead = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
     this.serviceMenuRead = this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL);
+    this.privacyAuthText = this.getStringByResourceToken(ARKUI_APP_BAR_PRIVACY_AUTHORIZE);
   }
 
   /**
@@ -274,7 +355,7 @@ export struct CustomAppBar {
    */
   setCustomCallback(eventName: string, param: string): void {
     if (param === null || param === '' || param === undefined) {
-      console.error(LOG_TAG, 'invalid params');
+      hilog.error(0x3900, LOG_TAG, 'invalid params');
       return;
     }
     if (eventName === ARKUI_APP_BAR_COLOR_CONFIGURATION) {
@@ -328,7 +409,8 @@ export struct CustomAppBar {
     this.dividerBackgroundColor = this.getResourceColor(BORDER_COLOR_DEFAULT);
     this.menubarBackColor = this.getResourceColor(MENU_BACK_COLOR);
     this.halfButtonBackColor = this.getResourceColor(HALF_BUTTON_BACK_COLOR);
-    this.halfButtonImageColor = this.getResourceColor(HALF_BUTTON_IMAGE_COLOR)
+    this.halfButtonImageColor = this.getResourceColor(HALF_BUTTON_IMAGE_COLOR);
+    this.privacyImageColor = this.getResourceColor(HALF_BUTTON_IMAGE_COLOR);
   }
 
   /**
@@ -470,10 +552,152 @@ export struct CustomAppBar {
     });
   }
 
+  /**
+   * 开始隐私标识动效
+   */
+  private startPrivacyAnimation(): void {
+    animateTo({
+      curve: curves.interpolatingSpring(2, 1, 328, 26),
+    }, () => {
+      this.privacyWidth = '';
+    });
+    animateTo({
+      duration: 250,
+      curve: Curve.Sharp,
+      delay: 100,
+    }, () => {
+      this.privacyTextOpacity = 1;
+    });
+    animateTo({
+      delay: 200,
+      curve: curves.interpolatingSpring(2, 1, 500, 26),
+    }, () => {
+      this.angle = '0';
+    });
+    animateTo({
+      duration: 100,
+      delay: 200,
+      curve: Curve.Sharp,
+    }, () => {
+      this.privacySymbolOpacity = 1;
+      this.dividerOpacity = 1;
+    });
+    // 延迟5s后开始退出动画
+    setTimeout(() => {
+      this.initPrivacyAnimator();
+      animateTo({
+        duration: 50,
+        curve: Curve.Sharp,
+      }, () => {
+        this.dividerOpacity = 0;
+      });
+      animateTo({
+        duration: 100,
+        curve: Curve.Sharp,
+      }, () => {
+        this.privacyTextOpacity = 0;
+      });
+      animateTo({
+        duration: 150,
+        curve: Curve.Sharp,
+      }, () => {
+        this.privacySymbolOpacity = 0;
+      });
+      this.privacyAnimator?.play();
+    }, 5000);
+  }
+
+  /**
+   * 隐私标识动效退出，menubar长度缩小帧动画初始化
+   */
+  private initPrivacyAnimator(): void {
+    let privacyTextLength = px2vp(componentUtils.getRectangleById('AtomicServiceMenuPrivacyId').size.width);
+      let options: AnimatorOptions = {
+        duration: 500,
+        easing: 'interpolating-spring(1, 1, 328, 26)',
+        delay: 0,
+        fill: 'forwards',
+        direction: 'normal',
+        iterations: 1,
+        begin: privacyTextLength + PRIVACY_MARGIN + PRIVACY_TEXT_MARGIN_START + PRIVACY_TEXT_MARGIN_END,
+        end: 0
+      };
+    this.privacyAnimator = animator.create(options);
+    this.privacyAnimator.onFrame = (value: number) => {
+      // 当动画帧值小于0.01时，不做动画。
+      if (value <= 0 && Math.abs(value) < 0.01) {
+        this.buttonSize = BUTTON_SIZE;
+        this.privacyWidth = '0';
+        return;
+      }
+      // 当动画帧值小于0时，对menu按钮做动画；大于0时，对隐私动效宽度做动画。
+      if (value < 0) {
+        this.buttonSize = BUTTON_SIZE + value;
+      } else {
+        this.privacyWidth = JSON.stringify(value);
+      }
+    }
+    this.privacyAnimator.onFinish = () => {
+      this.isShowPrivacyAnimation = false;
+    };
+  }
+
+  @Builder
+  privacySecurityLabel() {
+    Row() {
+      SymbolGlyph(this.privacyResource)
+        .fontSize(IMAGE_SIZE)
+        .fontColor([this.privacyImageColor, Color.Blue])
+        .renderingStrategy(SymbolRenderingStrategy.MULTIPLE_COLOR)
+        .margin({ start: LengthMetrics.vp(PRIVACY_MARGIN) })
+        .opacity(this.privacySymbolOpacity)
+        .rotate({
+          x: 0,
+          y: 1,
+          z: 0,
+          centerX: '50%',
+          centerY: '50%',
+          angle: this.angle
+        })
+      Text(this.privacyAuthText)
+        .fontSize(PRIVACY_FONT_SIZE)
+        .fontWeight(FontWeight.Regular)
+        .textAlign(TextAlign.Center)
+        .padding({
+          start: LengthMetrics.vp(PRIVACY_TEXT_MARGIN_START),
+          end: LengthMetrics.vp(PRIVACY_TEXT_MARGIN_END)
+        })
+        .textAlign(TextAlign.Start)
+        .textOverflow({ overflow: TextOverflow.Ellipsis })
+        .wordBreak(WordBreak.BREAK_WORD)
+        .opacity(this.privacyTextOpacity)
+        .ellipsisMode(EllipsisMode.END)
+        .constraintSize({ maxWidth: PRIVACY_CONSTRAINT_SIZE })
+        .fontColor($r('sys.color.ohos_id_color_text_primary'))
+        .renderFit(RenderFit.RESIZE_FILL)
+        .maxLines(1)
+        .id('AtomicServiceMenuPrivacyId')
+    }
+    .width(this.privacyWidth)
+
+    Divider()
+      .id('AtomicServiceDividerId')
+      .vertical(true)
+      .color(this.dividerBackgroundColor)
+      .lineCap(LineCapStyle.Round)
+      .strokeWidth(BORDER_WIDTH)
+      .height(DIVIDER_HEIGHT)
+      .opacity(this.dividerOpacity)
+  }
+
   @Builder
   fullScreenMenubar() {
     Row() {
       Row() {
+        if (this.isShowPrivacyAnimation) {
+          this.privacySecurityLabel()
+        }
+
         Button() {
           Image(this.menuResource)
             .id('AtomicServiceMenuIconId')
@@ -487,7 +711,7 @@ export struct CustomAppBar {
         .type(ButtonType.Normal)
         .borderRadius({ topLeft: MENU_RADIUS, bottomLeft: MENU_RADIUS })
         .backgroundColor(Color.Transparent)
-        .width(BUTTON_SIZE)
+        .width(this.buttonSize)
         .height(VIEW_HEIGHT)
         .accessibilityText(this.serviceMenuRead)
         .gesture(TapGesture().onAction(() => {
@@ -531,14 +755,16 @@ export struct CustomAppBar {
         color: this.menubarBackColor
       })
       .height(VIEW_HEIGHT)
-      .width(VIEW_WIDTH)
       .align(Alignment.Top)
       .draggable(false)
       .geometryTransition('menubar')
       .id('AtomicServiceMenubarId')
     }
     .id('AtomicServiceMenubarRowId')
-    .margin({ top: LengthMetrics.vp(this.statusBarHeight + MENU_MARGIN_TOP), end: LengthMetrics.vp(this.menuMarginEnd) })
+    .margin({
+      top: LengthMetrics.vp(this.statusBarHeight + MENU_MARGIN_TOP),
+      end: LengthMetrics.vp(this.menuMarginEnd)
+    })
     .justifyContent(FlexAlign.End)
     .height(VIEW_HEIGHT)
     .hitTestBehavior(HitTestMode.Transparent)
