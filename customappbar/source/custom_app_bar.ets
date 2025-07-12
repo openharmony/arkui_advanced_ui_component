@@ -198,20 +198,6 @@ export struct CustomAppBar {
     events: ['usual.event.PRIVACY_STATE_CHANGED']
   };
 
-  aboutToAppear(): void {
-    if (this.isHalfScreen) {
-      this.contentBgColor = Color.Transparent;
-      this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
-      this.halfScreenShowAnimation();
-    } else {
-      this.containerHeight = '100%';
-      this.containerWidth = '100%';
-    }
-    this.updateStringByResource();
-    this.getDeviceRadiusConfig();
-    this.subscribePrivacyState();
-  }
-
   aboutToDisappear(): void {
     this.smListener.off('change');
     this.mdListener.off('change');
@@ -482,12 +468,12 @@ export struct CustomAppBar {
    * 半屏放大至全屏动效
    */
   expendContainerAnimation(): void {
+    this.isHalfToFullScreen = true;
     animateTo({
       duration: 150,
       curve: curves.interpolatingSpring(0, 1, 328, 36),
       onFinish: () => {
         this.contentBgColor = '#FFFFFF';
-        this.isHalfToFullScreen = true;
       }
     }, () => {
       this.containerWidth = '100%';
@@ -950,6 +936,19 @@ export struct CustomAppBar {
       .backgroundColor(this.contentBgColor)
       .hitTestBehavior(HitTestMode.Transparent)
       .id('AtomicServiceContainerId')
+      .onAppear(() => {
+        if (this.isHalfScreen) {
+          this.contentBgColor = Color.Transparent;
+          this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
+          this.halfScreenShowAnimation();
+        } else {
+          this.containerHeight = '100%';
+          this.containerWidth = '100%';
+        }
+        this.updateStringByResource();
+        this.getDeviceRadiusConfig();
+        this.subscribePrivacyState();
+      })
     }
     .height('100%')
     .width('100%')

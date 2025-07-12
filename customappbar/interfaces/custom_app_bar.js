@@ -706,20 +706,6 @@ export class CustomAppBar extends ViewPU {
     set labelName(newValue) {
         this.__labelName.set(newValue);
     }
-    aboutToAppear() {
-        if (this.isHalfScreen) {
-            this.contentBgColor = Color.Transparent;
-            this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
-            this.halfScreenShowAnimation();
-        }
-        else {
-            this.containerHeight = '100%';
-            this.containerWidth = '100%';
-        }
-        this.updateStringByResource();
-        this.getDeviceRadiusConfig();
-        this.subscribePrivacyState();
-    }
     aboutToDisappear() {
         this.smListener.off('change');
         this.mdListener.off('change');
@@ -1466,6 +1452,19 @@ export class CustomAppBar extends ViewPU {
             Stack.backgroundColor(ObservedObject.GetRawObject(this.contentBgColor));
             Stack.hitTestBehavior(HitTestMode.Transparent);
             Stack.id('AtomicServiceContainerId');
+            Stack.onAppear(() => {
+                if (this.isHalfScreen) {
+                    this.contentBgColor = Color.Transparent;
+                    this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
+                    this.halfScreenShowAnimation();
+                } else {
+                    this.containerHeight = '100%';
+                    this.containerWidth = '100%';
+                }
+                this.updateStringByResource();
+                this.getDeviceRadiusConfig();
+                this.subscribePrivacyState();
+            });
         }, Stack);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
