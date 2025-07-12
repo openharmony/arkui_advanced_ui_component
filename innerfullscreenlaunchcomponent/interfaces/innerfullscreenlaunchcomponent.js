@@ -237,7 +237,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             UIExtensionComponent.onError(g => {
                 this.isShow = false;
                 hilog.error(0x3900, LOG_TAG, 'call up UIExtension error!%{public}s', g.message);
-                if (err.code !== ERR_CODE_ABNORMAL) {
+                if (g.code !== ERR_CODE_ABNORMAL) {
                     this.getUIContext().showAlertDialog({
                         message: g.message
                     });
