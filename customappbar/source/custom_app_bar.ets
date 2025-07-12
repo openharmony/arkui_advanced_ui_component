@@ -301,10 +301,15 @@ export struct CustomAppBar {
       } else if (this.breakPoint === BreakPointsType.MD) {
         this.containerWidth = MD_WIDTH;
       } else if (this.breakPoint === BreakPointsType.LG) {
-        let displayData = display.getDefaultDisplaySync();
-        let windowWidth = px2vp(displayData.width);
-        let windowHeight = px2vp(displayData.height);
-        this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
+        try {
+          let displayData = display.getDefaultDisplaySync();
+          let windowWidth = px2vp(displayData.width);
+          let windowHeight = px2vp(displayData.height);
+          this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
+        } catch (error) {
+          hilog.error(0x3900, LOG_TAG, `getDefaultDisplaySync failed, code is ${error?.code}, message is ${error?.message}`);
+        }
+    }
       }
     }
   }

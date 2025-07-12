@@ -808,10 +808,14 @@ export class CustomAppBar extends ViewPU {
                 this.containerWidth = MD_WIDTH;
             }
             else if (this.breakPoint === BreakPointsType.LG) {
-                let displayData = display.getDefaultDisplaySync();
-                let windowWidth = px2vp(displayData.width);
-                let windowHeight = px2vp(displayData.height);
-                this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
+                try {
+                    let displayData = display.getDefaultDisplaySync();
+                    let windowWidth = px2vp(displayData.width);
+                    let windowHeight = px2vp(displayData.height);
+                    this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
+                } catch (error) {
+                    hilog.error(0x3900, LOG_TAG, `getDefaultDisplaySync failed, code is ${error?.code}, message is ${error?.message}`);
+                }
             }
         }
     }
@@ -992,12 +996,12 @@ export class CustomAppBar extends ViewPU {
      * 半屏放大至全屏动效
      */
     expendContainerAnimation() {
+        this.isHalfToFullScreen = true;
         Context.animateTo({
             duration: 150,
             curve: curves.interpolatingSpring(0, 1, 328, 36),
             onFinish: () => {
                 this.contentBgColor = '#FFFFFF';
-                this.isHalfToFullScreen = true;
             }
         }, () => {
             this.containerWidth = '100%';
