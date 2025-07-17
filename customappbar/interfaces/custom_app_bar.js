@@ -1482,7 +1482,7 @@ export class CustomAppBar extends ViewPU {
                         // 透明模糊背板
                         Column.opacity(this.maskOpacity);
                         // 透明模糊背板
-                        Column.foregroundBlurStyle(BlurStyle.BACKGROUND_REGULAR, { scale: this.maskBlurScale });
+                        Column.foregroundBlurStyle(BlurStyle.BACKGROUND_REGULAR, { colorMode: ThemeColorMode.LIGHT, scale: this.maskBlurScale });
                         // 透明模糊背板
                         Column.onClick(() => {
                             this.closeContainerAnimation();
@@ -1504,6 +1504,7 @@ export class CustomAppBar extends ViewPU {
             Column.width('100%');
             Column.justifyContent(FlexAlign.End);
             Column.hitTestBehavior(HitTestMode.Transparent);
+            Column.id('AtomicServiceStageLayoutId');
         }, Column);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Column.create();
@@ -1512,6 +1513,7 @@ export class CustomAppBar extends ViewPU {
             Column.aspectRatio(ObservedObject.GetRawObject(this.ratio));
             Column.justifyContent(FlexAlign.End);
             Column.hitTestBehavior(HitTestMode.Transparent);
+            Column.id('AtomicServiceStageColumnId');
         }, Column);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
@@ -1543,8 +1545,10 @@ export class CustomAppBar extends ViewPU {
             });
             Row.clip(true);
             Row.alignItems(VerticalAlign.Bottom);
-            Row.hitTestBehavior(HitTestMode.Transparent);
             Row.width('100%');
+            Row.onClick(() => {
+                // 拦截到背板的点击事件
+            });
             Row.id('AtomicServiceStageId');
         }, Row);
         Row.pop();

@@ -884,7 +884,7 @@ export struct CustomAppBar {
             .height('100%')
             .backgroundColor('#262626')
             .opacity(this.maskOpacity)
-            .foregroundBlurStyle(BlurStyle.BACKGROUND_REGULAR, { scale: this.maskBlurScale })
+            .foregroundBlurStyle(BlurStyle.BACKGROUND_REGULAR, { colorMode: ThemeColorMode.LIGHT, scale: this.maskBlurScale })
             .onClick(() => {
               this.closeContainerAnimation();
             })
@@ -911,8 +911,10 @@ export struct CustomAppBar {
             })
             .clip(true)
             .alignItems(VerticalAlign.Bottom)
-            .hitTestBehavior(HitTestMode.Transparent)
             .width('100%')
+            .onClick(() => {
+              // 拦截到背板的点击事件
+            });
             .id('AtomicServiceStageId')
           }
           .height(this.containerHeight)
@@ -920,10 +922,12 @@ export struct CustomAppBar {
           .aspectRatio(this.ratio)
           .justifyContent(FlexAlign.End)
           .hitTestBehavior(HitTestMode.Transparent)
+          .id('AtomicServiceStageColumnId')
         }.height('100%')
         .width('100%')
         .justifyContent(FlexAlign.End)
         .hitTestBehavior(HitTestMode.Transparent)
+        .id('AtomicServiceStageLayoutId')
 
         if (this.isHalfScreen) {
           this.halfScreenMenuBar()
