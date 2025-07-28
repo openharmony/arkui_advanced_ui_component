@@ -169,6 +169,7 @@ export class HalfScreenLaunchComponent extends ViewPU {
                 });
         } catch (err) {
             hilog.error(0x3900, LOG_TAG, 'AtomicServiceStartupRule failed: %{public}s', err.message);
+            this.popUp();
         }
     }
     async popUp() {
