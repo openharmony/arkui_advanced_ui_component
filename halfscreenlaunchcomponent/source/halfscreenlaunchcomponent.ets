@@ -130,6 +130,7 @@ export struct HalfScreenLaunchComponent {
       });
     } catch (err: BusinessError) {
       hilog.error(0x3900, LOG_TAG, 'AtomicServiceStartupRule failed: %{public}s', err.message);
+      this.popUp();
     }  
   }
 
