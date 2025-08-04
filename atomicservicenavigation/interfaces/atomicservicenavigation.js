@@ -1219,7 +1219,8 @@ export class AtomicServiceNavigation extends ViewPU {
         a1.addColorStop(1, this.resourceColorToString(primaryColor));
         context.fillStyle = a1;
         context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0,
-            this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE, height * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
+            this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE,
+            height * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
         let y2 = (COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
             COLOR_RATIO_FIFTY_PERCENT * height + COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth : height;
         let b1 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y2, this.navigationWidth, height * COLOR_RATIO_FIFTY_PERCENT);
@@ -1228,7 +1229,8 @@ export class AtomicServiceNavigation extends ViewPU {
         b1.addColorStop(1, this.resourceColorToString(primaryColor));
         context.fillStyle = b1;
         context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE,
-            height * COLOR_RATIO_FIFTY_PERCENT, COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE, height * COLOR_RATIO_FIFTY_PERCENT);
+            height * COLOR_RATIO_FIFTY_PERCENT, COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE,
+            height * COLOR_RATIO_FIFTY_PERCENT);
     }
     drawGradientCanvasTowards(context, primaryColor, secondaryColor) {
         let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
