@@ -22,9 +22,6 @@ const SymbolGlyphModifier = requireNapi('arkui.modifier').SymbolGlyphModifier;
 const bundleManager = requireNapi('bundle.bundleManager');
 const hilog = requireNapi('hilog');
 const i18n = requireNapi('i18n');
-/**
- * 背景渐变色相关数据
- */
 const backGroundColor = ['rgb(0,0,0)', 'rgb(255,255,255)', 'rgb(241,243,245)'];
 const backGroundTransparentGradientColor = [['rgba(0,0,0,0)', 'rgba(0,0,0,1)'],
     ['rgba(255,255,255,0)', 'rgba(255,255,255,1)'], ['rgba(241,243,245,0)', 'rgba(241,243,245,1)']];
@@ -38,9 +35,6 @@ const COLOR_RATIO_SIXTY_PERCENT = 0.6;
 const COLOR_RATIO_ONE_FIFTY_PERCENT = 1.5;
 const COORDINATE_NEGATIVE_ONE = -1;
 const BLUR_CONSTANT = 500;
-/**
- * 三种标题栏相关数据
- */
 const BREAK_POINT_VP_SM = 600;
 const BREAK_POINT_VP_MD = 840;
 const BREAK_POINT_SM = 'sm';
@@ -50,76 +44,35 @@ const SIDE_BAR_EMBED_MIN_WIDTH = 240;
 const SIDE_BAR_OVERLAY_WIDTH = 304;
 const SIDE_BAR_COMMON_WIDTH = 360;
 const CONTENT_MIN_WIDTH = 600;
-/**
- * menubar避让区域宽度计算修正时用到的数据
- */
 const MENUBAR_X_FIRST_THRESHOLD = 200;
 const MENUBAR_X_SECOND_THRESHOLD = 40;
 const MENUBAR_CORRECTION_OFFSET_VALUE = 92;
-/**
- * 背景颜色的不透明度的枚举类型
- *
- * @enum { number }.
- */
+const TITLE_MAX_LINES = 2;
+const TITLE_MIN_FONT_SIZE = 14;
+const TITLE_MAX_FONT_SIZE = 26;
+const DEFAULT_TITLE_HEIGHT = 36;
+const TITLE_LAYOUT_WEIGHT = 1;
+const DEFAULT_PADDING_START_DISTANCE = 32;
+const DEFAULT_MARGIN_TOP_DISTANCE = 26;
+const TITLE_FONT_COLOR = { 'id': -1, 'type': 10001, params: ['sys.color.font_primary'],
+    'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
 export let GradientAlpha;
 (function (GradientAlpha) {
-    /**
-     * 不透明度为0.2
-     *
-     */
     GradientAlpha.OPACITY_20 = 1;
-    /**
-     * 不透明度为0.6
-     *
-     */
     GradientAlpha.OPACITY_60 = 2;
-    /**
-     * 不透明度为0.8
-     */
     GradientAlpha.OPACITY_80 = 3;
-    /**
-     * 不透明度为1.0
-     */
     GradientAlpha.OPACITY_100 = 4;
 })(GradientAlpha || (GradientAlpha = {}));
-/**
- * 背景颜色融合方式
- *
- * @enum { number }.
- */
 export let MixMode;
 (function (MixMode) {
-    /**
-     * 两种颜色所占比例相同
-     */
     MixMode.AVERAGE = 1;
-    /**
-     * 一种颜色穿过另一种颜色
-     */
     MixMode.CROSS = 2;
-    /**
-     * 一种颜色渐渐转变为另一种颜色
-     */
     MixMode.TOWARDS = 3;
 })(MixMode || (MixMode = {}));
-/**
- * 背景底色
- *
- * @enum { number }.
- */
 export let BackgroundTheme;
 (function (BackgroundTheme) {
-    /**
-     * 黑色
-     */
     BackgroundTheme.DARK = 1;
-    /**
-     * 白色
-     */
     BackgroundTheme.LIGHT = 2;
-    /**
-     * 颜色值 #F1F3F5
-     */
     BackgroundTheme.DEFAULT = 3;
 })(BackgroundTheme || (BackgroundTheme = {}));
 export class AtomicServiceNavigation extends ViewPU {
@@ -411,20 +364,16 @@ export class AtomicServiceNavigation extends ViewPU {
                 backGroundColor[gradientBackground.backgroundTheme - 1]);
             Canvas.onReady(() => {
                 if (gradientBackground.secondaryColor === undefined) {
-                    //单色渐变
                     this.drawSingleGradient(this.context, gradientBackground.primaryColor, gradientBackground.backgroundTheme === undefined ?
                         backGroundColor[2] : backGroundColor[gradientBackground.backgroundTheme - 1]);
                 } else {
                     if (gradientBackground.mixMode === MixMode.AVERAGE) {
-                        //双色渐变五五分
                         this.drawGradientCanvasHalf(this.context, gradientBackground.primaryColor, gradientBackground.secondaryColor);
                     }
                     else if (gradientBackground.mixMode === MixMode.CROSS) {
-                        //第一种双色渐变三七分
                         this.drawGradientCanvasCross(this.context, gradientBackground.primaryColor, gradientBackground.secondaryColor);
                     }
                     else {
-                        //第二种双色渐变三七分
                         this.drawGradientCanvasTowards(this.context, gradientBackground.primaryColor, gradientBackground.secondaryColor);
                     }
                     this.drawTransparentGradient(this.context, gradientBackground.backgroundTheme === undefined ? BackgroundTheme.DEFAULT :
@@ -440,111 +389,92 @@ export class AtomicServiceNavigation extends ViewPU {
         this.initIcon();
         this.initSideBarAttr();
     }
-    /**
-     * 初始化侧边栏相关信息
-     */
     initSideBarAttr() {
         if (this.titleOptions?.titleBarType !== TitleBarType.DRAWER) {
             return;
         }
         this.sideBarAttribute = new sideBarAttributeSet();
         this.sideBarHelper = new SideBarHelper();
-        let sideBarStatusListener = (show) => {
+        let p1 = (show) => {
             this.sideBarAttribute.showSideBar = show;
             this.updateControlButtonVisibility();
             if (this.sideBarOptions?.onChange) {
                 this.sideBarOptions.onChange(show);
             }
         };
-        this.sideBarHelper.registerListener(sideBarStatusListener);
+        this.sideBarHelper.v1(p1);
     }
-    /**
-     * 窗口初始化或者尺寸发生变化时，让menubar避让宽度更新
-     */
-    freshMenubarAvoidAreaWidth(mainWindow) {
+    freshMenubarAvoidAreaWidth(j1) {
         setTimeout(() => {
-            const atomicServiceBar = this.getUIContext().getAtomicServiceBar();
-            if (!atomicServiceBar) {
+            const k1 = this.getUIContext().getAtomicServiceBar();
+            if (!k1) {
                 this.titleBuilderPaddingEndWidth = 0;
                 return;
             }
-            let menubarX = atomicServiceBar.getBarRect().x;
-            let corretionWidth = 0;
-            if (menubarX > MENUBAR_X_FIRST_THRESHOLD) {
-                const mainWindowWidth = px2vp(mainWindow.getWindowProperties()?.windowRect?.width) - menubarX;
-                corretionWidth = mainWindowWidth > MENUBAR_X_FIRST_THRESHOLD ? 0 : mainWindowWidth;
+            let l1 = k1.getBarRect().x;
+            let m1 = 0;
+            if (l1 > MENUBAR_X_FIRST_THRESHOLD) {
+                const o1 = px2vp(j1.getWindowProperties()?.windowRect?.width) - l1;
+                m1 = o1 > MENUBAR_X_FIRST_THRESHOLD ? 0 : o1;
+            } else if (l1 < MENUBAR_X_SECOND_THRESHOLD) {
+                m1 = l1 + MENUBAR_CORRECTION_OFFSET_VALUE;
             }
-            else if (menubarX < MENUBAR_X_SECOND_THRESHOLD) {
-                corretionWidth = menubarX + MENUBAR_CORRECTION_OFFSET_VALUE;
-            }
-            let currentWidth = atomicServiceBar.getBarRect().width;
-            this.titleBuilderPaddingEndWidth = corretionWidth > currentWidth ? corretionWidth : currentWidth;
+            let n1 = k1.getBarRect().width;
+            this.titleBuilderPaddingEndWidth = m1 > n1 ? m1 : n1;
         }, 100);
     }
-    /**
-     * 初始化window，并设置windowSizeChange监听，更新断点信息
-     */
     initWindow() {
         let context = getContext(this);
-        context?.windowStage?.getMainWindow().then(mainWindow => {
-            if (!mainWindow) {
+        context?.windowStage?.getMainWindow().then(i1 => {
+            if (!i1) {
                 return;
             }
-            this.mainWindow = mainWindow;
+            this.mainWindow = i1;
             if (this.titleOptions?.titleBarType === TitleBarType.DRAWER) {
-                this.sideBarHelper?.updateLayout(this.currentBreakPoint, this.sideBarAttribute);
+                this.sideBarHelper?.w1(this.currentBreakPoint, this.sideBarAttribute);
             }
-            this.updateBreakPoint(mainWindow.getWindowProperties()?.windowRect?.width);
-            this.freshMenubarAvoidAreaWidth(mainWindow);
+            this.updateBreakPoint(i1.getWindowProperties()?.windowRect?.width);
+            this.freshMenubarAvoidAreaWidth(i1);
             this.onWindowSizeChangeCallback = ((windowSize) => {
                 this.updateBreakPoint(windowSize?.width);
-                this.freshMenubarAvoidAreaWidth(mainWindow);
+                this.freshMenubarAvoidAreaWidth(i1);
             });
-            mainWindow.on('windowSizeChange', this.onWindowSizeChangeCallback);
+            i1.on('windowSizeChange', this.onWindowSizeChangeCallback);
         }).catch((err) => {
             console.error(`AtomicServiceNavigation get main window failed, message is ${err?.message}`);
         });
     }
-    /**
-     * 初始化icon，用户如果设置了则用自定义的icon，没有设置则用元服务图标
-     */
     initIcon() {
         if ((this.titleOptions?.titleBarType !== TitleBarType.ROUND_ICON &&
             this.titleOptions?.titleBarType !== TitleBarType.SQUARED_ICON) || this.titleOptions?.titleIcon) {
             return;
         }
         let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
-        let bundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags);
-        let iconRes = bundleInfo?.appInfo?.iconResource;
-        this.atomicServiceIcon = getContext(this)?.resourceManager?.getDrawableDescriptor(iconRes)?.getPixelMap();
+        let g1 = bundleManager.getBundleInfoForSelfSync(bundleFlags);
+        let h1 = g1?.appInfo?.iconResource;
+        this.atomicServiceIcon = getContext(this)?.resourceManager?.getDrawableDescriptor(h1)?.getPixelMap();
     }
-    /**
-     * 更新断点信息
-     */
     updateBreakPoint(windowWidth) {
         if (!windowWidth || windowWidth <= 0) {
             return;
         }
-        let widthVp = px2vp(windowWidth);
-        let newBreakPoint = '';
-        if (widthVp < BREAK_POINT_VP_SM) {
-            newBreakPoint = BREAK_POINT_SM;
-        } else if (widthVp < BREAK_POINT_VP_MD) {
-            newBreakPoint = BREAK_POINT_MD;
+        let e1 = px2vp(windowWidth);
+        let f1 = '';
+        if (e1 < BREAK_POINT_VP_SM) {
+            f1 = BREAK_POINT_SM;
+        } else if (e1 < BREAK_POINT_VP_MD) {
+            f1 = BREAK_POINT_MD;
         } else {
-            newBreakPoint = BREAK_POINT_LG;
+            f1 = BREAK_POINT_LG;
         }
-        if (this.currentBreakPoint !== newBreakPoint) {
-            this.currentBreakPoint = newBreakPoint;
+        if (this.currentBreakPoint !== f1) {
+            this.currentBreakPoint = f1;
             this.updateMargin();
             if (this.titleOptions?.titleBarType === TitleBarType.DRAWER) {
-                this.sideBarHelper?.updateLayout(this.currentBreakPoint, this.sideBarAttribute);
+                this.sideBarHelper?.w1(this.currentBreakPoint, this.sideBarAttribute);
             }
         }
     }
-    /**
-     * 更新边距
-     */
     updateMargin() {
         switch (this.currentBreakPoint) {
             case BREAK_POINT_MD:
@@ -564,14 +494,10 @@ export class AtomicServiceNavigation extends ViewPU {
             this.mainWindow?.off('windowSizeChange', this.onWindowSizeChangeCallback);
         }
     }
-    /**
-     * 更新control button的可见性
-     */
     updateControlButtonVisibility() {
         if (this.titleOptions?.titleBarType !== TitleBarType.DRAWER) {
             return;
         }
-        // 如果侧边栏显示，那么控制图标一定需要显示
         if (this.sideBarAttribute.showSideBar && this.controlButtonVisible) {
             return;
         }
@@ -599,6 +525,9 @@ export class AtomicServiceNavigation extends ViewPU {
             }
         }
     }
+    isRTL() {
+        return i18n.isRTL(i18n.System.getSystemLocale());
+    }
     drawerTitleBuilder(parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             If.create();
@@ -611,7 +540,6 @@ export class AtomicServiceNavigation extends ViewPU {
                                 (this.sideBarAttribute.showSideBar ? 8 : this.marginWindowLeft + 36 + 8)),
                             top: LengthMetrics.vp(10),
                             bottom: LengthMetrics.vp(10),
-                            // 在Stack模式，或者非分栏模式下右侧需要有一定padding值，避免超长文本时不能避让menuBar
                             end: ((this.currentBreakPoint === BREAK_POINT_SM &&
                                 (this.mode === NavigationMode.Auto || !this.mode)) || this.mode === NavigationMode.Stack) ?
                                 LengthMetrics.vp(this.titleBuilderPaddingEndWidth) : LengthMetrics.vp(0)
@@ -620,18 +548,17 @@ export class AtomicServiceNavigation extends ViewPU {
                     }, Row);
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
                         Text.create(this.title);
-                        Text.maxLines(2);
-                        Text.minFontSize(14);
-                        Text.maxFontSize(26);
-                        Text.height(36);
-                        Text.fontColor({ 'id': -1, 'type': 10001, params: ['sys.color.font_primary'],
-                            'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                        Text.maxLines(TITLE_MAX_LINES);
+                        Text.minFontSize(TITLE_MIN_FONT_SIZE);
+                        Text.maxFontSize(TITLE_MAX_FONT_SIZE);
+                        Text.height(DEFAULT_TITLE_HEIGHT);
+                        Text.fontColor(TITLE_FONT_COLOR);
                         Text.textOverflow({ overflow: TextOverflow.Ellipsis });
                         Text.fontWeight(FontWeight.Bold);
                         Text.width(0);
-                        Text.layoutWeight(1);
+                        Text.layoutWeight(TITLE_LAYOUT_WEIGHT);
                         Text.clip(true);
-                        Text.textAlign(i18n.isRTL(i18n.System.getSystemLocale()) ? TextAlign.End : TextAlign.Start);
+                        Text.textAlign(this.isRTL() ? TextAlign.End : TextAlign.Start);
                     }, Text);
                     Text.pop();
                     Row.pop();
@@ -801,8 +728,8 @@ export class AtomicServiceNavigation extends ViewPU {
                                     Button.visibility(this.controlButtonVisible ? Visibility.Visible : Visibility.None);
                                 }, Button);
                                 this.observeComponentCreation2((elmtId, isInitialRender) => {
-                                    SymbolGlyph.create({ 'id': -1, 'type': 40000, params: ['sys.symbol.close_sidebar'], 'bundleName':
-                                        '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+                                    SymbolGlyph.create({ 'id': -1, 'type': 40000, params: ['sys.symbol.close_sidebar'],
+                                        'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
                                     SymbolGlyph.fontWeight(FontWeight.Normal);
                                     SymbolGlyph.fontSize({ 'id': -1, 'type': 10002, params: ['sys.float.ohos_id_text_size_headline7'],
                                         'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
@@ -1070,15 +997,27 @@ export class AtomicServiceNavigation extends ViewPU {
         }, If);
         If.pop();
     }
-    /**
-     * 根据当前屏幕尺寸判断是否要显示用户插入的布局
-     */
+    defaultTitleBuilder(parent = null) {
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            Text.create(this.title);
+            Text.maxLines(TITLE_MAX_LINES);
+            Text.minFontSize(TITLE_MIN_FONT_SIZE);
+            Text.maxFontSize(TITLE_MAX_FONT_SIZE);
+            Text.height(DEFAULT_TITLE_HEIGHT);
+            Text.fontColor(TITLE_FONT_COLOR);
+            Text.textOverflow({ overflow: TextOverflow.Ellipsis });
+            Text.fontWeight(FontWeight.Bold);
+            Text.layoutWeight(TITLE_LAYOUT_WEIGHT);
+            Text.clip(true);
+            Text.margin({ top: LengthMetrics.px(DEFAULT_MARGIN_TOP_DISTANCE) });
+            Text.padding({ start: LengthMetrics.px(DEFAULT_PADDING_START_DISTANCE) });
+            Text.textAlign(this.isRTL() ? TextAlign.End : TextAlign.Start);
+        }, Text);
+        Text.pop();
+    }
     isShowMenus() {
         return this.mode === NavigationMode.Stack && this.currentBreakPoint !== BREAK_POINT_SM;
     }
-    /**
-     * 根据用户传入的类型和当前屏幕尺寸判断是否要显示NavigationMenuItem列表
-     */
     getMenuItemArray() {
         return this.isShowMenus() && this.menus instanceof Array ? this.menus : undefined;
     }
@@ -1122,24 +1061,15 @@ export class AtomicServiceNavigation extends ViewPU {
                 this.ifElseBranchUpdateFunction(0, () => {
                     this.controlButton.bind(this)();
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        // 断点为LG时，侧边栏嵌入到组件内；断点为MD或SM时，侧边栏悬浮在B栏上
                         SideBarContainer.create(this.currentBreakPoint === BREAK_POINT_LG ? SideBarContainerType.Embed :
                             SideBarContainerType.Overlay);
-                        // 断点为LG时，侧边栏嵌入到组件内；断点为MD或SM时，侧边栏悬浮在B栏上
                         SideBarContainer.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
-                        // 断点为LG时，侧边栏嵌入到组件内；断点为MD或SM时，侧边栏悬浮在B栏上
                         SideBarContainer.sideBarWidth(this.sideBarAttribute.sideBarWidth);
-                        // 断点为LG时，侧边栏嵌入到组件内；断点为MD或SM时，侧边栏悬浮在B栏上
-                        SideBarContainer.minContentWidth(this.sideBarAttribute.minContentWidthOfSideBar);
-                        // 断点为LG时，侧边栏嵌入到组件内；断点为MD或SM时，侧边栏悬浮在B栏上
+                        SideBarContainer.minContentWidth(this.sideBarAttribute.z1);
                         SideBarContainer.minSideBarWidth(this.sideBarAttribute.minSideBarWidth);
-                        // 断点为LG时，侧边栏嵌入到组件内；断点为MD或SM时，侧边栏悬浮在B栏上
                         SideBarContainer.maxSideBarWidth(this.sideBarAttribute.maxSideBarWidth);
-                        // 断点为LG时，侧边栏嵌入到组件内；断点为MD或SM时，侧边栏悬浮在B栏上
                         SideBarContainer.showControlButton(false);
-                        // 断点为LG时，侧边栏嵌入到组件内；断点为MD或SM时，侧边栏悬浮在B栏上
                         SideBarContainer.showSideBar(this.sideBarAttribute.showSideBar);
-                        // 断点为LG时，侧边栏嵌入到组件内；断点为MD或SM时，侧边栏悬浮在B栏上
                         SideBarContainer.onChange((showSideBar) => {
                             if (this.sideBarHelper?.isShowSideBar() !== showSideBar) {
                                 this.changeSideBarWithAnimation(showSideBar);
@@ -1152,7 +1082,7 @@ export class AtomicServiceNavigation extends ViewPU {
                         Stack.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
                     }, Stack);
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        Navigation.create(this.navPathStack, { moduleName: 'library', pagePath: '', isUserCreateStack: true });
+                        Navigation.create(this.navPathStack, { moduleName: '__harDefaultModuleName__', pagePath: '', isUserCreateStack: true });
                         Navigation.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
                         Navigation.title({ builder: () => {
                                 this.drawerTitleBuilder.call(this);
@@ -1207,17 +1137,18 @@ export class AtomicServiceNavigation extends ViewPU {
                     }, If);
                     If.pop();
                     Stack.pop();
-                    // 断点为LG时，侧边栏嵌入到组件内；断点为MD或SM时，侧边栏悬浮在B栏上
                     SideBarContainer.pop();
                 });
             }
             else {
                 this.ifElseBranchUpdateFunction(1, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        Navigation.create(this.navPathStack, { moduleName: 'library', pagePath: '', isUserCreateStack: true });
+                        Navigation.create(this.navPathStack, { moduleName: '__harDefaultModuleName__', pagePath: '', isUserCreateStack: true });
                         Navigation.title((this.titleOptions?.titleIcon || (this.titleOptions?.titleBarType && !this.title)) ? { builder: () => {
                                 this.titleBuilder.call(this);
-                            } } : this.title, this.getTitleOption());
+                            } } : { builder: () => {
+                                this.defaultTitleBuilder.call(this);
+                            } }, this.getTitleOption());
                         Navigation.titleMode(NavigationTitleMode.Mini);
                         Navigation.menus(this.isShowMenus() && this.menus instanceof Function ? { builder: () => {
                                 this.menus.call(this);
@@ -1253,92 +1184,67 @@ export class AtomicServiceNavigation extends ViewPU {
         If.pop();
         Stack.pop();
     }
-    /**
-     * 双色渐变下两种颜色各占50%的实现，把整个画布区域分为两个一样的矩形在绘制
-     * @param context 画布上下文
-     * @param primaryColor 第一种颜色
-     * @param secondaryColor 第二种颜色
-     */
     drawGradientCanvasHalf(context, primaryColor, secondaryColor) {
         let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
-        let grad1 = context.createLinearGradient(COORDINATE_NEGATIVE_ONE * this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT,
+        let c1 = context.createLinearGradient(COORDINATE_NEGATIVE_ONE * this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT,
             height, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
-        let grad2 = context.createLinearGradient(this.navigationWidth * COLOR_RATIO_ONE_FIFTY_PERCENT, height,
-            this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
-        grad1.addColorStop(0, this.resourceColorToString(primaryColor));
-        grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.resourceColorToString(primaryColor));
-        grad1.addColorStop(1, this.resourceColorToString(secondaryColor));
-        grad2.addColorStop(0, this.resourceColorToString(primaryColor));
-        grad2.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.resourceColorToString(primaryColor));
-        grad2.addColorStop(1, this.resourceColorToString(secondaryColor));
-        context.fillStyle = grad1;
+        let d1 = context.createLinearGradient(this.navigationWidth * COLOR_RATIO_ONE_FIFTY_PERCENT,
+            height, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0);
+        c1.addColorStop(0, this.resourceColorToString(primaryColor));
+        c1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.resourceColorToString(primaryColor));
+        c1.addColorStop(1, this.resourceColorToString(secondaryColor));
+        d1.addColorStop(0, this.resourceColorToString(primaryColor));
+        d1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.resourceColorToString(primaryColor));
+        d1.addColorStop(1, this.resourceColorToString(secondaryColor));
+        context.fillStyle = c1;
         context.fillRect(0, 0, this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, height);
-        context.fillStyle = grad2;
+        context.fillStyle = d1;
         context.fillRect(this.navigationWidth * COLOR_RATIO_FIFTY_PERCENT, 0, this.navigationWidth, height);
     }
-    /**
-     * 双色渐变的一种实现，把画布先分为两个大矩形，再把其中一个矩形分为两个小矩形
-     * @param context 画布上下文
-     * @param primaryColor 第一种颜色
-     * @param secondaryColor 第二种颜色
-     */
     drawGradientCanvasCross(context, primaryColor, secondaryColor) {
         let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
-        let grad1 = context.createLinearGradient(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, 0);
-        grad1.addColorStop(0, this.resourceColorToString(primaryColor));
-        grad1.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.resourceColorToString(primaryColor));
-        grad1.addColorStop(1, this.resourceColorToString(secondaryColor));
-        context.fillStyle = grad1;
+        let u = context.createLinearGradient(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, 0);
+        u.addColorStop(0, this.resourceColorToString(primaryColor));
+        u.addColorStop(COLOR_RATIO_FIFTY_PERCENT, this.resourceColorToString(primaryColor));
+        u.addColorStop(1, this.resourceColorToString(secondaryColor));
+        context.fillStyle = u;
         context.fillRect(0, 0, COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, height);
         let y1 = (COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
             COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth : 0;
-        let grad2 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y1, this.navigationWidth,
-            height * COLOR_RATIO_FIFTY_PERCENT);
-        grad2.addColorStop(0, this.resourceColorToString(secondaryColor));
-        grad2.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.resourceColorToString(secondaryColor));
-        grad2.addColorStop(1, this.resourceColorToString(primaryColor));
-        context.fillStyle = grad2;
+        let a1 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y1, this.navigationWidth, height * COLOR_RATIO_FIFTY_PERCENT);
+        a1.addColorStop(0, this.resourceColorToString(secondaryColor));
+        a1.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.resourceColorToString(secondaryColor));
+        a1.addColorStop(1, this.resourceColorToString(primaryColor));
+        context.fillStyle = a1;
         context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE, 0,
             this.navigationWidth * COLOR_RATIO_THIRTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE,
             height * COLOR_RATIO_FIFTY_PERCENT + RECTANGLE_OUTSIDE_OFFSET_ONE);
         let y2 = (COLOR_RATIO_FIFTY_PERCENT * height - COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth) > 0 ?
             COLOR_RATIO_FIFTY_PERCENT * height + COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth : height;
-        let grad3 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y2,
-            this.navigationWidth, height * COLOR_RATIO_FIFTY_PERCENT);
-        grad3.addColorStop(0, this.resourceColorToString(secondaryColor));
-        grad3.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.resourceColorToString(secondaryColor));
-        grad3.addColorStop(1, this.resourceColorToString(primaryColor));
-        context.fillStyle = grad3;
+        let b1 = context.createLinearGradient(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth, y2, this.navigationWidth, height * COLOR_RATIO_FIFTY_PERCENT);
+        b1.addColorStop(0, this.resourceColorToString(secondaryColor));
+        b1.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.resourceColorToString(secondaryColor));
+        b1.addColorStop(1, this.resourceColorToString(primaryColor));
+        context.fillStyle = b1;
         context.fillRect(COLOR_RATIO_SEVENTY_PERCENT * this.navigationWidth - RECTANGLE_OUTSIDE_OFFSET_ONE,
             height * COLOR_RATIO_FIFTY_PERCENT, COLOR_RATIO_THIRTY_PERCENT * this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE,
             height * COLOR_RATIO_FIFTY_PERCENT);
     }
-    /**
-     * 双色渐变的一种实现，从矩形左上角颜色渐变到右下角
-     * @param context 画布上下文
-     * @param primaryColor 第一种颜色
-     * @param secondaryColor 第二种颜色
-     */
     drawGradientCanvasTowards(context, primaryColor, secondaryColor) {
         let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
-        let grad = context.createLinearGradient(0, 0, this.navigationWidth, height);
-        grad.addColorStop(0, this.resourceColorToString(primaryColor));
-        grad.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.resourceColorToString(primaryColor));
-        grad.addColorStop(1, this.resourceColorToString(secondaryColor));
-        context.fillStyle = grad;
+        let t = context.createLinearGradient(0, 0, this.navigationWidth, height);
+        t.addColorStop(0, this.resourceColorToString(primaryColor));
+        t.addColorStop(COLOR_RATIO_FORTY_PERCENT, this.resourceColorToString(primaryColor));
+        t.addColorStop(1, this.resourceColorToString(secondaryColor));
+        context.fillStyle = t;
         context.fillRect(0, 0, this.navigationWidth, height);
     }
-    /**
-     * 双色渐变下透明效果的实现
-     * @param context 画布上下文
-     * @param backgroundTheme 背景色底色
-     */
     drawTransparentGradient(context, backgroundTheme) {
         let height = this.navigationHeight * COLOR_RATIO_THIRTY_PERCENT;
-        let grad = context.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, backGroundTransparentGradientColor[backgroundTheme - 1][0]);
-        grad.addColorStop(1, backGroundTransparentGradientColor[backgroundTheme - 1][1]);
-        context.fillStyle = grad;
+        let o = context.createLinearGradient(0, 0, 0, height);
+        o.addColorStop(0, backGroundTransparentGradientColor[backgroundTheme - 1][0]);
+        o.addColorStop(1, backGroundTransparentGradientColor[backgroundTheme - 1][1]);
+        context.fillStyle = o;
         context.fillRect(0, 0, this.navigationWidth + RECTANGLE_OUTSIDE_OFFSET_ONE, height +
             RECTANGLE_OUTSIDE_OFFSET_ONE);
         if (backgroundTheme === BackgroundTheme.DARK) {
@@ -1346,30 +1252,18 @@ export class AtomicServiceNavigation extends ViewPU {
             context.fillRect(0, height, this.navigationWidth, this.navigationHeight - height);
         }
     }
-    /**
-     * 单色渐变：
-     * @param context 画布上下文
-     * @param primaryColor createLinearGradient初始颜色为primaryColor，结束颜色为底色
-     * @param backgroundColor 颜色线性渐变的结束颜色
-     */
     drawSingleGradient(context, primaryColor, backgroundColor) {
         let height = this.navigationHeight * COLOR_RATIO_SIXTY_PERCENT;
-        let grad1 = context.createLinearGradient(0, 0, 0, height);
-        grad1.addColorStop(0, this.resourceColorToString(primaryColor));
-        grad1.addColorStop(1, backgroundColor);
-        context.fillStyle = grad1;
+        let m = context.createLinearGradient(0, 0, 0, height);
+        m.addColorStop(0, this.resourceColorToString(primaryColor));
+        m.addColorStop(1, backgroundColor);
+        context.fillStyle = m;
         context.fillRect(0, 0, this.navigationWidth, height);
-        //当背景为黑色的时候需要特殊处理下
         if (backgroundColor === backGroundColor[0]) {
             context.fillStyle = Color.Black;
             context.fillRect(0, height, this.navigationWidth, this.navigationHeight * (1 - COLOR_RATIO_SIXTY_PERCENT));
         }
     }
-    /**
-     * ResourceColor转化为能作为addColorStop使用的字符串
-     * @param resource ResourceColor = Color | number | string | Resource,对于Resource转化为直接使用的字符串需要特殊处理
-     * @returns
-     */
     resourceColorToString(resource) {
         if (typeof resource === 'object') {
             try {
@@ -1387,9 +1281,6 @@ export class AtomicServiceNavigation extends ViewPU {
             return resource.toString();
         }
     }
-    /**
-     * 获取NavigationTitleOptions
-     */
     getTitleOption() {
         return {
             backgroundColor: this.titleOptions?.backgroundColor,
@@ -1397,19 +1288,16 @@ export class AtomicServiceNavigation extends ViewPU {
             barStyle: this.titleOptions?.barStyle
         };
     }
-    /**
-     * 更新control button的可见性，并运行动画效果
-     */
-    changeSideBarWithAnimation(isShowSidebar) {
+    changeSideBarWithAnimation(j) {
         Context.animateTo({
             duration: 500,
             curve: curves.cubicBezierCurve(0.2, 0.2, 0.1, 1),
             onFinish: () => {
-                this.showMaskLayer = isShowSidebar;
+                this.showMaskLayer = j;
             }
         }, () => {
             if (this.sideBarHelper) {
-                this.sideBarHelper.setShowSideBar(isShowSidebar);
+                this.sideBarHelper.a2(j);
             }
             this.showMaskLayer = true;
         });
@@ -1418,121 +1306,57 @@ export class AtomicServiceNavigation extends ViewPU {
         this.updateDirtyElements();
     }
 }
-/**
- * 侧边栏相关参数
- */
 let sideBarAttributeSet = class sideBarAttributeSet {
     constructor() {
-        /**
-         * 侧边栏宽度
-         */
         this.sideBarWidth = SIDE_BAR_OVERLAY_WIDTH;
-        /**
-         * 侧边栏最小宽度
-         */
         this.minSideBarWidth = SIDE_BAR_OVERLAY_WIDTH;
-        /**
-         * 侧边栏最大宽度
-         */
         this.maxSideBarWidth = SIDE_BAR_OVERLAY_WIDTH;
-        /**
-         * 侧边栏内容最小宽度
-         */
-        this.minContentWidthOfSideBar = SIDE_BAR_COMMON_WIDTH;
-        /**
-         * 侧边栏显示隐藏状态
-         */
+        this.z1 = SIDE_BAR_COMMON_WIDTH;
         this.showSideBar = false;
     }
 };
 sideBarAttributeSet = __decorate([
     Observed
 ], sideBarAttributeSet);
-/**
- * 侧边栏辅助管理类
- */
 class SideBarHelper {
     constructor() {
-        this.isExpandSideBar = false;
+        this.b2 = false;
     }
-    /**
-     * 注册侧边栏显隐状态变化监听
-     *
-     * @param listener 监听器对象
-     */
-    registerListener(listener) {
+    v1(listener) {
         this.listener = listener;
     }
-    /**
-     * 取消注册监听
-     */
-    unregisterListener() {
+    c2() {
         this.listener = undefined;
     }
-    /**
-     * 获取侧边栏显示隐藏状态
-     *
-     * @returns 侧边栏是否显示
-     */
     isShowSideBar() {
-        return this.isExpandSideBar;
+        return this.b2;
     }
-    /**
-     * 设置侧边栏显示隐藏状态
-     *
-     * @param value 显示或隐藏状态
-     */
-    setShowSideBar(value) {
-        this.isExpandSideBar = value;
+    a2(value) {
+        this.b2 = value;
         if (this.listener) {
             this.listener(value);
         }
     }
-    /**
-     * 更新侧边栏布局
-     *
-     * @param breakPoint 当前断点
-     * @param layout 布局参数
-     */
-    updateLayout(breakPoint, layout) {
-        if (breakPoint === BREAK_POINT_LG) {
-            this.updateLGLayout(layout);
-        }
-        else {
-            this.updateCommonLayout(layout);
+    w1(i, layout) {
+        if (i === BREAK_POINT_LG) {
+            this.d2(layout);
+        } else {
+            this.e2(layout);
         }
     }
-    /**
-     * 更新除LG外窗口模式的布局
-     */
-    updateCommonLayout(layout) {
+    e2(layout) {
         layout.sideBarWidth = SIDE_BAR_OVERLAY_WIDTH;
-        layout.minContentWidthOfSideBar = '100%';
+        layout.z1 = '100%';
     }
-    /**
-     * 更新LG窗口模式布局
-     */
-    updateLGLayout(layout) {
+    d2(layout) {
         layout.sideBarWidth = SIDE_BAR_EMBED_MIN_WIDTH;
-        layout.minContentWidthOfSideBar = CONTENT_MIN_WIDTH;
+        layout.z1 = CONTENT_MIN_WIDTH;
     }
 }
-/**
- * 标题栏类型
- */
 export let TitleBarType;
 (function (TitleBarType) {
-    /**
-     * 长图标类型标题栏
-     */
     TitleBarType.SQUARED_ICON = 1;
-    /**
-     * 圆形图标类型标题栏
-     */
     TitleBarType.ROUND_ICON = 2;
-    /**
-     * 抽屉类型标题栏
-     */
     TitleBarType.DRAWER = 3;
 })(TitleBarType || (TitleBarType = {}));
 //# sourceMappingURL=AtomicServiceNavigation.js.map

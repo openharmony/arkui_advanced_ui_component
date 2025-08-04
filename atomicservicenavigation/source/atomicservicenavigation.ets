@@ -54,6 +54,17 @@ const CONTENT_MIN_WIDTH = 600;
 const MENUBAR_X_FIRST_THRESHOLD: number = 200;
 const MENUBAR_X_SECOND_THRESHOLD: number = 40;
 const MENUBAR_CORRECTION_OFFSET_VALUE: number = 92;
+/**
+ * 标题栏统一样式配置数据
+ */
+const TITLE_MAX_LINES: number = 2;
+const TITLE_MIN_FONT_SIZE: number = 14;
+const TITLE_MAX_FONT_SIZE: number = 26;
+const DEFAULT_TITLE_HEIGHT: number = 36;
+const TITLE_LAYOUT_WEIGHT: number = 1;
+const DEFAULT_PADDING_START_DISTANCE: number = 32;
+const DEFAULT_MARGIN_TOP_DISTANCE: number = 26;
+const TITLE_FONT_COLOR: ResourceStr = $r('sys.color.font_primary');
 
 /**
  * 背景颜色的不透明度的枚举类型
@@ -371,22 +382,31 @@ export struct AtomicServiceNavigation {
     }
   }
 
+  /**
+   * 获取当前系统是否为镜像模式（文本排布从右往左）
+   *
+   * @returns 返回true表示是镜像模式，反之返回false
+   */
+  private isRTL(): boolean {
+    return i18n.isRTL(i18n.System.getSystemLocale());
+  }
+
   @Builder
-  drawerTitleBuilder() {
+  drawerTitleBuilder(): void {
     if (this.titleOptions?.titleBarType === TitleBarType.DRAWER && this.title) {
       Row() {
         Text(this.title)
-          .maxLines(2)
-          .minFontSize(14)
-          .maxFontSize(26)
-          .height(36)
-          .fontColor($r('sys.color.font_primary'))
+          .maxLines(TITLE_MAX_LINES)
+          .minFontSize(TITLE_MIN_FONT_SIZE)
+          .maxFontSize(TITLE_MAX_FONT_SIZE)
+          .height(DEFAULT_TITLE_HEIGHT)
+          .fontColor(TITLE_FONT_COLOR)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
           .fontWeight(FontWeight.Bold)
           .width(0)
-          .layoutWeight(1)
+          .layoutWeight(TITLE_LAYOUT_WEIGHT)
           .clip(true)
-          .textAlign(i18n.isRTL(i18n.System.getSystemLocale()) ? TextAlign.End : TextAlign.Start)
+          .textAlign(this.isRTL() ? TextAlign.End : TextAlign.Start)
       }
       .padding({
         start: LengthMetrics.vp(this.currentBreakPoint !== BREAK_POINT_LG ? this.marginWindowLeft + 36 + 8 :
@@ -609,6 +629,23 @@ export struct AtomicServiceNavigation {
     }
   }
 
+  @Builder
+  private defaultTitleBuilder(): void {
+    Text(this.title)
+      .maxLines(TITLE_MAX_LINES)
+      .minFontSize(TITLE_MIN_FONT_SIZE)
+      .maxFontSize(TITLE_MAX_FONT_SIZE)
+      .height(DEFAULT_TITLE_HEIGHT)
+      .fontColor(TITLE_FONT_COLOR)
+      .textOverflow({ overflow: TextOverflow.Ellipsis })
+      .fontWeight(FontWeight.Bold)
+      .layoutWeight(TITLE_LAYOUT_WEIGHT)
+      .clip(true)
+      .margin({ top: LengthMetrics.px(DEFAULT_MARGIN_TOP_DISTANCE) })
+      .padding({ start: LengthMetrics.px(DEFAULT_PADDING_START_DISTANCE) })
+      .textAlign(this.isRTL() ? TextAlign.End : TextAlign.Start)
+  }
+
   /**
    * 根据当前屏幕尺寸判断是否要显示用户插入的布局
    */
@@ -696,9 +733,8 @@ export struct AtomicServiceNavigation {
             this.navigationContent();
           }
         }
-        .title((this.titleOptions?.titleIcon || (this.titleOptions?.titleBarType && !this.title)) ? this.titleBuilder() :
-        this.title,
-          this.getTitleOption())
+        .title((this.titleOptions?.titleIcon || (this.titleOptions?.titleBarType && !this.title)) ?
+          this.titleBuilder() : this.defaultTitleBuilder(), this.getTitleOption())
         .titleMode(NavigationTitleMode.Mini)
         .menus(this.isShowMenus() && this.menus instanceof Function ? this.menus() : this.getMenuItemArray())
         .hideBackButton(true)
