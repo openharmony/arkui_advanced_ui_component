@@ -1010,7 +1010,7 @@ export class AtomicServiceNavigation extends ViewPU {
             Text.layoutWeight(TITLE_LAYOUT_WEIGHT);
             Text.clip(true);
             Text.margin({ top: LengthMetrics.px(DEFAULT_MARGIN_TOP_DISTANCE) });
-            Text.padding({ start: LengthMetrics.px(DEFAULT_PADDING_START_DISTANCE) })
+            Text.padding({ start: LengthMetrics.px(DEFAULT_PADDING_START_DISTANCE) });
             Text.textAlign(this.isRTL() ? TextAlign.End : TextAlign.Start);
         }, Text);
         Text.pop();
