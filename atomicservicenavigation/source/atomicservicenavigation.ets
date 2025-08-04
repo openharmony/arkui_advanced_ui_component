@@ -62,7 +62,7 @@ const TITLE_MIN_FONT_SIZE: number = 14;
 const TITLE_MAX_FONT_SIZE: number = 26;
 const DEFAULT_TITLE_HEIGHT: number = 36;
 const TITLE_LAYOUT_WEIGHT: number = 1;
-const DEFAULT_MARGIN_START_DISTANCE: number = 32;
+const DEFAULT_PADDING_START_DISTANCE: number = 32;
 const DEFAULT_MARGIN_TOP_DISTANCE: number = 26;
 const TITLE_FONT_COLOR: ResourceStr = $r('sys.color.font_primary');
 
@@ -642,7 +642,7 @@ export struct AtomicServiceNavigation {
       .layoutWeight(TITLE_LAYOUT_WEIGHT)
       .clip(true)
       .margin({ top: LengthMetrics.px(DEFAULT_MARGIN_TOP_DISTANCE) })
-      .padding({ start: LengthMetrics.px(DEFAULT_MARGIN_START_DISTANCE) })
+      .padding({ start: LengthMetrics.px(DEFAULT_PADDING_START_DISTANCE) })
       .textAlign(this.isRTL() ? TextAlign.End : TextAlign.Start)
   }
 

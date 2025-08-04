@@ -52,7 +52,7 @@ const TITLE_MIN_FONT_SIZE = 14;
 const TITLE_MAX_FONT_SIZE = 26;
 const DEFAULT_TITLE_HEIGHT = 36;
 const TITLE_LAYOUT_WEIGHT = 1;
-const DEFAULT_MARGIN_START_DISTANCE = 32;
+const DEFAULT_PADDING_START_DISTANCE = 32;
 const DEFAULT_MARGIN_TOP_DISTANCE = 26;
 const TITLE_FONT_COLOR = { 'id': -1, 'type': 10001, params: ['sys.color.font_primary'],
     'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' };
@@ -1010,7 +1010,7 @@ export class AtomicServiceNavigation extends ViewPU {
             Text.layoutWeight(TITLE_LAYOUT_WEIGHT);
             Text.clip(true);
             Text.margin({ top: LengthMetrics.px(DEFAULT_MARGIN_TOP_DISTANCE) });
-            Text.padding({ start: LengthMetrics.px(DEFAULT_MARGIN_START_DISTANCE) })
+            Text.padding({ start: LengthMetrics.px(DEFAULT_PADDING_START_DISTANCE) })
             Text.textAlign(this.isRTL() ? TextAlign.End : TextAlign.Start);
         }, Text);
         Text.pop();
