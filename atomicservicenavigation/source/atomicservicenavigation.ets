@@ -641,10 +641,8 @@ export struct AtomicServiceNavigation {
       .fontWeight(FontWeight.Bold)
       .layoutWeight(TITLE_LAYOUT_WEIGHT)
       .clip(true)
-      .margin({
-        start: LengthMetrics.px(DEFAULT_MARGIN_START_DISTANCE),
-        top: LengthMetrics.px(DEFAULT_MARGIN_TOP_DISTANCE)
-      })
+      .margin({ top: LengthMetrics.px(DEFAULT_MARGIN_TOP_DISTANCE) })
+      .padding({ start: LengthMetrics.px(DEFAULT_MARGIN_START_DISTANCE) })
       .textAlign(this.isRTL() ? TextAlign.End : TextAlign.Start)
   }
 
