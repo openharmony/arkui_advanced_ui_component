@@ -168,6 +168,7 @@ export class CustomAppBar extends ViewPU {
         this.__dividerOpacity = new ObservedPropertySimplePU(0, this, 'dividerOpacity');
         this.__isShowPrivacyAnimation = new ObservedPropertySimplePU(false, this, 'isShowPrivacyAnimation');
         this.__labelName = new ObservedPropertySimplePU('', this, 'labelName');
+        this.isHalfScreenCompFirstLaunch = true;
         this.isHalfToFullScreen = false;
         this.isDark = true;
         this.bundleName = '';
@@ -782,6 +783,15 @@ export class CustomAppBar extends ViewPU {
             }
         });
     }
+    /**
+     * 半屏嵌入式定制使用，当半屏嵌入式组件首次被拉起或者屏幕宽度断点发生变化时被调用
+     * 被调用时更新半屏嵌入式组件的宽高比例
+     */
+    updateRatio() {
+        // 屏幕断点为LG或MD时设置成直板机的宽高尺寸比，直板机时则设置为undefined使控制尺寸比的字段失效
+        const isRatioBeUndefined = this.breakPoint === BreakPointsType.LG || this.breakPoint === BreakPointsType.MD;
+        this.ratio = isRatioBeUndefined ? 1 / LG_WIDTH_HEIGHT_RATIO : undefined;
+    }
     onBreakPointChange() {
         if (menuMarginEndMap.has(this.breakPoint)) {
             this.menuMarginEnd = menuMarginEndMap.get(this.breakPoint);
@@ -803,6 +813,9 @@ export class CustomAppBar extends ViewPU {
                     hilog.error(0x3900, LOG_TAG, `getDefaultDisplaySync failed, code is ${error?.code}, message is ${error?.message}`);
                 }
             }
+        }
+        if (!this.isHalfScreenCompFirstLaunch) {
+            this.updateRatio();
         }
     }
     parseBoolean(value) {
@@ -968,7 +981,7 @@ export class CustomAppBar extends ViewPU {
             curve: curves.interpolatingSpring(0, 1, 328, 36),
         }, () => {
             this.containerHeight = '100%';
-            this.ratio = this.breakPoint === BreakPointsType.LG ? 1 / LG_WIDTH_HEIGHT_RATIO : undefined;
+            this.updateRatio();
         });
         // 标题栏渐显
         Context.animateTo({
@@ -977,6 +990,7 @@ export class CustomAppBar extends ViewPU {
         }, () => {
             this.titleOpacity = 1;
         });
+        this.isHalfScreenCompFirstLaunch = false;
     }
     /**
      * 半屏放大至全屏动效
@@ -1026,6 +1040,7 @@ export class CustomAppBar extends ViewPU {
         else {
             this.onCloseButtonClick();
         }
+        this.isHalfScreenCompFirstLaunch = true;
     }
     closeHalfContainerAnimation() {
         // 关闭弹框
