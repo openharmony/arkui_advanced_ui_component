@@ -184,6 +184,7 @@ export struct CustomAppBar {
   private isDark: boolean = true;
   private bundleName: string = '';
   @State labelName: string = '';
+  private isHalfScreenCompFirstLaunch: boolean = true;
   private icon: Resource | string | PixelMap = $r('sys.media.ohos_app_icon');
   private fullContentMarginTop: number = 0;
   private deviceBorderRadius: string = '0';
@@ -277,6 +278,16 @@ export struct CustomAppBar {
     })
   }
 
+  /**
+   * 半屏嵌入式定制使用，当半屏嵌入式组件首次被拉起或者屏幕宽度断点发生变化时被调用
+   * 被调用时更新半屏嵌入式组件的宽高比例
+   */
+  updateRatio(): void {
+    // 屏幕断点为LG或MD时设置成直板机的宽高尺寸比，断点为SM时设置成undefined从而使控制尺寸比的字段失效
+    const isRatioBeUndefined = this.breakPoint === BreakPointsType.LG || this.breakPoint === BreakPointsType.MD;
+    this.ratio = isRatioBeUndefined ? 1 / LG_WIDTH_HEIGHT_RATIO : undefined;
+  }
+
   onBreakPointChange(): void {
     if (menuMarginEndMap.has(this.breakPoint)) {
       this.menuMarginEnd = menuMarginEndMap.get(this.breakPoint) as number;
@@ -295,8 +306,10 @@ export struct CustomAppBar {
         } catch (error) {
           hilog.error(0x3900, LOG_TAG, `getDefaultDisplaySync failed, code is ${error?.code}, message is ${error?.message}`);
         }
-    }
       }
+    }
+    if (!this.isHalfScreenCompFirstLaunch) {
+      this.updateRatio();
     }
   }
 
@@ -452,8 +465,7 @@ export struct CustomAppBar {
       curve: curves.interpolatingSpring(0, 1, 328, 36),
     }, () => {
       this.containerHeight = '100%';
-      this.ratio = this.breakPoint === BreakPointsType.LG ? 1 / LG_WIDTH_HEIGHT_RATIO : undefined;
-
+      this.updateRatio();
     });
     // 标题栏渐显
     animateTo({
@@ -462,6 +474,7 @@ export struct CustomAppBar {
     }, () => {
       this.titleOpacity = 1;
     });
+    this.isHalfScreenCompFirstLaunch = false;
   }
 
   /**
@@ -512,6 +525,7 @@ export struct CustomAppBar {
     } else {
       this.onCloseButtonClick();
     }
+    this.isHalfScreenCompFirstLaunch = true;
   }
 
   closeHalfContainerAnimation() {
@@ -603,16 +617,16 @@ export struct CustomAppBar {
    */
   private initPrivacyAnimator(): void {
     let privacyTextLength = px2vp(componentUtils.getRectangleById('AtomicServiceMenuPrivacyId').size.width);
-      let options: AnimatorOptions = {
-        duration: 500,
-        easing: 'interpolating-spring(1, 1, 328, 26)',
-        delay: 0,
-        fill: 'forwards',
-        direction: 'normal',
-        iterations: 1,
-        begin: privacyTextLength + PRIVACY_MARGIN + PRIVACY_TEXT_MARGIN_START + PRIVACY_TEXT_MARGIN_END,
-        end: 0
-      };
+    let options: AnimatorOptions = {
+      duration: 500,
+      easing: 'interpolating-spring(1, 1, 328, 26)',
+      delay: 0,
+      fill: 'forwards',
+      direction: 'normal',
+      iterations: 1,
+      begin: privacyTextLength + PRIVACY_MARGIN + PRIVACY_TEXT_MARGIN_START + PRIVACY_TEXT_MARGIN_END,
+      end: 0
+    };
     this.privacyAnimator = animator.create(options);
     this.privacyAnimator.onFrame = (value: number) => {
       // 当动画帧值小于0.01时，不做动画。
@@ -914,7 +928,7 @@ export struct CustomAppBar {
             .width('100%')
             .onClick(() => {
               // 拦截到背板的点击事件
-            });
+            })
             .id('AtomicServiceStageId')
           }
           .height(this.containerHeight)
