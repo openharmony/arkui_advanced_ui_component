@@ -15,7 +15,7 @@
 if (!('finalizeConstruction' in ViewPU.prototype)) {
     Reflect.set(ViewPU.prototype, 'finalizeConstruction', () => { });
 }
-
+// 引入依赖文件
 const commonEventManager = requireNapi('commonEventManager');
 const hilog = requireNapi('hilog');
 const curves = requireNativeModule('ohos.curves');
@@ -25,7 +25,9 @@ const LengthMetrics = requireNapi('arkui.node').LengthMetrics;
 const systemParameterEnhance = requireNapi('systemParameterEnhance');
 const animator = requireNapi('animator');
 const componentUtils = requireNapi('arkui.componentUtils');
+// Menubar作用域内打印日志的前缀
 const LOG_TAG = 'CustomAppBar';
+// 定义基础常量
 const VIEW_WIDTH = 80;
 const VIEW_HEIGHT = 36;
 const BUTTON_SIZE = 40;
@@ -101,73 +103,138 @@ const colorMap = new Map([
     [HALF_BUTTON_BACK_COLOR, new ColorGroup('#0D000000', '#19FFFFFF')],
     [HALF_BUTTON_IMAGE_COLOR, new ColorGroup('#000000', '#FFFFFF')]
 ]);
-export class CustomAppBar extends ViewPU {
-    constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
+/**
+ * 适配不同断点模式
+ */
+const BreakPointsType = {
+    NONE: 'NONE',
+    SM: 'SM',
+    MD: 'MD',
+    LG: 'LG',
+};
+const menuMarginEndMap = new Map([
+    [BreakPointsType.NONE, SM_MENU_MARGIN_END],
+    [BreakPointsType.SM, SM_MENU_MARGIN_END],
+    [BreakPointsType.MD, MD_MENU_MARGIN_END],
+    [BreakPointsType.LG, LG_MENU_MARGIN_END]
+]);
+
+/**
+ * Menubar的基础属性定义，包括等价ArkTS中State、Link等修饰的变量
+ */
+class MenubarBaseInfo extends ViewPU {
+    constructor(parent, __localStorage, elmtId, extraInfo) {
         super(parent, __localStorage, elmtId, extraInfo);
-        if (typeof paramsLambda === 'function') {
-            this.paramsGenerator_ = paramsLambda;
-        }
-        this.__menuResource = new ObservedPropertyObjectPU({
+        // @State修饰变量集合，里面的变量等价于ArkTS中的@State xxx
+        let stateProps = {};
+        stateProps.menuResource = {
             bundleName: '',
             moduleName: '',
             params: [],
             id: 125830217,
             type: 20000
-        }, this, 'menuResource');
-        this.__closeResource = new ObservedPropertyObjectPU({
+        };
+        stateProps.closeResource = {
             bundleName: '',
             moduleName: '',
             params: [],
             id: 125831084,
             type: 20000
-        }, this, 'closeResource');
-        this.__privacyResource = new ObservedPropertyObjectPU({
+        };
+        stateProps.privacyResource = {
             bundleName: '',
             moduleName: '',
             params: [],
             id: 125835516,
             type: 20000
-        }, this, 'privacyResource');
-        this.__menuFillColor = new ObservedPropertySimplePU(this.getResourceColor(ICON_FILL_COLOR_DEFAULT), this, 'menuFillColor');
-        this.__closeFillColor = new ObservedPropertySimplePU(this.getResourceColor(ICON_FILL_COLOR_DEFAULT), this, 'closeFillColor');
-        this.__menubarBorderColor = new ObservedPropertySimplePU(this.getResourceColor(BORDER_COLOR_DEFAULT), this, 'menubarBorderColor');
-        this.__menubarBackColor = new ObservedPropertySimplePU(this.getResourceColor(MENU_BACK_COLOR), this, 'menubarBackColor');
-        this.__dividerBackgroundColor = new ObservedPropertySimplePU(this.getResourceColor(BORDER_COLOR_DEFAULT), this, 'dividerBackgroundColor');
-        this.__halfButtonBackColor = new ObservedPropertySimplePU(this.getResourceColor(HALF_BUTTON_BACK_COLOR), this, 'halfButtonBackColor');
-        this.__halfButtonImageColor = new ObservedPropertySimplePU(this.getResourceColor(HALF_BUTTON_IMAGE_COLOR), this, 'halfButtonImageColor');
-        this.__privacyImageColor = new ObservedPropertySimplePU(this.getResourceColor(HALF_BUTTON_IMAGE_COLOR), this, 'privacyImageColor');
-        this.__contentMarginTop = new ObservedPropertySimplePU(0, this, 'contentMarginTop');
-        this.__contentMarginLeft = new ObservedPropertySimplePU(0, this, 'contentMarginLeft');
-        this.__contentMarginRight = new ObservedPropertySimplePU(0, this, 'contentMarginRight');
-        this.__contentMarginBottom = new ObservedPropertySimplePU(0, this, 'contentMarginBottom');
-        this.__menuMarginEnd = new ObservedPropertySimplePU(SM_MENU_MARGIN_END, this, 'menuMarginEnd');
-        this.__isHalfScreen = new ObservedPropertySimplePU(true, this, 'isHalfScreen');
-        this.__containerHeight = new ObservedPropertySimplePU('0%', this, 'containerHeight');
-        this.__containerWidth = new ObservedPropertySimplePU('100%', this, 'containerWidth');
-        this.__stackHeight = new ObservedPropertySimplePU('100%', this, 'stackHeight');
-        this.__titleOpacity = new ObservedPropertySimplePU(0, this, 'titleOpacity');
-        this.__buttonOpacity = new ObservedPropertySimplePU(1, this, 'buttonOpacity');
-        this.__titleHeight = new ObservedPropertySimplePU(0, this, 'titleHeight');
-        this.__titleOffset = new ObservedPropertySimplePU(0, this, 'titleOffset');
-        this.__maskOpacity = new ObservedPropertySimplePU(0, this, 'maskOpacity');
-        this.__maskBlurScale = new ObservedPropertySimplePU(0, this, 'maskBlurScale');
-        this.__contentBgColor = new ObservedPropertyObjectPU('#FFFFFFFF', this, 'contentBgColor');
-        this.__statusBarHeight = new ObservedPropertySimplePU(0, this, 'statusBarHeight');
-        this.__ratio = new ObservedPropertyObjectPU(undefined, this, 'ratio');
-        this.__breakPoint = new ObservedPropertySimplePU(BreakPointsType.NONE, this, 'breakPoint');
-        this.__serviceMenuRead = new ObservedPropertySimplePU(this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL), this, 'serviceMenuRead');
-        this.__closeRead = new ObservedPropertySimplePU(this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE), this, 'closeRead');
-        this.__maximizeRead = new ObservedPropertySimplePU(this.getStringByResourceToken(ARKUI_APP_BAR_MAXIMIZE), this, 'maximizeRead');
-        this.__provideService = new ObservedPropertySimplePU('', this, 'provideService');
-        this.__privacyAuthText = new ObservedPropertySimplePU('', this, 'privacyAuthText');
-        this.__privacyWidth = new ObservedPropertySimplePU('0', this, 'privacyWidth');
-        this.__privacySymbolOpacity = new ObservedPropertySimplePU(0, this, 'privacySymbolOpacity');
-        this.__angle = new ObservedPropertySimplePU('-90deg', this, 'angle');
-        this.__buttonSize = new ObservedPropertySimplePU(BUTTON_SIZE, this, 'buttonSize');
-        this.__privacyTextOpacity = new ObservedPropertySimplePU(0, this, 'privacyTextOpacity');
-        this.__dividerOpacity = new ObservedPropertySimplePU(0, this, 'dividerOpacity');
-        this.__isShowPrivacyAnimation = new ObservedPropertySimplePU(false, this, 'isShowPrivacyAnimation');
-        this.__labelName = new ObservedPropertySimplePU('', this, 'labelName');
+        };
+        stateProps.menuFillColor = this.getResourceColor(ICON_FILL_COLOR_DEFAULT);
+        stateProps.closeFillColor = this.getResourceColor(ICON_FILL_COLOR_DEFAULT);
+        stateProps.menubarBorderColor = this.getResourceColor(BORDER_COLOR_DEFAULT);
+        stateProps.menubarBackColor = this.getResourceColor(MENU_BACK_COLOR);
+        stateProps.dividerBackgroundColor = this.getResourceColor(BORDER_COLOR_DEFAULT);
+        stateProps.halfButtonBackColor = this.getResourceColor(HALF_BUTTON_BACK_COLOR);
+        stateProps.halfButtonImageColor = this.getResourceColor(HALF_BUTTON_IMAGE_COLOR);
+        stateProps.privacyImageColor = this.getResourceColor(HALF_BUTTON_IMAGE_COLOR);
+        stateProps.contentMarginTop = 0;
+        stateProps.contentMarginLeft = 0;
+        stateProps.contentMarginRight = 0;
+        stateProps.contentMarginBottom = 0;
+        stateProps.menuMarginEnd = SM_MENU_MARGIN_END;
+        stateProps.isHalfScreen = true;
+        stateProps.containerHeight = '0%';
+        stateProps.containerWidth = '100%';
+        stateProps.stackHeight = '100%';
+        stateProps.titleOpacity = 0;
+        stateProps.buttonOpacity = 1;
+        stateProps.titleHeight = 0;
+        stateProps.titleOffset = 0;
+        stateProps.maskOpacity = 0;
+        stateProps.maskBlurScale = 0;
+        stateProps.contentBgColor = '#FFFFFFFF';
+        stateProps.statusBarHeight = 0;
+        stateProps.ratio = undefined;
+        stateProps.breakPoint = BreakPointsType.NONE;
+        stateProps.serviceMenuRead = this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL);
+        stateProps.closeRead = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
+        stateProps.maximizeRead = this.getStringByResourceToken(ARKUI_APP_BAR_MAXIMIZE);
+        stateProps.provideService = '';
+        stateProps.privacyAuthText = '';
+        stateProps.privacyWidth = '0';
+        stateProps.privacySymbolOpacity = 0;
+        stateProps.angle = '-90deg';
+        stateProps.buttonSize = BUTTON_SIZE;
+        stateProps.privacyTextOpacity = 0;
+        stateProps.dividerOpacity = 0;
+        stateProps.isShowPrivacyAnimation = false;
+        stateProps.labelName = '';
+        this.__menubarStateProps = stateProps;
+        this.statePropsNameList = Object.keys(this.__menubarStateProps);
+        // @State修饰成员变量统一处理
+        this.statePropsNameList.forEach(name => {
+            const privateProp = `__${name}`;
+            // 初始化所有的@State修饰变量初值
+            this[privateProp] = new ObservedPropertySimplePU(this.__menubarStateProps[name], this, name);
+            // 为所有的@State修饰变量构造set、get访问器
+            Object.defineProperty(this, name, {
+                get: () => this[privateProp].get(),
+                set: (newVal) => this[privateProp].set(newVal),
+                enumerable: false
+            });
+        });
+    }
+    getResourceColor(defaultColor) {
+        if (colorMap.has(defaultColor)) {
+            const colorGroup = colorMap.get(defaultColor);
+            if (colorGroup) {
+                return this.isDark ? colorGroup.dark : colorGroup.light;
+            }
+        }
+        return defaultColor;
+    }
+    getStringByResourceToken(resName, value) {
+        try {
+            if (value) {
+                return getContext(this).resourceManager.getStringByNameSync(resName, value);
+            }
+            return getContext(this).resourceManager.getStringByNameSync(resName);
+        }
+        catch (err) {
+            hilog.error(0x3900, LOG_TAG, `getStringByResourceToken, error: ${err.toString()}`);
+        }
+        return '';
+    }
+}
+
+/**
+ * meunbar组件具体功能实现
+ */
+export class CustomAppBar extends MenubarBaseInfo {
+    constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
+        super(parent, __localStorage, elmtId, extraInfo);
+        if (typeof paramsLambda === 'function') {
+            this.paramsGenerator_ = paramsLambda;
+        }
         this.isHalfScreenCompFirstLaunch = true;
         this.isHalfToFullScreen = false;
         this.isDark = true;
@@ -188,524 +255,31 @@ export class CustomAppBar extends ViewPU {
         this.finalizeConstruction();
     }
     setInitiallyProvidedValue(params) {
-        if (params.menuResource !== undefined) {
-            this.menuResource = params.menuResource;
-        }
-        if (params.closeResource !== undefined) {
-            this.closeResource = params.closeResource;
-        }
-        if (params.privacyResource !== undefined) {
-            this.privacyResource = params.privacyResource;
-        }
-        if (params.menuFillColor !== undefined) {
-            this.menuFillColor = params.menuFillColor;
-        }
-        if (params.closeFillColor !== undefined) {
-            this.closeFillColor = params.closeFillColor;
-        }
-        if (params.menubarBorderColor !== undefined) {
-            this.menubarBorderColor = params.menubarBorderColor;
-        }
-        if (params.menubarBackColor !== undefined) {
-            this.menubarBackColor = params.menubarBackColor;
-        }
-        if (params.dividerBackgroundColor !== undefined) {
-            this.dividerBackgroundColor = params.dividerBackgroundColor;
-        }
-        if (params.halfButtonBackColor !== undefined) {
-            this.halfButtonBackColor = params.halfButtonBackColor;
-        }
-        if (params.halfButtonImageColor !== undefined) {
-            this.halfButtonImageColor = params.halfButtonImageColor;
-        }
-        if (params.privacyImageColor !== undefined) {
-            this.privacyImageColor = params.privacyImageColor;
-        }
-        if (params.contentMarginTop !== undefined) {
-            this.contentMarginTop = params.contentMarginTop;
-        }
-        if (params.contentMarginLeft !== undefined) {
-            this.contentMarginLeft = params.contentMarginLeft;
-        }
-        if (params.contentMarginRight !== undefined) {
-            this.contentMarginRight = params.contentMarginRight;
-        }
-        if (params.contentMarginBottom !== undefined) {
-            this.contentMarginBottom = params.contentMarginBottom;
-        }
-        if (params.menuMarginEnd !== undefined) {
-            this.menuMarginEnd = params.menuMarginEnd;
-        }
-        if (params.isHalfScreen !== undefined) {
-            this.isHalfScreen = params.isHalfScreen;
-        }
-        if (params.containerHeight !== undefined) {
-            this.containerHeight = params.containerHeight;
-        }
-        if (params.containerWidth !== undefined) {
-            this.containerWidth = params.containerWidth;
-        }
-        if (params.stackHeight !== undefined) {
-            this.stackHeight = params.stackHeight;
-        }
-        if (params.titleOpacity !== undefined) {
-            this.titleOpacity = params.titleOpacity;
-        }
-        if (params.buttonOpacity !== undefined) {
-            this.buttonOpacity = params.buttonOpacity;
-        }
-        if (params.titleHeight !== undefined) {
-            this.titleHeight = params.titleHeight;
-        }
-        if (params.titleOffset !== undefined) {
-            this.titleOffset = params.titleOffset;
-        }
-        if (params.maskOpacity !== undefined) {
-            this.maskOpacity = params.maskOpacity;
-        }
-        if (params.maskBlurScale !== undefined) {
-            this.maskBlurScale = params.maskBlurScale;
-        }
-        if (params.contentBgColor !== undefined) {
-            this.contentBgColor = params.contentBgColor;
-        }
-        if (params.statusBarHeight !== undefined) {
-            this.statusBarHeight = params.statusBarHeight;
-        }
-        if (params.ratio !== undefined) {
-            this.ratio = params.ratio;
-        }
-        if (params.breakPoint !== undefined) {
-            this.breakPoint = params.breakPoint;
-        }
-        if (params.serviceMenuRead !== undefined) {
-            this.serviceMenuRead = params.serviceMenuRead;
-        }
-        if (params.closeRead !== undefined) {
-            this.closeRead = params.closeRead;
-        }
-        if (params.maximizeRead !== undefined) {
-            this.maximizeRead = params.maximizeRead;
-        }
-        if (params.provideService !== undefined) {
-            this.provideService = params.provideService;
-        }
-        if (params.privacyAuthText !== undefined) {
-            this.privacyAuthText = params.privacyAuthText;
-        }
-        if (params.privacyWidth !== undefined) {
-            this.privacyWidth = params.privacyWidth;
-        }
-        if (params.privacySymbolOpacity !== undefined) {
-            this.privacySymbolOpacity = params.privacySymbolOpacity;
-        }
-        if (params.angle !== undefined) {
-            this.angle = params.angle;
-        }
-        if (params.buttonSize !== undefined) {
-            this.buttonSize = params.buttonSize;
-        }
-        if (params.privacyTextOpacity !== undefined) {
-            this.privacyTextOpacity = params.privacyTextOpacity;
-        }
-        if (params.dividerOpacity !== undefined) {
-            this.dividerOpacity = params.dividerOpacity;
-        }
-        if (params.isShowPrivacyAnimation !== undefined) {
-            this.isShowPrivacyAnimation = params.isShowPrivacyAnimation;
-        }
-        if (params.isHalfToFullScreen !== undefined) {
-            this.isHalfToFullScreen = params.isHalfToFullScreen;
-        }
-        if (params.isDark !== undefined) {
-            this.isDark = params.isDark;
-        }
-        if (params.bundleName !== undefined) {
-            this.bundleName = params.bundleName;
-        }
-        if (params.labelName !== undefined) {
-            this.labelName = params.labelName;
-        }
-        if (params.icon !== undefined) {
-            this.icon = params.icon;
-        }
-        if (params.fullContentMarginTop !== undefined) {
-            this.fullContentMarginTop = params.fullContentMarginTop;
-        }
-        if (params.deviceBorderRadius !== undefined) {
-            this.deviceBorderRadius = params.deviceBorderRadius;
-        }
-        if (params.privacyAnimator !== undefined) {
-            this.privacyAnimator = params.privacyAnimator;
-        }
-        if (params.smListener !== undefined) {
-            this.smListener = params.smListener;
-        }
-        if (params.mdListener !== undefined) {
-            this.mdListener = params.mdListener;
-        }
-        if (params.lgListener !== undefined) {
-            this.lgListener = params.lgListener;
-        }
-        if (params.subscriber !== undefined) {
-            this.subscriber = params.subscriber;
-        }
-        if (params.subscribeInfo !== undefined) {
-            this.subscribeInfo = params.subscribeInfo;
-        }
+        this.statePropsNameList.forEach((propName) => {
+            if (params[propName] !== undefined) {
+                this[propName] = params[propName];
+            }
+        });
     }
     updateStateVars(params) {
     }
     purgeVariableDependenciesOnElmtId(rmElmtId) {
-        this.__menuResource.purgeDependencyOnElmtId(rmElmtId);
-        this.__closeResource.purgeDependencyOnElmtId(rmElmtId);
-        this.__privacyResource.purgeDependencyOnElmtId(rmElmtId);
-        this.__menuFillColor.purgeDependencyOnElmtId(rmElmtId);
-        this.__closeFillColor.purgeDependencyOnElmtId(rmElmtId);
-        this.__menubarBorderColor.purgeDependencyOnElmtId(rmElmtId);
-        this.__menubarBackColor.purgeDependencyOnElmtId(rmElmtId);
-        this.__dividerBackgroundColor.purgeDependencyOnElmtId(rmElmtId);
-        this.__halfButtonBackColor.purgeDependencyOnElmtId(rmElmtId);
-        this.__halfButtonImageColor.purgeDependencyOnElmtId(rmElmtId);
-        this.__privacyImageColor.purgeDependencyOnElmtId(rmElmtId);
-        this.__contentMarginTop.purgeDependencyOnElmtId(rmElmtId);
-        this.__contentMarginLeft.purgeDependencyOnElmtId(rmElmtId);
-        this.__contentMarginRight.purgeDependencyOnElmtId(rmElmtId);
-        this.__contentMarginBottom.purgeDependencyOnElmtId(rmElmtId);
-        this.__menuMarginEnd.purgeDependencyOnElmtId(rmElmtId);
-        this.__isHalfScreen.purgeDependencyOnElmtId(rmElmtId);
-        this.__containerHeight.purgeDependencyOnElmtId(rmElmtId);
-        this.__containerWidth.purgeDependencyOnElmtId(rmElmtId);
-        this.__stackHeight.purgeDependencyOnElmtId(rmElmtId);
-        this.__titleOpacity.purgeDependencyOnElmtId(rmElmtId);
-        this.__buttonOpacity.purgeDependencyOnElmtId(rmElmtId);
-        this.__titleHeight.purgeDependencyOnElmtId(rmElmtId);
-        this.__titleOffset.purgeDependencyOnElmtId(rmElmtId);
-        this.__maskOpacity.purgeDependencyOnElmtId(rmElmtId);
-        this.__maskBlurScale.purgeDependencyOnElmtId(rmElmtId);
-        this.__contentBgColor.purgeDependencyOnElmtId(rmElmtId);
-        this.__statusBarHeight.purgeDependencyOnElmtId(rmElmtId);
-        this.__ratio.purgeDependencyOnElmtId(rmElmtId);
-        this.__breakPoint.purgeDependencyOnElmtId(rmElmtId);
-        this.__serviceMenuRead.purgeDependencyOnElmtId(rmElmtId);
-        this.__closeRead.purgeDependencyOnElmtId(rmElmtId);
-        this.__maximizeRead.purgeDependencyOnElmtId(rmElmtId);
-        this.__provideService.purgeDependencyOnElmtId(rmElmtId);
-        this.__privacyAuthText.purgeDependencyOnElmtId(rmElmtId);
-        this.__privacyWidth.purgeDependencyOnElmtId(rmElmtId);
-        this.__privacySymbolOpacity.purgeDependencyOnElmtId(rmElmtId);
-        this.__angle.purgeDependencyOnElmtId(rmElmtId);
-        this.__buttonSize.purgeDependencyOnElmtId(rmElmtId);
-        this.__privacyTextOpacity.purgeDependencyOnElmtId(rmElmtId);
-        this.__dividerOpacity.purgeDependencyOnElmtId(rmElmtId);
-        this.__isShowPrivacyAnimation.purgeDependencyOnElmtId(rmElmtId);
-        this.__labelName.purgeDependencyOnElmtId(rmElmtId);
+        this.statePropsNameList.forEach((propName) => {
+            const privatePropName = `__${propName}`;
+            if (typeof this[privatePropName].purgeDependencyOnElmtId === 'function') {
+                this[privatePropName].purgeDependencyOnElmtId(rmElmtId);
+            }
+        });
     }
     aboutToBeDeleted() {
-        this.__menuResource.aboutToBeDeleted();
-        this.__closeResource.aboutToBeDeleted();
-        this.__privacyResource.aboutToBeDeleted();
-        this.__menuFillColor.aboutToBeDeleted();
-        this.__closeFillColor.aboutToBeDeleted();
-        this.__menubarBorderColor.aboutToBeDeleted();
-        this.__menubarBackColor.aboutToBeDeleted();
-        this.__dividerBackgroundColor.aboutToBeDeleted();
-        this.__halfButtonBackColor.aboutToBeDeleted();
-        this.__halfButtonImageColor.aboutToBeDeleted();
-        this.__privacyImageColor.aboutToBeDeleted();
-        this.__contentMarginTop.aboutToBeDeleted();
-        this.__contentMarginLeft.aboutToBeDeleted();
-        this.__contentMarginRight.aboutToBeDeleted();
-        this.__contentMarginBottom.aboutToBeDeleted();
-        this.__menuMarginEnd.aboutToBeDeleted();
-        this.__isHalfScreen.aboutToBeDeleted();
-        this.__containerHeight.aboutToBeDeleted();
-        this.__containerWidth.aboutToBeDeleted();
-        this.__stackHeight.aboutToBeDeleted();
-        this.__titleOpacity.aboutToBeDeleted();
-        this.__buttonOpacity.aboutToBeDeleted();
-        this.__titleHeight.aboutToBeDeleted();
-        this.__titleOffset.aboutToBeDeleted();
-        this.__maskOpacity.aboutToBeDeleted();
-        this.__maskBlurScale.aboutToBeDeleted();
-        this.__contentBgColor.aboutToBeDeleted();
-        this.__statusBarHeight.aboutToBeDeleted();
-        this.__ratio.aboutToBeDeleted();
-        this.__breakPoint.aboutToBeDeleted();
-        this.__serviceMenuRead.aboutToBeDeleted();
-        this.__closeRead.aboutToBeDeleted();
-        this.__maximizeRead.aboutToBeDeleted();
-        this.__provideService.aboutToBeDeleted();
-        this.__privacyAuthText.aboutToBeDeleted();
-        this.__privacyWidth.aboutToBeDeleted();
-        this.__privacySymbolOpacity.aboutToBeDeleted();
-        this.__angle.aboutToBeDeleted();
-        this.__buttonSize.aboutToBeDeleted();
-        this.__privacyTextOpacity.aboutToBeDeleted();
-        this.__dividerOpacity.aboutToBeDeleted();
-        this.__isShowPrivacyAnimation.aboutToBeDeleted();
-        this.__labelName.aboutToBeDeleted();
+        this.statePropsNameList.forEach((propName) => {
+            const privatePropName = `__${propName}`;
+            if (typeof this[privatePropName].aboutToBeDeleted === 'function') {
+                this[privatePropName].aboutToBeDeleted();
+            }
+        });
         SubscriberManager.Get().delete(this.id__());
         this.aboutToBeDeletedInternal();
-    }
-    get menuResource() {
-        return this.__menuResource.get();
-    }
-    set menuResource(newValue) {
-        this.__menuResource.set(newValue);
-    }
-    get closeResource() {
-        return this.__closeResource.get();
-    }
-    set closeResource(newValue) {
-        this.__closeResource.set(newValue);
-    }
-    get privacyResource() {
-        return this.__privacyResource.get();
-    }
-    set privacyResource(newValue) {
-        this.__privacyResource.set(newValue);
-    }
-    get menuFillColor() {
-        return this.__menuFillColor.get();
-    }
-    set menuFillColor(newValue) {
-        this.__menuFillColor.set(newValue);
-    }
-    get closeFillColor() {
-        return this.__closeFillColor.get();
-    }
-    set closeFillColor(newValue) {
-        this.__closeFillColor.set(newValue);
-    }
-    get menubarBorderColor() {
-        return this.__menubarBorderColor.get();
-    }
-    set menubarBorderColor(newValue) {
-        this.__menubarBorderColor.set(newValue);
-    }
-    get menubarBackColor() {
-        return this.__menubarBackColor.get();
-    }
-    set menubarBackColor(newValue) {
-        this.__menubarBackColor.set(newValue);
-    }
-    get dividerBackgroundColor() {
-        return this.__dividerBackgroundColor.get();
-    }
-    set dividerBackgroundColor(newValue) {
-        this.__dividerBackgroundColor.set(newValue);
-    }
-    get halfButtonBackColor() {
-        return this.__halfButtonBackColor.get();
-    }
-    set halfButtonBackColor(newValue) {
-        this.__halfButtonBackColor.set(newValue);
-    }
-    get halfButtonImageColor() {
-        return this.__halfButtonImageColor.get();
-    }
-    set halfButtonImageColor(newValue) {
-        this.__halfButtonImageColor.set(newValue);
-    }
-    get privacyImageColor() {
-        return this.__privacyImageColor.get();
-    }
-    set privacyImageColor(newValue) {
-        this.__privacyImageColor.set(newValue);
-    }
-    get contentMarginTop() {
-        return this.__contentMarginTop.get();
-    }
-    set contentMarginTop(newValue) {
-        this.__contentMarginTop.set(newValue);
-    }
-    get contentMarginLeft() {
-        return this.__contentMarginLeft.get();
-    }
-    set contentMarginLeft(newValue) {
-        this.__contentMarginLeft.set(newValue);
-    }
-    get contentMarginRight() {
-        return this.__contentMarginRight.get();
-    }
-    set contentMarginRight(newValue) {
-        this.__contentMarginRight.set(newValue);
-    }
-    get contentMarginBottom() {
-        return this.__contentMarginBottom.get();
-    }
-    set contentMarginBottom(newValue) {
-        this.__contentMarginBottom.set(newValue);
-    }
-    get menuMarginEnd() {
-        return this.__menuMarginEnd.get();
-    }
-    set menuMarginEnd(newValue) {
-        this.__menuMarginEnd.set(newValue);
-    }
-    get isHalfScreen() {
-        return this.__isHalfScreen.get();
-    }
-    set isHalfScreen(newValue) {
-        this.__isHalfScreen.set(newValue);
-    }
-    get containerHeight() {
-        return this.__containerHeight.get();
-    }
-    set containerHeight(newValue) {
-        this.__containerHeight.set(newValue);
-    }
-    get containerWidth() {
-        return this.__containerWidth.get();
-    }
-    set containerWidth(newValue) {
-        this.__containerWidth.set(newValue);
-    }
-    get stackHeight() {
-        return this.__stackHeight.get();
-    }
-    set stackHeight(newValue) {
-        this.__stackHeight.set(newValue);
-    }
-    get titleOpacity() {
-        return this.__titleOpacity.get();
-    }
-    set titleOpacity(newValue) {
-        this.__titleOpacity.set(newValue);
-    }
-    get buttonOpacity() {
-        return this.__buttonOpacity.get();
-    }
-    set buttonOpacity(newValue) {
-        this.__buttonOpacity.set(newValue);
-    }
-    get titleHeight() {
-        return this.__titleHeight.get();
-    }
-    set titleHeight(newValue) {
-        this.__titleHeight.set(newValue);
-    }
-    get titleOffset() {
-        return this.__titleOffset.get();
-    }
-    set titleOffset(newValue) {
-        this.__titleOffset.set(newValue);
-    }
-    get maskOpacity() {
-        return this.__maskOpacity.get();
-    }
-    set maskOpacity(newValue) {
-        this.__maskOpacity.set(newValue);
-    }
-    get maskBlurScale() {
-        return this.__maskBlurScale.get();
-    }
-    set maskBlurScale(newValue) {
-        this.__maskBlurScale.set(newValue);
-    }
-    get contentBgColor() {
-        return this.__contentBgColor.get();
-    }
-    set contentBgColor(newValue) {
-        this.__contentBgColor.set(newValue);
-    }
-    get statusBarHeight() {
-        return this.__statusBarHeight.get();
-    }
-    set statusBarHeight(newValue) {
-        this.__statusBarHeight.set(newValue);
-    }
-    get ratio() {
-        return this.__ratio.get();
-    }
-    set ratio(newValue) {
-        this.__ratio.set(newValue);
-    }
-    get breakPoint() {
-        return this.__breakPoint.get();
-    }
-    set breakPoint(newValue) {
-        this.__breakPoint.set(newValue);
-    }
-    get serviceMenuRead() {
-        return this.__serviceMenuRead.get();
-    }
-    set serviceMenuRead(newValue) {
-        this.__serviceMenuRead.set(newValue);
-    }
-    get closeRead() {
-        return this.__closeRead.get();
-    }
-    set closeRead(newValue) {
-        this.__closeRead.set(newValue);
-    }
-    get maximizeRead() {
-        return this.__maximizeRead.get();
-    }
-    set maximizeRead(newValue) {
-        this.__maximizeRead.set(newValue);
-    }
-    get provideService() {
-        return this.__provideService.get();
-    }
-    set provideService(newValue) {
-        this.__provideService.set(newValue);
-    }
-    get privacyAuthText() {
-        return this.__privacyAuthText.get();
-    }
-    set privacyAuthText(newValue) {
-        this.__privacyAuthText.set(newValue);
-    }
-    get privacyWidth() {
-        return this.__privacyWidth.get();
-    }
-    set privacyWidth(newValue) {
-        this.__privacyWidth.set(newValue);
-    }
-    get privacySymbolOpacity() {
-        return this.__privacySymbolOpacity.get();
-    }
-    set privacySymbolOpacity(newValue) {
-        this.__privacySymbolOpacity.set(newValue);
-    }
-    get angle() {
-        return this.__angle.get();
-    }
-    set angle(newValue) {
-        this.__angle.set(newValue);
-    }
-    get buttonSize() {
-        return this.__buttonSize.get();
-    }
-    set buttonSize(newValue) {
-        this.__buttonSize.set(newValue);
-    }
-
-    get privacyTextOpacity() {
-        return this.__privacyTextOpacity.get();
-    }
-    set privacyTextOpacity(newValue) {
-        this.__privacyTextOpacity.set(newValue);
-    }
-    get dividerOpacity() {
-        return this.__dividerOpacity.get();
-    }
-    set dividerOpacity(newValue) {
-        this.__dividerOpacity.set(newValue);
-    }
-    get isShowPrivacyAnimation() {
-        return this.__isShowPrivacyAnimation.get();
-    }
-    set isShowPrivacyAnimation(newValue) {
-        this.__isShowPrivacyAnimation.set(newValue);
-    }
-    get labelName() {
-        return this.__labelName.get();
-    }
-    set labelName(newValue) {
-        this.__labelName.set(newValue);
     }
     aboutToDisappear() {
         this.smListener.off('change');
@@ -824,29 +398,7 @@ export class CustomAppBar extends ViewPU {
         }
         return false;
     }
-    getResourceColor(defaultColor) {
-        if (colorMap.has(defaultColor)) {
-            const colorGroup = colorMap.get(defaultColor);
-            if (colorGroup) {
-                return this.isDark ? colorGroup.dark : colorGroup.light;
-            }
-        }
-        return defaultColor;
-    }
-    getStringByResourceToken(resName, value) {
-        try {
-            if (value) {
-                return getContext(this).resourceManager.getStringByNameSync(resName, value);
-            }
-            return getContext(this).resourceManager.getStringByNameSync(resName);
-        }
-        catch (err) {
-            hilog.error(0x3900, LOG_TAG, `getAccessibilityDescription, error: ${err.toString()}`);
-        }
-        return '';
-    }
     updateStringByResource() {
-
         if (this.isHalfScreen) {
             this.provideService = this.getStringByResourceToken(ARKUI_APP_BAR_PROVIDE_SERVICE, this.labelName);
             this.maximizeRead = this.getStringByResourceToken(ARKUI_APP_BAR_MAXIMIZE);
@@ -1593,18 +1145,6 @@ export class CustomAppBar extends ViewPU {
         return 'CustomAppBar';
     }
 }
-const BreakPointsType = {
-    NONE: 'NONE',
-    SM: 'SM',
-    MD: 'MD',
-    LG: 'LG',
-};
-const menuMarginEndMap = new Map([
-    [BreakPointsType.NONE, SM_MENU_MARGIN_END],
-    [BreakPointsType.SM, SM_MENU_MARGIN_END],
-    [BreakPointsType.MD, MD_MENU_MARGIN_END],
-    [BreakPointsType.LG, LG_MENU_MARGIN_END]
-]);
 
 ViewStackProcessor.StartGetAccessRecordingFor(ViewStackProcessor.AllocateNewElmetIdForNextComponent());
 loadCustomAppbar(new CustomAppBar(undefined, {}));
