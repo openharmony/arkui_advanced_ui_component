@@ -143,7 +143,7 @@ export struct InnerFullScreenLaunchComponent {
     } catch (err: BusinessError) {
       hilog.error(0x3900, LOG_TAG, 'AtomicServiceStartupRule failed: %{public}s', err.message);
       this.popUp();
-    }      
+    }
   }
 
   async popUp(): Promise<void> {
@@ -177,39 +177,49 @@ export struct InnerFullScreenLaunchComponent {
       this.content();
     }
     .justifyContent(FlexAlign.Center)
-    .bindContentCover($$this.isShow, this.uiExtensionBuilder())
+    .bindContentCover($$this.isShow, this.uiExtensionBuilder(), {
+      modalTransition: ModalTransition.DEFAULT,
+      enableSafeArea: true
+    })
   }
 
   @Builder
   uiExtensionBuilder() {
-    UIExtensionComponent({
-      bundleName: `com.atomicservice.${this.appId}`,
-      flags: this.options?.flags,
-      parameters: this.options?.parameters
-    })
-      .backgroundColor($r('sys.color.ohos_id_color_titlebar_bg'))
-      .defaultFocus(true)
-      .height('100%')
-      .width('100%')
-      .onRelease(
-        () => {
-          hilog.error(0x3900, LOG_TAG, 'onRelease');
-          this.isShow = false;
-        }
-      )
-      .onError(
-        err => {
-          this.isShow = false;
-          hilog.error(0x3900, LOG_TAG, 'call up UIExtension error! %{public}s', err.message);
-          if (err.code !== ERR_CODE_ABNORMAL) {
-            this.getUIContext().showAlertDialog({
-              message: err.message
-            });
-          }
-        }
-      )
-      .onReceive(data => {
-        this.handleOnReceiveEvent(data);
+    Column() {
+      UIExtensionComponent({
+        bundleName: `com.atomicservice.${this.appId}`,
+        flags: this.options?.flags,
+        parameters: this.options?.parameters
+      },{
+        windowModeFollowStrategy: WindowModeFollowStrategy.FOLLOW_HOST_WINDOW_MODE
       })
+        .backgroundColor($r('sys.color.ohos_id_color_titlebar_bg'))
+        .defaultFocus(true)
+        .height('100%')
+        .width('100%')
+        .onRelease(
+          () => {
+            hilog.error(0x3900, LOG_TAG, 'onRelease');
+            this.isShow = false;
+          }
+        )
+        .onError(
+          err => {
+            this.isShow = false;
+            hilog.error(0x3900, LOG_TAG, 'call up UIExtension error! %{public}s', err.message);
+            if (err.code !== ERR_CODE_ABNORMAL) {
+              this.getUIContext().showAlertDialog({
+                message: err.message
+              });
+            }
+          }
+        )
+        .onReceive(data => {
+          this.handleOnReceiveEvent(data);
+        })
+    }
+    .height(LayoutPolicy.matchParent)
+    .width(LayoutPolicy.matchParent)
+    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
   }
 }

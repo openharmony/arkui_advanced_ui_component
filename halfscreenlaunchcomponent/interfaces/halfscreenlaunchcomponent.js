@@ -209,12 +209,21 @@ export class HalfScreenLaunchComponent extends ViewPU {
                 builder: () => {
                     this.uiExtensionBuilder.call(this);
                 }
-            }, { modalTransition: ModalTransition.NONE });
+            }, {
+                modalTransition: ModalTransition.NONE,
+                enableSafeArea: true
+            });
         }, Row);
         this.content.bind(this)();
         Row.pop();
     }
     uiExtensionBuilder(parent = null) {
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            Column.create();
+            Column.height(LayoutPolicy.matchParent);
+            Column.width(LayoutPolicy.matchParent);
+            Column.ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM]);
+        }, Column);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             UIExtensionComponent.create({
                 bundleName: `com.atomicservice.${this.appId}`,
@@ -249,6 +258,7 @@ export class HalfScreenLaunchComponent extends ViewPU {
                 this.handleOnReceiveEvent(data);
             });
         }, UIExtensionComponent);
+        Column.pop();
     }
     rerender() {
         this.updateDirtyElements();

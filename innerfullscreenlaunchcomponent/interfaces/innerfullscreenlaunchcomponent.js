@@ -215,17 +215,28 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             Row.justifyContent(FlexAlign.Center);
             Row.bindContentCover({ value: this.isShow, changeEvent: k => { this.isShow = k; } }, { builder: () => {
                     this.uiExtensionBuilder.call(this);
-                } }, { modalTransition: ModalTransition.DEFAULT });
+                } }, {
+                    modalTransition: ModalTransition.DEFAULT,
+                    enableSafeArea: true
+                });
         }, Row);
         this.content.bind(this)(this);
         Row.pop();
     }
     uiExtensionBuilder(a = null) {
+        this.observeComponentCreation2((w20, x20) => {
+            Column.create();
+            Column.height(LayoutPolicy.matchParent);
+            Column.width(LayoutPolicy.matchParent);
+            Column.ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM]);
+        }, Column);
         this.observeComponentCreation2((c, d) => {
             UIExtensionComponent.create({
                 bundleName: `com.atomicservice.${this.appId}`,
                 flags: this.options?.flags,
                 parameters: this.options?.parameters
+            }, {
+                windowModeFollowStrategy: WindowModeFollowStrategy.FOLLOW_HOST_WINDOW_MODE
             });
             UIExtensionComponent.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_titlebar_bg'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
             UIExtensionComponent.defaultFocus(true);
@@ -248,6 +259,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
                 this.handleOnReceiveEvent(data);
             });
         }, UIExtensionComponent);
+        Column.pop();
     }
     rerender() {
         this.updateDirtyElements();
