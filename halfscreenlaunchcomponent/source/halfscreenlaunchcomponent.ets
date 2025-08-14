@@ -131,7 +131,7 @@ export struct HalfScreenLaunchComponent {
     } catch (err: BusinessError) {
       hilog.error(0x3900, LOG_TAG, 'AtomicServiceStartupRule failed: %{public}s', err.message);
       this.popUp();
-    }  
+    }
   }
 
   async popUp(): Promise<void> {
@@ -169,45 +169,53 @@ export struct HalfScreenLaunchComponent {
         hilog.info(0x3900, LOG_TAG, 'on start atomicservice');
         this.checkAbility();
       }
-    ).bindContentCover($$this.isShow, this.uiExtensionBuilder(), { modalTransition: ModalTransition.NONE });
-
+    ).bindContentCover($$this.isShow, this.uiExtensionBuilder(),
+      {
+        modalTransition: ModalTransition.NONE,
+        enableSafeArea: true
+      });
   }
 
   @Builder
   uiExtensionBuilder() {
-    UIExtensionComponent({
-      bundleName: `com.atomicservice.${this.appId}`,
-      flags: this.options?.flags,
-      parameters: this.options?.parameters
-    },
-    {
-      windowModeFollowStrategy: WindowModeFollowStrategy.FOLLOW_UI_EXTENSION_ABILITY_WINDOW_MODE
-    })
-      .height('100%')
-      .width('100%')
-      .backgroundColor(Color.Transparent)
-      .onError(
-        err => {
-          if (this.onError) {
-            this.onError(err);
+    Column() {
+      UIExtensionComponent({
+        bundleName: `com.atomicservice.${this.appId}`,
+        flags: this.options?.flags,
+        parameters: this.options?.parameters
+      },
+        {
+          windowModeFollowStrategy: WindowModeFollowStrategy.FOLLOW_HOST_WINDOW_MODE
+        })
+        .height('100%')
+        .width('100%')
+        .backgroundColor(Color.Transparent)
+        .onError(
+          err => {
+            if (this.onError) {
+              this.onError(err);
+            }
+            this.isShow = false;
+            hilog.error(0x3900, LOG_TAG, 'call up UIExtension error!%{public}s', err.message);
+            if (err.code !== ERR_CODE_ABNORMAL) {
+              this.getUIContext().showAlertDialog({
+                message: err.message
+              });
+            }
           }
+        )
+        .onTerminated(info => {
           this.isShow = false;
-          hilog.error(0x3900, LOG_TAG, 'call up UIExtension error!%{public}s', err.message);
-          if (err.code !== ERR_CODE_ABNORMAL) {
-            this.getUIContext().showAlertDialog({
-              message: err.message
-            });
+          if (this.onTerminated) {
+            this.onTerminated(info);
           }
-        }
-      )
-      .onTerminated(info => {
-        this.isShow = false;
-        if (this.onTerminated) {
-          this.onTerminated(info);
-        }
-      })
-      .onReceive(data => {
-        this.handleOnReceiveEvent(data);
-      })
+        })
+        .onReceive(data => {
+          this.handleOnReceiveEvent(data);
+        })
+    }
+    .height(LayoutPolicy.matchParent)
+    .width(LayoutPolicy.matchParent)
+    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])
   }
 }
