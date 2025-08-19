@@ -392,8 +392,10 @@ export struct CustomAppBar {
       return;
     }
     if (eventName === ARKUI_APP_BAR_COLOR_CONFIGURATION) {
+      hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyMenuColor, params: {param}`);
       this.onColorConfigurationUpdate(this.parseBoolean(param));
     } else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
+      hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyMenuSafeArea, params: {param}`);
       if (this.statusBarHeight === px2vp(Number(param))) {
         return;
       }
@@ -402,8 +404,10 @@ export struct CustomAppBar {
     } else if (eventName === ARKUI_APP_BAR_CONTENT_SAFE_AREA) {
       let splitArray: string[] = param.split('|');
       if (splitArray.length < 4) {
+        hilog.error(0x3900, LOG_TAG, `setCustomCallback updateSafeArea failed, params: {param}`);
         return;
       }
+      hilog.error(0x3900, LOG_TAG, `setCustomCallback updateSafeArea success, margin: {JSON.stringify(splitArray)}`);
       this.contentMarginTop = this.isHalfScreen ? 0 : Number(splitArray[0]);
       this.fullContentMarginTop = Number(splitArray[0]);
       this.contentMarginLeft = Number(splitArray[1]);
@@ -421,11 +425,8 @@ export struct CustomAppBar {
       this.isHalfScreen = this.parseBoolean(param);
       this.initBreakPointListener();
     } else if (eventName === ARKUI_APP_BG_COLOR) {
-      if (this.isHalfScreen) {
-        this.contentBgColor = Color.Transparent;
-      } else {
-        this.contentBgColor = param;
-      }
+      hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyBgColor, params: {param}`);
+      this.contentBgColor = this.isHalfScreen ? Color.Transparent : param;
     }
   }
 

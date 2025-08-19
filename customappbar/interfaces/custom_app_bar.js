@@ -470,27 +470,28 @@ export class CustomAppBar extends MenubarBaseInfo {
             return;
         }
         if (eventName === ARKUI_APP_BAR_COLOR_CONFIGURATION) {
+            hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyMenuColor, params: {param}`);
             this.onColorConfigurationUpdate(this.parseBoolean(param));
-        }
-        else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
+        } else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
+            hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyMenuSafeArea, params: {param}`);
             if (this.statusBarHeight === px2vp(Number(param))) {
                 return;
             }
             this.statusBarHeight = Number(param);
             this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
-        }
-        else if (eventName === ARKUI_APP_BAR_CONTENT_SAFE_AREA) {
+        } else if (eventName === ARKUI_APP_BAR_CONTENT_SAFE_AREA) {
             let splitArray = param.split('|');
             if (splitArray.length < 4) {
+                hilog.error(0x3900, LOG_TAG, `setCustomCallback updateSafeArea failed, params: {param}`);
                 return;
             }
+            hilog.error(0x3900, LOG_TAG, `setCustomCallback updateSafeArea success, margin: {JSON.stringify(splitArray)}`);
             this.contentMarginTop = this.isHalfScreen ? 0 : Number(splitArray[0]);
             this.fullContentMarginTop = Number(splitArray[0]);
             this.contentMarginLeft = Number(splitArray[1]);
             this.contentMarginRight = Number(splitArray[2]);
             this.contentMarginBottom = Number(splitArray[3]);
-        }
-        else if (eventName === ARKUI_APP_BAR_BAR_INFO) {
+        } else if (eventName === ARKUI_APP_BAR_BAR_INFO) {
             let splitArray = param.split('|');
             if (splitArray.length < 2) {
                 return;
@@ -498,17 +499,12 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.bundleName = splitArray[0];
             this.labelName = splitArray[1];
             this.updateStringByResource();
-        }
-        else if (eventName === ARKUI_APP_BAR_SCREEN) {
+        } else if (eventName === ARKUI_APP_BAR_SCREEN) {
             this.isHalfScreen = this.parseBoolean(param);
             this.initBreakPointListener();
-        }
-        else if (eventName === ARKUI_APP_BG_COLOR) {
-            if (this.isHalfScreen) {
-                this.contentBgColor = Color.Transparent;
-            } else {
-                this.contentBgColor = param;
-            }
+        } else if (eventName === ARKUI_APP_BG_COLOR) {
+            hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyBgColor, params: {param}`);
+            this.contentBgColor = this.isHalfScreen ? Color.Transparent : param;
         }
     }
     /**
