@@ -14,15 +14,15 @@
  */
 
 import { curves, display, LengthMetrics, mediaquery } from '@kit.ArkUI';
-import { image } from '@kit.ImageKit';
 import { BusinessError, commonEventManager } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { systemParameterEnhance } from '@kit.BasicServicesKit';
 import { Animator as animator, AnimatorResult, componentUtils } from '@kit.ArkUI';
 import { AnimatorOptions } from '@ohos.animator';
 
+// Menubar作用域内的日志打印前缀
 const LOG_TAG: string = 'CustomAppBar';
-const VIEW_WIDTH: number = 80;
+// 常规模式/全屏嵌入式使用的参数
 const VIEW_HEIGHT: number = 36;
 const BUTTON_SIZE: number = 40;
 const IMAGE_SIZE: string = '20vp';
@@ -39,7 +39,7 @@ const MENU_MARGIN_TOP: number = 10;
 const SM_MENU_MARGIN_END: number = 16;
 const MD_MENU_MARGIN_END: number = 24;
 const LG_MENU_MARGIN_END: number = 32;
-// 半屏参数
+// 半屏嵌入式使用的参数
 const BUTTON_IMAGE_SIZE: number = 18;
 const HALF_CONTAINER_BORDER_SIZE: number = 32;
 const HALF_BUTTON_BACK_COLOR: string = '#0D000000';
@@ -66,7 +66,6 @@ const PRIVACY_CONSTRAINT_SIZE: string = 'calc(100% - 136vp)';
 const ARKUI_APP_BAR_COLOR_CONFIGURATION: string = 'arkui_app_bar_color_configuration';
 const ARKUI_APP_BAR_MENU_SAFE_AREA: string = 'arkui_app_bar_menu_safe_area';
 const ARKUI_APP_BAR_CONTENT_SAFE_AREA: string = 'arkui_app_bar_content_safe_area';
-
 const ARKUI_APP_BAR_BAR_INFO: string = 'arkui_app_bar_info';
 const ARKUI_APP_BAR_SCREEN: string = 'arkui_app_bar_screen';
 const ARKUI_APP_BG_COLOR: string = 'arkui_app_bg_color';
@@ -81,18 +80,16 @@ const ARKUI_APP_BAR_MAXIMIZE: string = 'arkui_app_bar_maximize';
 const ARKUI_APP_BAR_PRIVACY_AUTHORIZE: string = 'arkui_app_bar_privacy_authorize';
 
 /**
- * 适配不同颜色模式集合
+ * 颜色配置，适用于同一对象属性需要配置深色模式、浅色模式的场景
  */
-class ColorGroup {
-  public light: string = '#000000';
-  public dark: string = '#FFFFFF';
-
-  constructor(light: string, dark: string) {
-    this.light = light;
-    this.dark = dark;
-  }
+interface ColorMode {
+  light: string;
+  dark: string;
 }
 
+/**
+ * 断点类型
+ */
 enum BreakPointsType {
   NONE = 'NONE',
   SM = 'SM',
@@ -107,13 +104,48 @@ const menuMarginEndMap: Map<BreakPointsType, number> = new Map<BreakPointsType, 
   [BreakPointsType.LG, LG_MENU_MARGIN_END]
 ]);
 
-const colorMap: Map<string, ColorGroup> = new Map<string, ColorGroup>([
-  [ICON_FILL_COLOR_DEFAULT, new ColorGroup('#182431', '#e5ffffff')],
-  [BORDER_COLOR_DEFAULT, new ColorGroup('#33182431', '#4Dffffff')],
-  [MENU_BACK_COLOR, new ColorGroup('#99FFFFFF', '#33000000')],
-  [HALF_BUTTON_BACK_COLOR, new ColorGroup('#0D000000', '#19FFFFFF')],
-  [HALF_BUTTON_IMAGE_COLOR, new ColorGroup('#000000', '#FFFFFF')]
+const colorMap: Map<string, ColorMode> = new Map<string, ColorMode>([
+  [ICON_FILL_COLOR_DEFAULT, { light: '#182431', dark: '#e5ffffff' }],
+  [BORDER_COLOR_DEFAULT, { light: '#33182431', dark: '#4Dffffff' }],
+  [MENU_BACK_COLOR, { light: '#99FFFFFF', dark: '#33000000' }],
+  [HALF_BUTTON_BACK_COLOR, { light: '#0D000000', dark: '#19FFFFFF' }],
+  [HALF_BUTTON_IMAGE_COLOR, { light: '#000000', dark: '#FFFFFF' }]
 ]);
+
+/**
+ * 与Native侧通信的事件回调管理类
+ *
+ * @since 2025/8/15
+ */
+class NativeEventManager {
+  /**
+   * 服务面板按钮点击回调
+   * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+   */
+  static onMenuButtonClick(): void {
+  }
+
+  /**
+   * 关闭按钮点击回调
+   * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+   */
+  static onCloseButtonClick(): void {
+  }
+
+  /**
+   * 点击title栏
+   * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+   */
+  static onEyelashTitleClick(): void {
+  }
+
+  /**
+   * 触发构建回调
+   * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+   */
+  static onDidBuild(): void {
+  }
+}
 
 @Entry
 @Component
@@ -147,7 +179,6 @@ export struct CustomAppBar {
   @State halfButtonBackColor: string = this.getResourceColor(HALF_BUTTON_BACK_COLOR);
   @State halfButtonImageColor: string = this.getResourceColor(HALF_BUTTON_IMAGE_COLOR);
   @State privacyImageColor: string = this.getResourceColor(HALF_BUTTON_IMAGE_COLOR);
-
   @State contentMarginTop: number = 0;
   @State contentMarginLeft: number = 0;
   @State contentMarginRight: number = 0;
@@ -180,10 +211,10 @@ export struct CustomAppBar {
   @State dividerOpacity: number = 0;
   @State isShowPrivacyAnimation: boolean = false;
   @State privacyAuthText: string = '';
+  @State labelName: string = '';
   private isHalfToFullScreen: boolean = false;
   private isDark: boolean = true;
   private bundleName: string = '';
-  @State labelName: string = '';
   private isHalfScreenCompFirstLaunch: boolean = true;
   private icon: Resource | string | PixelMap = $r('sys.media.ohos_app_icon');
   private fullContentMarginTop: number = 0;
@@ -314,10 +345,7 @@ export struct CustomAppBar {
   }
 
   parseBoolean(value: string): boolean {
-    if (value === 'true') {
-      return true;
-    }
-    return false;
+    return value === 'true';
   }
 
   getResourceColor(defaultColor: string): string {
@@ -354,6 +382,7 @@ export struct CustomAppBar {
 
   /**
    * atomicservice侧的事件变化回调
+   *
    * @param eventName 事件名称
    * @param param 事件参数
    */
@@ -363,19 +392,22 @@ export struct CustomAppBar {
       return;
     }
     if (eventName === ARKUI_APP_BAR_COLOR_CONFIGURATION) {
+      hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyMenuColor, params: {param}`);
       this.onColorConfigurationUpdate(this.parseBoolean(param));
     } else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
+      hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyMenuSafeArea, params: {param}`);
       if (this.statusBarHeight === px2vp(Number(param))) {
         return;
       }
       this.statusBarHeight = Number(param);
       this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
     } else if (eventName === ARKUI_APP_BAR_CONTENT_SAFE_AREA) {
-      //top left right bottom
       let splitArray: string[] = param.split('|');
       if (splitArray.length < 4) {
+        hilog.error(0x3900, LOG_TAG, `setCustomCallback updateSafeArea failed, params: {param}`);
         return;
       }
+      hilog.error(0x3900, LOG_TAG, `setCustomCallback updateSafeArea success, margin: {JSON.stringify(splitArray)}`);
       this.contentMarginTop = this.isHalfScreen ? 0 : Number(splitArray[0]);
       this.fullContentMarginTop = Number(splitArray[0]);
       this.contentMarginLeft = Number(splitArray[1]);
@@ -393,16 +425,14 @@ export struct CustomAppBar {
       this.isHalfScreen = this.parseBoolean(param);
       this.initBreakPointListener();
     } else if (eventName === ARKUI_APP_BG_COLOR) {
-      if (this.isHalfScreen) {
-        this.contentBgColor = Color.Transparent;
-      } else {
-        this.contentBgColor = param;
-      }
+      hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyBgColor, params: {param}`);
+      this.contentBgColor = this.isHalfScreen ? Color.Transparent : param;
     }
   }
 
   /**
    * 颜色变化设置
+   *
    * @param isDark 是否是深色模式
    */
   onColorConfigurationUpdate(isDark: boolean): void {
@@ -415,38 +445,6 @@ export struct CustomAppBar {
     this.halfButtonBackColor = this.getResourceColor(HALF_BUTTON_BACK_COLOR);
     this.halfButtonImageColor = this.getResourceColor(HALF_BUTTON_IMAGE_COLOR);
     this.privacyImageColor = this.getResourceColor(HALF_BUTTON_IMAGE_COLOR);
-  }
-
-  /**
-   * 标题栏图标回调
-   * @param pixelMap
-   */
-  setAppIcon(pixelMap: image.PixelMap): void {
-    this.icon = pixelMap;
-  }
-
-  /**
-   * 服务面板按钮点击回调
-   */
-  onMenuButtonClick(): void {
-  }
-
-  /**
-   * 关闭按钮点击回调
-   */
-  onCloseButtonClick(): void {
-  }
-
-  /**
-   * 点击title栏
-   */
-  onEyelashTitleClick(): void {
-  }
-
-  /**
-   * 触发构建回调
-   */
-  onDidBuild(): void {
   }
 
   /**
@@ -504,7 +502,7 @@ export struct CustomAppBar {
   }
 
   /**
-   * 嵌入式关闭动效
+   * 元服务关闭动效，包含嵌入式组件关闭动效
    */
   closeContainerAnimation(): void {
     if (this.isHalfScreen) {
@@ -517,24 +515,27 @@ export struct CustomAppBar {
         duration: 250,
         curve: curves.interpolatingSpring(0, 1, 328, 36),
         onFinish: () => {
-          this.onCloseButtonClick();
+          NativeEventManager.onCloseButtonClick();
         }
       }, () => {
         this.stackHeight = '0%';
       });
     } else {
-      this.onCloseButtonClick();
+      NativeEventManager.onCloseButtonClick();
     }
     this.isHalfScreenCompFirstLaunch = true;
   }
 
-  closeHalfContainerAnimation() {
+  /**
+   * 半屏嵌入式组件关闭动效
+   */
+  closeHalfContainerAnimation(): void {
     // 关闭弹框
     animateTo({
       duration: 250,
       curve: curves.interpolatingSpring(0, 1, 328, 36),
       onFinish: () => {
-        this.onCloseButtonClick();
+        NativeEventManager.onCloseButtonClick();
       }
     }, () => {
       this.containerHeight = '0%';
@@ -641,7 +642,7 @@ export struct CustomAppBar {
       } else {
         this.privacyWidth = JSON.stringify(value);
       }
-    }
+    };
     this.privacyAnimator.onFinish = () => {
       this.isShowPrivacyAnimation = false;
     };
@@ -720,7 +721,7 @@ export struct CustomAppBar {
         .height(VIEW_HEIGHT)
         .accessibilityText(this.serviceMenuRead)
         .gesture(TapGesture().onAction(() => {
-          this.onMenuButtonClick();
+          NativeEventManager.onMenuButtonClick();
         }))
 
         Divider()
@@ -815,7 +816,7 @@ export struct CustomAppBar {
         })
         .borderRadius(EYELASH_HEIGHT / 2)
         .onClick(() => {
-          this.onEyelashTitleClick();
+          NativeEventManager.onEyelashTitleClick();
         })
         .margin({ start: LengthMetrics.vp(TITLE_MARGIN_RIGHT) })
       }

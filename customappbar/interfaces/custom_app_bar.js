@@ -25,10 +25,9 @@ const LengthMetrics = requireNapi('arkui.node').LengthMetrics;
 const systemParameterEnhance = requireNapi('systemParameterEnhance');
 const animator = requireNapi('animator');
 const componentUtils = requireNapi('arkui.componentUtils');
-// Menubar作用域内打印日志的前缀
+// Menubar作用域内的日志打印前缀
 const LOG_TAG = 'CustomAppBar';
-// 定义基础常量
-const VIEW_WIDTH = 80;
+// 常规模式/全屏嵌入式使用的参数
 const VIEW_HEIGHT = 36;
 const BUTTON_SIZE = 40;
 const IMAGE_SIZE = '20vp';
@@ -45,7 +44,7 @@ const MENU_MARGIN_TOP = 10;
 const SM_MENU_MARGIN_END = 16;
 const MD_MENU_MARGIN_END = 24;
 const LG_MENU_MARGIN_END = 32;
-// 半屏参数
+// 半屏嵌入式使用的参数
 const BUTTON_IMAGE_SIZE = 18;
 const HALF_CONTAINER_BORDER_SIZE = 32;
 const HALF_BUTTON_BACK_COLOR = '#0D000000';
@@ -61,7 +60,6 @@ const TITLE_MARGIN_RIGHT = 12;
 const TITLE_MARGIN_TOP = 8;
 const TITLE_LABEL_MARGIN = 8.5;
 const TITLE_CONSTRAINT_SIZE = 'calc(100% - 73.5vp)';
-const PRIVACY_CONSTRAINT_SIZE = 'calc(100% - 136vp)';
 const MD_WIDTH = 480;
 const LG_WIDTH_LIMIT = 0.6;
 const LG_WIDTH_HEIGHT_RATIO = 1.95;
@@ -69,42 +67,24 @@ const PRIVACY_MARGIN = 12;
 const PRIVACY_FONT_SIZE = '12vp';
 const PRIVACY_TEXT_MARGIN_START = 4;
 const PRIVACY_TEXT_MARGIN_END = 8;
+const PRIVACY_CONSTRAINT_SIZE = 'calc(100% - 136vp)';
 const ARKUI_APP_BAR_COLOR_CONFIGURATION = 'arkui_app_bar_color_configuration';
 const ARKUI_APP_BAR_MENU_SAFE_AREA = 'arkui_app_bar_menu_safe_area';
 const ARKUI_APP_BAR_CONTENT_SAFE_AREA = 'arkui_app_bar_content_safe_area';
 const ARKUI_APP_BAR_BAR_INFO = 'arkui_app_bar_info';
 const ARKUI_APP_BAR_SCREEN = 'arkui_app_bar_screen';
 const ARKUI_APP_BG_COLOR = 'arkui_app_bg_color';
+const ARKUI_APP_BAR_SERVICE_PANEL = 'arkui_app_bar_service_panel';
+const ARKUI_APP_BAR_CLOSE = 'arkui_app_bar_close';
+const ARKUI_APP_BAR_PROVIDE_SERVICE = 'arkui_app_bar_provide_service';
 const EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK = 'arkui_custom_app_bar_menu_click';
 const EVENT_NAME_CUSTOM_APP_BAR_CLOSE_CLICK = 'arkui_custom_app_bar_close_click';
 const EVENT_NAME_CUSTOM_APP_BAR_DID_BUILD = 'arkui_custom_app_bar_did_build';
 const EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL = 'arkui_custom_app_bar_create_service_panel';
-const ARKUI_APP_BAR_SERVICE_PANEL = 'arkui_app_bar_service_panel';
-const ARKUI_APP_BAR_CLOSE = 'arkui_app_bar_close';
-const ARKUI_APP_BAR_PROVIDE_SERVICE = 'arkui_app_bar_provide_service';
 const ARKUI_APP_BAR_MAXIMIZE = 'arkui_app_bar_maximize';
 const ARKUI_APP_BAR_PRIVACY_AUTHORIZE = 'arkui_app_bar_privacy_authorize';
-
 /**
- * 适配不同颜色模式集合
- */
-class ColorGroup {
-    constructor(light, dark) {
-        this.light = '#000000';
-        this.dark = '#FFFFFF';
-        this.light = light;
-        this.dark = dark;
-    }
-}
-const colorMap = new Map([
-    [ICON_FILL_COLOR_DEFAULT, new ColorGroup('#182431', '#e5ffffff')],
-    [BORDER_COLOR_DEFAULT, new ColorGroup('#33182431', '#4Dffffff')],
-    [MENU_BACK_COLOR, new ColorGroup('#99FFFFFF', '#33000000')],
-    [HALF_BUTTON_BACK_COLOR, new ColorGroup('#0D000000', '#19FFFFFF')],
-    [HALF_BUTTON_IMAGE_COLOR, new ColorGroup('#000000', '#FFFFFF')]
-]);
-/**
- * 适配不同断点模式
+ * 断点类型
  */
 const BreakPointsType = {
     NONE: 'NONE',
@@ -118,6 +98,59 @@ const menuMarginEndMap = new Map([
     [BreakPointsType.MD, MD_MENU_MARGIN_END],
     [BreakPointsType.LG, LG_MENU_MARGIN_END]
 ]);
+const colorMap = new Map([
+    [ICON_FILL_COLOR_DEFAULT, { light: '#182431', dark: '#e5ffffff' }],
+    [BORDER_COLOR_DEFAULT, { light: '#33182431', dark: '#4Dffffff' }],
+    [MENU_BACK_COLOR, { light: '#99FFFFFF', dark: '#33000000' }],
+    [HALF_BUTTON_BACK_COLOR, { light: '#0D000000', dark: '#19FFFFFF' }],
+    [HALF_BUTTON_IMAGE_COLOR, { light: '#000000', dark: '#FFFFFF' }]
+]);
+/**
+ * 与Native侧通信的事件回调管理类
+ *
+ * @since 2025/8/15
+ */
+class NativeEventManager {
+    /**
+     * 服务面板按钮点击回调
+     * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+     */
+    static onMenuButtonClick() {
+      ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK);
+    }
+    /**
+     * 关闭按钮点击回调
+     * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+     */
+    static onCloseButtonClick() {
+      ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_CLOSE_CLICK);
+    }
+    /**
+     * 点击title栏
+     * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+     */
+    static onEyelashTitleClick() {
+      let info = {
+          'bundleName': 'com.huawei.hmos.asde',
+          'abilityName': 'PanelAbility',
+          'params': [
+              `bundleName:${this.bundleName}`,
+              'abilityName:MainAbility',
+              'module:entry',
+              'pageName:DETAIL',
+              'ability.want.params.uiExtensionType:sysDialog/atomicServicePanel'
+          ]
+      };
+      ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL, info);
+    }
+    /**
+     * 触发构建回调
+     * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+     */
+    static onDidBuild() {
+        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_DID_BUILD);
+    }
+}
 
 /**
  * Menubar的基础属性定义，包括等价ArkTS中State、Link等修饰的变量
@@ -362,7 +395,7 @@ export class CustomAppBar extends MenubarBaseInfo {
      * 被调用时更新半屏嵌入式组件的宽高比例
      */
     updateRatio() {
-        // 屏幕断点为LG或MD时设置成直板机的宽高尺寸比，直板机时则设置为undefined使控制尺寸比的字段失效
+        // 屏幕断点为LG或MD时设置成直板机的宽高尺寸比，断点为SM时设置成undefined从而使控制尺寸比的字段失效
         const isRatioBeUndefined = this.breakPoint === BreakPointsType.LG || this.breakPoint === BreakPointsType.MD;
         this.ratio = isRatioBeUndefined ? 1 / LG_WIDTH_HEIGHT_RATIO : undefined;
     }
@@ -383,7 +416,8 @@ export class CustomAppBar extends MenubarBaseInfo {
                     let windowWidth = px2vp(displayData.width);
                     let windowHeight = px2vp(displayData.height);
                     this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
-                } catch (error) {
+                }
+                catch (error) {
                     hilog.error(0x3900, LOG_TAG, `getDefaultDisplaySync failed, code is ${error?.code}, message is ${error?.message}`);
                 }
             }
@@ -393,10 +427,27 @@ export class CustomAppBar extends MenubarBaseInfo {
         }
     }
     parseBoolean(value) {
-        if (value === 'true') {
-            return true;
+        return value === 'true';
+    }
+    getResourceColor(defaultColor) {
+        if (colorMap.has(defaultColor)) {
+            const colorGroup = colorMap.get(defaultColor);
+            if (colorGroup) {
+                return this.isDark ? colorGroup.dark : colorGroup.light;
+            }
         }
-        return false;
+        return defaultColor;
+    }
+    getStringByResourceToken(resName, value) {
+        try {
+            if (value) {
+                return getContext(this).resourceManager.getStringByNameSync(resName, value);
+            }
+            return getContext(this).resourceManager.getStringByNameSync(resName);
+        } catch (err) {
+            hilog.error(0x3900, LOG_TAG, `getAccessibilityDescription, error: ${err.toString()}`);
+        }
+        return '';
     }
     updateStringByResource() {
         if (this.isHalfScreen) {
@@ -409,6 +460,7 @@ export class CustomAppBar extends MenubarBaseInfo {
     }
     /**
      * atomicservice侧的事件变化回调
+     *
      * @param eventName 事件名称
      * @param param 事件参数
      */
@@ -418,28 +470,28 @@ export class CustomAppBar extends MenubarBaseInfo {
             return;
         }
         if (eventName === ARKUI_APP_BAR_COLOR_CONFIGURATION) {
+            hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyMenuColor, params: {param}`);
             this.onColorConfigurationUpdate(this.parseBoolean(param));
-        }
-        else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
+        } else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
+            hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyMenuSafeArea, params: {param}`);
             if (this.statusBarHeight === px2vp(Number(param))) {
                 return;
             }
             this.statusBarHeight = Number(param);
             this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
-        }
-        else if (eventName === ARKUI_APP_BAR_CONTENT_SAFE_AREA) {
-            //top left right bottom
+        } else if (eventName === ARKUI_APP_BAR_CONTENT_SAFE_AREA) {
             let splitArray = param.split('|');
             if (splitArray.length < 4) {
+                hilog.error(0x3900, LOG_TAG, `setCustomCallback updateSafeArea failed, params: {param}`);
                 return;
             }
+            hilog.error(0x3900, LOG_TAG, `setCustomCallback updateSafeArea success, margin: {JSON.stringify(splitArray)}`);
             this.contentMarginTop = this.isHalfScreen ? 0 : Number(splitArray[0]);
             this.fullContentMarginTop = Number(splitArray[0]);
             this.contentMarginLeft = Number(splitArray[1]);
             this.contentMarginRight = Number(splitArray[2]);
             this.contentMarginBottom = Number(splitArray[3]);
-        }
-        else if (eventName === ARKUI_APP_BAR_BAR_INFO) {
+        } else if (eventName === ARKUI_APP_BAR_BAR_INFO) {
             let splitArray = param.split('|');
             if (splitArray.length < 2) {
                 return;
@@ -447,21 +499,17 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.bundleName = splitArray[0];
             this.labelName = splitArray[1];
             this.updateStringByResource();
-        }
-        else if (eventName === ARKUI_APP_BAR_SCREEN) {
+        } else if (eventName === ARKUI_APP_BAR_SCREEN) {
             this.isHalfScreen = this.parseBoolean(param);
             this.initBreakPointListener();
-        }
-        else if (eventName === ARKUI_APP_BG_COLOR) {
-            if (this.isHalfScreen) {
-                this.contentBgColor = Color.Transparent;
-            } else {
-                this.contentBgColor = param;
-            }
+        } else if (eventName === ARKUI_APP_BG_COLOR) {
+            hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyBgColor, params: {param}`);
+            this.contentBgColor = this.isHalfScreen ? Color.Transparent : param;
         }
     }
     /**
      * 颜色变化设置
+     *
      * @param isDark 是否是深色模式
      */
     onColorConfigurationUpdate(isDark) {
@@ -474,48 +522,6 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.halfButtonBackColor = this.getResourceColor(HALF_BUTTON_BACK_COLOR);
         this.halfButtonImageColor = this.getResourceColor(HALF_BUTTON_IMAGE_COLOR);
         this.privacyImageColor = this.getResourceColor(HALF_BUTTON_IMAGE_COLOR);
-    }
-    /**
-     * 标题栏图标回调
-     * @param pixelMap
-     */
-    setAppIcon(pixelMap) {
-        this.icon = pixelMap;
-    }
-    /**
-     * 服务面板按钮点击回调
-     */
-    onMenuButtonClick() {
-        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK);
-    }
-    /**
-     * 关闭按钮点击回调
-     */
-    onCloseButtonClick() {
-        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_CLOSE_CLICK);
-    }
-    /**
-     * 点击title栏
-     */
-    onEyelashTitleClick() {
-        let info = {
-            'bundleName': 'com.huawei.hmos.asde',
-            'abilityName': 'PanelAbility',
-            'params': [
-                `bundleName:${this.bundleName}`,
-                'abilityName:MainAbility',
-                'module:entry',
-                'pageName:DETAIL',
-                'ability.want.params.uiExtensionType:sysDialog/atomicServicePanel'
-            ]
-        };
-        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL, info);
-    }
-    /**
-     * 触发构建回调
-     */
-    onDidBuild() {
-        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_DID_BUILD);
     }
     /**
      * 半屏拉起动效
@@ -570,7 +576,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         });
     }
     /**
-     * 嵌入式关闭动效
+     * 元服务关闭动效，包含嵌入式组件关闭动效
      */
     closeContainerAnimation() {
         if (this.isHalfScreen) {
@@ -583,24 +589,27 @@ export class CustomAppBar extends MenubarBaseInfo {
                 duration: 250,
                 curve: curves.interpolatingSpring(0, 1, 328, 36),
                 onFinish: () => {
-                    this.onCloseButtonClick();
+                    NativeEventManager.onCloseButtonClick();
                 }
             }, () => {
                 this.stackHeight = '0%';
             });
         }
         else {
-            this.onCloseButtonClick();
+            NativeEventManager.onCloseButtonClick();
         }
         this.isHalfScreenCompFirstLaunch = true;
     }
+    /**
+     * 半屏嵌入式组件关闭动效
+     */
     closeHalfContainerAnimation() {
         // 关闭弹框
         Context.animateTo({
             duration: 250,
             curve: curves.interpolatingSpring(0, 1, 328, 36),
             onFinish: () => {
-                this.onCloseButtonClick();
+                NativeEventManager.onCloseButtonClick();
             }
         }, () => {
             this.containerHeight = '0%';
@@ -623,7 +632,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         });
     }
     /**
-     * 隐私标识动效
+     * 开始隐私标识动效
      */
     startPrivacyAnimation() {
         Context.animateTo({
@@ -676,6 +685,9 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.privacyAnimator?.play();
         }, 5000);
     }
+    /**
+     * 隐私标识动效退出，menubar长度缩小帧动画初始化
+     */
     initPrivacyAnimator() {
         let privacyTextLength = px2vp(componentUtils.getRectangleById('AtomicServiceMenuPrivacyId').size.width);
         let options = {
@@ -765,7 +777,10 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Row.create();
             Row.id('AtomicServiceMenubarRowId');
-            Row.margin({ top: LengthMetrics.vp(this.statusBarHeight + MENU_MARGIN_TOP), end: LengthMetrics.vp(this.menuMarginEnd) });
+            Row.margin({
+                top: LengthMetrics.vp(this.statusBarHeight + MENU_MARGIN_TOP),
+                end: LengthMetrics.vp(this.menuMarginEnd)
+            });
             Row.justifyContent(FlexAlign.End);
             Row.height(VIEW_HEIGHT);
             Row.hitTestBehavior(HitTestMode.Transparent);
@@ -812,7 +827,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             Gesture.create(GesturePriority.Low);
             TapGesture.create();
             TapGesture.onAction(() => {
-                this.onMenuButtonClick();
+                NativeEventManager.onMenuButtonClick();
             });
             TapGesture.pop();
             Gesture.pop();
@@ -897,7 +912,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             ViewStackProcessor.visualState();
             Row.borderRadius(EYELASH_HEIGHT / 2);
             Row.onClick(() => {
-                this.onEyelashTitleClick();
+                NativeEventManager.onEyelashTitleClick();
             });
             Row.margin({ start: LengthMetrics.vp(TITLE_MARGIN_RIGHT) });
         }, Row);
@@ -984,7 +999,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             Button.width(BUTTON_SIZE);
             Button.height(BUTTON_SIZE);
             Button.margin({
-                start: LengthMetrics.vp(VIEW_MARGIN_RIGHT)
+                start: LengthMetrics.vp(VIEW_MARGIN_RIGHT),
             });
             Button.backgroundColor(this.halfButtonBackColor);
             Button.onClick(() => {
