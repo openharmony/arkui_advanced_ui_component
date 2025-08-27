@@ -930,6 +930,7 @@ export struct CustomAppBar {
             .onClick(() => {
               // 拦截到背板的点击事件
             })
+            .accessibilityLevel('no')
             .id('AtomicServiceStageId')
           }
           .height(this.containerHeight)
