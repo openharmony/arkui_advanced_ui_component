@@ -1131,6 +1131,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             Row.onClick(() => {
                 // 拦截到背板的点击事件
             });
+            Row.accessibilityLevel('no');
             Row.id('AtomicServiceStageId');
         }, Row);
         Row.pop();
