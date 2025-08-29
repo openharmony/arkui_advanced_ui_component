@@ -1122,8 +1122,8 @@ export class CustomAppBar extends MenubarBaseInfo {
             Row.backgroundColor(Color.Transparent);
             Row.backgroundBlurStyle(this.isHalfScreen ? BlurStyle.COMPONENT_ULTRA_THICK : undefined);
             Row.borderRadius({
-                topLeft: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : this.deviceBorderRadius,
-                topRight: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : this.deviceBorderRadius,
+                topLeft: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : 0,
+                topRight: this.isHalfScreen ? HALF_CONTAINER_BORDER_SIZE : 0,
             });
             Row.clip(true);
             Row.alignItems(VerticalAlign.Bottom);
