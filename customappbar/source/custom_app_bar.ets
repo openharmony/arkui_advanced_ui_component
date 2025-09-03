@@ -679,7 +679,7 @@ export struct CustomAppBar {
         .opacity(this.privacyTextOpacity)
         .ellipsisMode(EllipsisMode.END)
         .constraintSize({ maxWidth: PRIVACY_CONSTRAINT_SIZE })
-        .fontColor($r('sys.color.ohos_id_color_text_primary'))
+        .fontColor(this.privacyImageColor)
         .renderFit(RenderFit.RESIZE_FILL)
         .maxLines(1)
         .id('AtomicServiceMenuPrivacyId')
