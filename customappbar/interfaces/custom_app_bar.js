@@ -755,7 +755,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             Text.opacity(this.privacyTextOpacity);
             Text.ellipsisMode(EllipsisMode.END);
             Text.constraintSize({ maxWidth: PRIVACY_CONSTRAINT_SIZE });
-            Text.fontColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_text_primary'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+            Text.fontColor(this.privacyImageColor);
             Text.renderFit(RenderFit.RESIZE_FILL);
             Text.maxLines(1);
             Text.id('AtomicServiceMenuPrivacyId');
