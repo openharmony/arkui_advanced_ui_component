@@ -381,6 +381,15 @@ export struct CustomAppBar {
   }
 
   /**
+   * 标题栏图标回调
+   *
+   * @param pixelMap 元服务的睫毛图
+   */
+  setAppIcon(pixelMap) {
+    this.icon = pixelMap;
+  }
+
+  /**
    * atomicservice侧的事件变化回调
    *
    * @param eventName 事件名称
