@@ -128,20 +128,22 @@ class NativeEventManager {
     /**
      * 点击title栏
      * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+     *
+     * @param bundleName 待获取资料信息的元服务bundleName
      */
-    static onEyelashTitleClick() {
-      let info = {
-          'bundleName': 'com.huawei.hmos.asde',
-          'abilityName': 'PanelAbility',
-          'params': [
-              `bundleName:${this.bundleName}`,
-              'abilityName:MainAbility',
-              'module:entry',
-              'pageName:DETAIL',
-              'ability.want.params.uiExtensionType:sysDialog/atomicServicePanel'
-          ]
-      };
-      ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL, info);
+    static onEyelashTitleClick(bundleName) {
+        let info = {
+            'bundleName': 'com.huawei.hmos.asde',
+            'abilityName': 'PanelAbility',
+            'params': [
+                `bundleName:${bundleName}`,
+                'abilityName:MainAbility',
+                'module:entry',
+                'pageName:DETAIL',
+                'ability.want.params.uiExtensionType:sysDialog/atomicServicePanel'
+            ]
+        };
+        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL, info);
     }
     /**
      * 触发构建回调
@@ -458,6 +460,16 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.serviceMenuRead = this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL);
         this.privacyAuthText = this.getStringByResourceToken(ARKUI_APP_BAR_PRIVACY_AUTHORIZE);
     }
+
+    /**
+     * 标题栏图标回调
+     *
+     * @param pixelMap 元服务的睫毛图
+     */
+    setAppIcon(pixelMap) {
+        this.icon = pixelMap;
+    }
+
     /**
      * atomicservice侧的事件变化回调
      *
@@ -912,7 +924,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             ViewStackProcessor.visualState();
             Row.borderRadius(EYELASH_HEIGHT / 2);
             Row.onClick(() => {
-                NativeEventManager.onEyelashTitleClick();
+                NativeEventManager.onEyelashTitleClick(this.bundleName);
             });
             Row.margin({ start: LengthMetrics.vp(TITLE_MARGIN_RIGHT) });
         }, Row);
