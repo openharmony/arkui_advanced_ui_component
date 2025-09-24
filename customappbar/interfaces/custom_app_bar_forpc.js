@@ -298,7 +298,7 @@ export class CustomAppBarForPC extends ViewPU {
                 this.updateMaximizeResource(windowStatusType);
             });
             if (!this.isAdaptPC) {
-                this.windowClass?.setWindowTitleMoveEnabled(false);
+                this.windowClass?.setWindowTitleMoveEnabled(true);
             }
         }).catch((err) => {
             if (err.code) {
