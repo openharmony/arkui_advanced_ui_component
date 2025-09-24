@@ -127,7 +127,7 @@ export struct CustomAppBarForPC {
           this.updateMaximizeResource(windowStatusType);
         });
         if (!this.isAdaptPC) {
-          this.windowClass?.setWindowTitleMoveEnabled(false);
+          this.windowClass?.setWindowTitleMoveEnabled(true);
         }
       }
     ).catch((err: BusinessError) => {
