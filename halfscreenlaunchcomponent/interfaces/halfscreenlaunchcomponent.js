@@ -21,7 +21,6 @@ const abilityManager = requireNapi('app.ability.abilityManager');
 const commonEventManager = requireNapi('commonEventManager');
 const EMBEDDED_HALF_MODE = 2;
 const atomicServiceDataTag = 'ohos.atomicService.window';
-const ERR_CODE_ABNORMAL = 100014;
 const ERR_CODE_CAPABILITY_NOT_SUPPORT = 801;
 const LOG_TAG = 'HalfScreenLaunchComponent';
 export class HalfScreenLaunchComponent extends ViewPU {
@@ -242,11 +241,6 @@ export class HalfScreenLaunchComponent extends ViewPU {
                 }
                 this.isShow = false;
                 hilog.error(0x3900, LOG_TAG, 'call up UIExtension error!%{public}s', err.message);
-                if (err.code !== ERR_CODE_ABNORMAL) {
-                    this.getUIContext().showAlertDialog({
-                        message: err.message
-                    });
-                }
             });
             UIExtensionComponent.onTerminated(info => {
                 this.isShow = false;

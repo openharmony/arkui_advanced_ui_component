@@ -22,7 +22,6 @@ import Base from '@ohos.base';
 
 const EMBEDDED_HALF_MODE = 2;
 const atomicServiceDataTag: string = 'ohos.atomicService.window';
-const ERR_CODE_ABNORMAL: number = 100014;
 const ERR_CODE_CAPABILITY_NOT_SUPPORT: number = 801;
 const LOG_TAG: string = 'HalfScreenLaunchComponent';
 @Component
@@ -197,11 +196,6 @@ export struct HalfScreenLaunchComponent {
             }
             this.isShow = false;
             hilog.error(0x3900, LOG_TAG, 'call up UIExtension error!%{public}s', err.message);
-            if (err.code !== ERR_CODE_ABNORMAL) {
-              this.getUIContext().showAlertDialog({
-                message: err.message
-              });
-            }
           }
         )
         .onTerminated(info => {
