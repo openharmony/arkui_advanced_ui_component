@@ -20,7 +20,6 @@ const hilog = requireNapi('hilog');
 const abilityManager = requireNapi('app.ability.abilityManager');
 const commonEventManager = requireNapi('commonEventManager');
 const atomicServiceDataTag = 'ohos.atomicService.window';
-const ERR_CODE_ABNORMAL = 100014;
 const ERR_CODE_CAPABILITY_NOT_SUPPORT = 801;
 const LOG_TAG = 'InnerFullScreenLaunchComponent';
 export class LaunchController {
@@ -249,11 +248,6 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             UIExtensionComponent.onError(g => {
                 this.isShow = false;
                 hilog.error(0x3900, LOG_TAG, 'call up UIExtension error!%{public}s', g.message);
-                if (g.code !== ERR_CODE_ABNORMAL) {
-                    this.getUIContext().showAlertDialog({
-                        message: g.message
-                    });
-                }
             });
             UIExtensionComponent.onReceive(data => {
                 this.handleOnReceiveEvent(data);
