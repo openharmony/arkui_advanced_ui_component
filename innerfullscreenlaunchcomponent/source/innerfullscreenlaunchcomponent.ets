@@ -26,7 +26,6 @@ export class LaunchController {
 
 const EMBEDDED_FULL_MODE: number = 1;
 const atomicServiceDataTag: string = 'ohos.atomicService.window';
-const ERR_CODE_ABNORMAL: number = 100014;
 const ERR_CODE_CAPABILITY_NOT_SUPPORT: number = 801;
 const LOG_TAG: string = 'InnerFullScreenLaunchComponent';
 
@@ -207,11 +206,6 @@ export struct InnerFullScreenLaunchComponent {
           err => {
             this.isShow = false;
             hilog.error(0x3900, LOG_TAG, 'call up UIExtension error! %{public}s', err.message);
-            if (err.code !== ERR_CODE_ABNORMAL) {
-              this.getUIContext().showAlertDialog({
-                message: err.message
-              });
-            }
           }
         )
         .onReceive(data => {
