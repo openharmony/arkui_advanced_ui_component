@@ -94,14 +94,16 @@ enum BreakPointsType {
   NONE = 'NONE',
   SM = 'SM',
   MD = 'MD',
-  LG = 'LG'
+  LG = 'LG',
+  XL = 'XL'
 }
 
 const menuMarginEndMap: Map<BreakPointsType, number> = new Map<BreakPointsType, number>([
   [BreakPointsType.NONE, SM_MENU_MARGIN_END],
   [BreakPointsType.SM, SM_MENU_MARGIN_END],
   [BreakPointsType.MD, MD_MENU_MARGIN_END],
-  [BreakPointsType.LG, LG_MENU_MARGIN_END]
+  [BreakPointsType.LG, LG_MENU_MARGIN_END],
+  [BreakPointsType.XL, LG_MENU_MARGIN_END]
 ]);
 
 const colorMap: Map<string, ColorMode> = new Map<string, ColorMode>([
@@ -222,7 +224,8 @@ export struct CustomAppBar {
   private privacyAnimator: AnimatorResult | undefined = undefined;
   private smListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(0vp<width) and (width<600vp)');
   private mdListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(600vp<=width) and (width<840vp)');
-  private lgListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(840vp<=width)');
+  private lgListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(840vp<=width) and (width<1440vp)');
+  private xlListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(1440vp<=width)');
   // 订阅者信息, 用于保存创建成功的订阅者对象，后续使用其完成订阅及退订的动作
   private subscriber: commonEventManager.CommonEventSubscriber | null = null;
   // 事件列表
@@ -234,6 +237,7 @@ export struct CustomAppBar {
     this.smListener.off('change');
     this.mdListener.off('change');
     this.lgListener.off('change');
+    this.xlListener.off('change');
     if (this.subscriber !== null) {
       commonEventManager.unsubscribe(this.subscriber, (err) => {
         if (err) {
@@ -296,17 +300,22 @@ export struct CustomAppBar {
       if (mediaQueryResult.matches) {
         this.breakPoint = BreakPointsType.SM;
       }
-    })
+    });
     this.mdListener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
       if (mediaQueryResult.matches) {
         this.breakPoint = BreakPointsType.MD;
       }
-    })
+    });
     this.lgListener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
       if (mediaQueryResult.matches) {
         this.breakPoint = BreakPointsType.LG;
       }
-    })
+    });
+    this.xlListener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
+      if (mediaQueryResult.matches) {
+        this.breakPoint = BreakPointsType.XL;
+      }
+    });
   }
 
   /**
@@ -326,21 +335,32 @@ export struct CustomAppBar {
     if (this.isHalfScreen) {
       if (this.breakPoint === BreakPointsType.SM) {
         this.containerWidth = '100%';
-      } else if (this.breakPoint === BreakPointsType.MD) {
-        this.containerWidth = MD_WIDTH;
-      } else if (this.breakPoint === BreakPointsType.LG) {
+        this.containerHeight = '100%';
+        this.ratio = undefined;
+      } else if (this.breakPoint === BreakPointsType.MD || this.breakPoint === BreakPointsType.LG ||
+          this.breakPoint === BreakPointsType.XL) {
         try {
           let displayData = display.getDefaultDisplaySync();
           let windowWidth = px2vp(displayData.width);
           let windowHeight = px2vp(displayData.height);
-          this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
+          hilog.info(0x3900, LOG_TAG, `onBreakPointChange ${this.breakPoint} windowWidth=${windowWidth} windowHeight=${windowHeight}`);
+          if (this.breakPoint === BreakPointsType.MD) {
+            this.containerWidth = MD_WIDTH;
+          } else {
+            this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
+          }
+          if (this.containerWidth * LG_WIDTH_HEIGHT_RATIO < windowHeight) {
+            // 高度大于宽高比的高度，保持宽高比
+            this.ratio = 1 / LG_WIDTH_HEIGHT_RATIO;
+          } else {
+            // 高度小于宽高比的高度，高度为100%
+            this.containerHeight = '100%';
+            this.ratio = undefined;
+          }
         } catch (error) {
           hilog.error(0x3900, LOG_TAG, `getDefaultDisplaySync failed, code is ${error?.code}, message is ${error?.message}`);
         }
       }
-    }
-    if (!this.isHalfScreenCompFirstLaunch) {
-      this.updateRatio();
     }
   }
 
@@ -472,7 +492,6 @@ export struct CustomAppBar {
       curve: curves.interpolatingSpring(0, 1, 328, 36),
     }, () => {
       this.containerHeight = '100%';
-      this.updateRatio();
     });
     // 标题栏渐显
     animateTo({
@@ -497,6 +516,8 @@ export struct CustomAppBar {
       }
     }, () => {
       this.containerWidth = '100%';
+      this.containerHeight = '100%';
+      this.ratio = undefined;
       this.contentMarginTop = this.fullContentMarginTop;
       this.titleOffset = -this.titleHeight;
       this.isHalfScreen = false;
