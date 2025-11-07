@@ -91,12 +91,14 @@ const BreakPointsType = {
     SM: 'SM',
     MD: 'MD',
     LG: 'LG',
+    XL: 'XL'
 };
 const menuMarginEndMap = new Map([
     [BreakPointsType.NONE, SM_MENU_MARGIN_END],
     [BreakPointsType.SM, SM_MENU_MARGIN_END],
     [BreakPointsType.MD, MD_MENU_MARGIN_END],
-    [BreakPointsType.LG, LG_MENU_MARGIN_END]
+    [BreakPointsType.LG, LG_MENU_MARGIN_END],
+    [BreakPointsType.XL, LG_MENU_MARGIN_END]
 ]);
 const colorMap = new Map([
     [ICON_FILL_COLOR_DEFAULT, { light: '#182431', dark: '#e5ffffff' }],
@@ -280,7 +282,8 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.privacyAnimator = undefined;
         this.smListener = mediaquery.matchMediaSync('(0vp<width) and (width<600vp)');
         this.mdListener = mediaquery.matchMediaSync('(600vp<=width) and (width<840vp)');
-        this.lgListener = mediaquery.matchMediaSync('(840vp<=width)');
+        this.lgListener = mediaquery.matchMediaSync('(840vp<=width) and (width<1440vp)');
+        this.xlListener = mediaquery.matchMediaSync('(1440vp<=width)');
         this.subscriber = null;
         this.subscribeInfo = {
             events: ['usual.event.PRIVACY_STATE_CHANGED']
@@ -320,6 +323,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.smListener.off('change');
         this.mdListener.off('change');
         this.lgListener.off('change');
+        this.xlListener.off('change');
         if (this.subscriber !== null) {
             commonEventManager.unsubscribe(this.subscriber, (err) => {
                 if (err) {
@@ -391,6 +395,11 @@ export class CustomAppBar extends MenubarBaseInfo {
                 this.breakPoint = BreakPointsType.LG;
             }
         });
+        this.xlListener.on('change', (mediaQueryResult) => {
+            if (mediaQueryResult.matches) {
+                this.breakPoint = BreakPointsType.XL;
+            }
+        });
     }
     /**
      * 半屏嵌入式定制使用，当半屏嵌入式组件首次被拉起或者屏幕宽度断点发生变化时被调用
@@ -408,24 +417,32 @@ export class CustomAppBar extends MenubarBaseInfo {
         if (this.isHalfScreen) {
             if (this.breakPoint === BreakPointsType.SM) {
                 this.containerWidth = '100%';
+                this.containerHeight = '100%';
+                this.ratio = undefined;
             }
-            else if (this.breakPoint === BreakPointsType.MD) {
-                this.containerWidth = MD_WIDTH;
-            }
-            else if (this.breakPoint === BreakPointsType.LG) {
+            else if (this.breakPoint === BreakPointsType.MD || this.breakPoint === BreakPointsType.LG ||
+                this.breakPoint === BreakPointsType.XL) {
                 try {
                     let displayData = display.getDefaultDisplaySync();
                     let windowWidth = px2vp(displayData.width);
                     let windowHeight = px2vp(displayData.height);
-                    this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
+                    hilog.info(0x3900, LOG_TAG, `onBreakPointChange ${this.breakPoint} windowWidth=${windowWidth} windowHeight=${windowHeight}`);
+                    if (this.breakPoint === BreakPointsType.MD) {
+                        this.containerWidth = MD_WIDTH;
+                    } else {
+                        this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
+                    }
+                    if (this.containerWidth * LG_WIDTH_HEIGHT_RATIO < windowHeight) {
+                        this.ratio = 1 / LG_WIDTH_HEIGHT_RATIO;
+                    } else {
+                        this.containerHeight = '100%';
+                        this.ratio = undefined;
+                    }
                 }
                 catch (error) {
                     hilog.error(0x3900, LOG_TAG, `getDefaultDisplaySync failed, code is ${error?.code}, message is ${error?.message}`);
                 }
             }
-        }
-        if (!this.isHalfScreenCompFirstLaunch) {
-            this.updateRatio();
         }
     }
     parseBoolean(value) {
@@ -551,7 +568,6 @@ export class CustomAppBar extends MenubarBaseInfo {
             curve: curves.interpolatingSpring(0, 1, 328, 36),
         }, () => {
             this.containerHeight = '100%';
-            this.updateRatio();
         });
         // 标题栏渐显
         Context.animateTo({
@@ -575,6 +591,8 @@ export class CustomAppBar extends MenubarBaseInfo {
             }
         }, () => {
             this.containerWidth = '100%';
+            this.containerHeight = '100%';
+            this.ratio = undefined;
             this.contentMarginTop = this.fullContentMarginTop;
             this.titleOffset = -this.titleHeight;
             this.isHalfScreen = false;
