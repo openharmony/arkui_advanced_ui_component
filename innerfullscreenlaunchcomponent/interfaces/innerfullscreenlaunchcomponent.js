@@ -247,7 +247,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
     handleOnErrorEvent(e21) {
         this.isShow = false;
         hilog.error(0x3900, LOG_TAG, 'call up UIExtension error! %{public}s', e21.message);
-        if (this.onError !== undefined) {
+        if (this.onError) {
             try {
                 this.onError(e21);
             }
@@ -258,7 +258,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
     }
     handleOnTerminated(c21) {
         this.isShow = false;
-        if (this.onTerminated !== undefined) {
+        if (this.onTerminated) {
             try {
                 this.onTerminated(c21);
             }
