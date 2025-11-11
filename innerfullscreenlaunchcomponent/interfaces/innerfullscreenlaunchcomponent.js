@@ -19,8 +19,10 @@ if (!("finalizeConstruction" in ViewPU.prototype)) {
 const hilog = requireNapi('hilog');
 const abilityManager = requireNapi('app.ability.abilityManager');
 const commonEventManager = requireNapi('commonEventManager');
+const bundleManager = requireNapi('bundle.bundleManager');
 const atomicServiceDataTag = 'ohos.atomicService.window';
 const ERR_CODE_CAPABILITY_NOT_SUPPORT = 801;
+const API20 = 20;
 const LOG_TAG = 'InnerFullScreenLaunchComponent';
 export class LaunchController {
     constructor() {
@@ -42,7 +44,10 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
         this.options = undefined;
         this.__isShow = new ObservedPropertySimplePU(false, this, "isShow");
         this.subscriber = null;
+        this.apiVersion = 0;
         this.onReceive = undefined;
+        this.onError = undefined;
+        this.onTerminated = undefined;
         this.launchAtomicService = (k1, l1) => {
             hilog.info(0x3900, LOG_TAG, 'launchAtomicService, appId: %{public}s.', k1);
             this.appId = k1;
@@ -74,11 +79,20 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
         if (c1.subscriber !== undefined) {
             this.subscriber = c1.subscriber;
         }
+        if (c1.apiVersion !== undefined) {
+            this.apiVersion = c1.apiVersion;
+        }
         if (c1.launchAtomicService !== undefined) {
             this.launchAtomicService = c1.launchAtomicService;
         }
         if (c1.onReceive !== undefined) {
             this.onReceive = c1.onReceive;
+        }
+        if (c1.onError !== undefined) {
+            this.onError = c1.onError;
+        }
+        if (c1.onTerminated !== undefined) {
+            this.onTerminated = c1.onTerminated;
         }
     }
     updateStateVars(b1) {
@@ -98,6 +112,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
         this.__isShow.set(z);
     }
     aboutToAppear() {
+        this.loadApiVersion();
         let s = {
             events: [commonEventManager.Support.COMMON_EVENT_DISTRIBUTED_ACCOUNT_LOGOUT],
         };
@@ -122,6 +137,25 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
         });
         this.controller.launchAtomicService = this.launchAtomicService;
     }
+    loadApiVersion() {
+        let d = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
+        bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA;
+        try {
+            bundleManager.getBundleInfoForSelf(d).then((g) => {
+                if (!g?.targetVersion) {
+                    hilog.error(0x3900, LOG_TAG, 'getBundleInfoForSelf error, targetVersion is undefined');
+                    return;
+                }
+                this.apiVersion = g.targetVersion % 1000;
+                hilog.info(0x3900, LOG_TAG, 'getBundleInfoForSelf success, data: %{public}d.', this.apiVersion);
+            }).catch((f) => {
+                hilog.error(0x3900, LOG_TAG, 'getBundleInfoForSelf fail_1, cause: %{public}s.', f.message);
+            });
+        }
+        catch (e) {
+            hilog.error(0x3900, LOG_TAG, 'getBundleInfoForSelf fail_2, cause: %{public}s.', e.message);
+        }
+    }
     aboutToDisappear() {
         if (this.subscriber !== null) {
             commonEventManager.unsubscribe(this.subscriber, (r) => {
@@ -140,6 +174,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
         if (this.options?.parameters) {
             this.options.parameters['ohos.extra.param.key.showMode'] = EMBEDDED_FULL_MODE;
             this.options.parameters['ability.want.params.IsNotifyOccupiedAreaChange'] = true;
+            this.options.parameters['ohos.extra.atomicservice.param.key.isFollowHostWindowMode'] = (this.apiVersion >= API20);
             hilog.info(0x3900, LOG_TAG, 'replaced options is %{public}s !', JSON.stringify(this.options));
         }
         else {
@@ -147,6 +182,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
                 parameters: {
                     'ohos.extra.param.key.showMode': EMBEDDED_FULL_MODE,
                     'ability.want.params.IsNotifyOccupiedAreaChange': true,
+                    'ohos.extra.atomicservice.param.key.isFollowHostWindowMode': (this.apiVersion >= API20)
                 }
             };
         }
@@ -176,7 +212,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
                     if (ERR_CODE_CAPABILITY_NOT_SUPPORT === err.code) {
                         this.popUp();
                     }
-                });
+            });
         }
         catch (err) {
             hilog.error(0x3900, LOG_TAG, 'AtomicServiceStartupRule failed: %{public}s', err.message);
@@ -202,10 +238,33 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             let atomicServiceData = {};
             for (let i = 0; i < sourceKeys.length; i++) {
                 if (sourceKeys[i].includes(atomicServiceDataTag)) {
-                atomicServiceData[sourceKeys[i]] = data[sourceKeys[i]];
+                    atomicServiceData[sourceKeys[i]] = data[sourceKeys[i]];
                 }
             }
             this.onReceive(atomicServiceData);
+        }
+    }
+    handleOnErrorEvent(e21) {
+        this.isShow = false;
+        hilog.error(0x3900, LOG_TAG, 'call up UIExtension error! %{public}s', e21.message);
+        if (this.onError !== undefined) {
+            try {
+                this.onError(e21);
+            }
+            catch (f21) {
+                hilog.error(0x3900, LOG_TAG, 'onError callback error! %{public}s', f21.message);
+            }
+        }
+    }
+    handleOnTerminated(c21) {
+        this.isShow = false;
+        if (this.onTerminated !== undefined) {
+            try {
+                this.onTerminated(c21);
+            }
+            catch (d21) {
+                hilog.error(0x3900, LOG_TAG, 'onTerminated callback error! %{public}s', d21.message);
+            }
         }
     }
     initialRender() {
@@ -213,11 +272,11 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             Row.create();
             Row.justifyContent(FlexAlign.Center);
             Row.bindContentCover({ value: this.isShow, changeEvent: k => { this.isShow = k; } }, { builder: () => {
-                    this.uiExtensionBuilder.call(this);
-                } }, {
-                    modalTransition: ModalTransition.DEFAULT,
-                    enableSafeArea: true
-                });
+                this.uiExtensionBuilder.call(this);
+            } }, {
+                modalTransition: ModalTransition.DEFAULT,
+                enableSafeArea: true
+            });
         }, Row);
         this.content.bind(this)(this);
         Row.pop();
@@ -246,11 +305,13 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
                 this.isShow = false;
             });
             UIExtensionComponent.onError(g => {
-                this.isShow = false;
-                hilog.error(0x3900, LOG_TAG, 'call up UIExtension error!%{public}s', g.message);
+                this.handleOnErrorEvent(g);
             });
             UIExtensionComponent.onReceive(data => {
                 this.handleOnReceiveEvent(data);
+            });
+            UIExtensionComponent.onTerminated((a) => {
+                this.handleOnTerminated(a);
             });
         }, UIExtensionComponent);
         Column.pop();
