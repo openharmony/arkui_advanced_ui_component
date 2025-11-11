@@ -207,7 +207,7 @@ export struct InnerFullScreenLaunchComponent {
   private handleOnErrorEvent(err: BusinessError): void {
     this.isShow = false;
     hilog.error(0x3900, LOG_TAG, 'call up UIExtension error! %{public}s', err.message);
-    if (this.onError !== undefined) {
+    if (this.onError) {
       try {
         this.onError(err);
       } catch (err) {
@@ -221,7 +221,7 @@ export struct InnerFullScreenLaunchComponent {
    */
   private handleOnTerminated(info: TerminationInfo): void {
     this.isShow = false;
-    if (this.onTerminated !== undefined) {
+    if (this.onTerminated) {
       try {
         this.onTerminated(info);
       } catch (err) {
