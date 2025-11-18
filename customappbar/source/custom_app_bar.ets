@@ -222,6 +222,7 @@ export struct CustomAppBar {
   private fullContentMarginTop: number = 0;
   private deviceBorderRadius: string = '0';
   private privacyAnimator: AnimatorResult | undefined = undefined;
+  private halfLaunchRatio: number | undefined = undefined;
   private smListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(0vp<width) and (width<600vp)');
   private mdListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(600vp<=width) and (width<840vp)');
   private lgListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(840vp<=width) and (width<1440vp)');
@@ -333,10 +334,13 @@ export struct CustomAppBar {
       this.menuMarginEnd = menuMarginEndMap.get(this.breakPoint) as number;
     }
     if (this.isHalfScreen) {
+      let ratio: number | undefined = undefined;
+      let containerHeight: string | number = '100%';
       if (this.breakPoint === BreakPointsType.SM) {
+        hilog.info(0x3900, LOG_TAG, `onBreakPointChange SM`);
         this.containerWidth = '100%';
-        this.containerHeight = '100%';
-        this.ratio = undefined;
+        containerHeight = '100%';
+        ratio = undefined;
       } else if (this.breakPoint === BreakPointsType.MD || this.breakPoint === BreakPointsType.LG ||
           this.breakPoint === BreakPointsType.XL) {
         try {
@@ -351,17 +355,31 @@ export struct CustomAppBar {
           }
           if (this.containerWidth * LG_WIDTH_HEIGHT_RATIO < windowHeight) {
             // 高度大于宽高比的高度，保持宽高比
-            this.ratio = 1 / LG_WIDTH_HEIGHT_RATIO;
+            ratio = 1 / LG_WIDTH_HEIGHT_RATIO;
           } else {
             // 高度小于宽高比的高度，高度为100%
-            this.containerHeight = '100%';
-            this.ratio = undefined;
+            containerHeight = '100%';
+            ratio = undefined;
           }
         } catch (error) {
           hilog.error(0x3900, LOG_TAG, `getDefaultDisplaySync failed, code is ${error?.code}, message is ${error?.message}`);
         }
       }
+      if (this.isHalfScreenCompFirstLaunch) {
+        this.halfLaunchRatio = ratio;
+      } else {
+        this.ratio = ratio;
+        this.containerHeight = containerHeight;
+      }
     }
+  }
+
+  /**
+   * 半屏嵌入式拉起动效
+   */
+  halfScreenLaunchAnimation(): void {
+    this.ratio = this.halfLaunchRatio;
+    this.containerHeight = '100%';
   }
 
   parseBoolean(value: string): boolean {
@@ -405,7 +423,7 @@ export struct CustomAppBar {
    *
    * @param pixelMap 元服务的睫毛图
    */
-  setAppIcon(pixelMap) {
+  setAppIcon(pixelMap: Resource | string) {
     this.icon = pixelMap;
   }
 
@@ -491,7 +509,7 @@ export struct CustomAppBar {
       duration: 250,
       curve: curves.interpolatingSpring(0, 1, 328, 36),
     }, () => {
-      this.containerHeight = '100%';
+      this.halfScreenLaunchAnimation();
     });
     // 标题栏渐显
     animateTo({
@@ -570,6 +588,7 @@ export struct CustomAppBar {
     }, () => {
       this.containerHeight = '0%';
       this.ratio = undefined;
+      this.halfLaunchRatio = undefined;
     });
     // 蒙层渐隐
     animateTo({
