@@ -118,14 +118,14 @@ class NativeEventManager {
      * 在ets无法实现，需要在编译后的js中加入对应的实现方法
      */
     static onMenuButtonClick() {
-      ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK);
+        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK);
     }
     /**
      * 关闭按钮点击回调
      * 在ets无法实现，需要在编译后的js中加入对应的实现方法
      */
     static onCloseButtonClick() {
-      ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_CLOSE_CLICK);
+        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_CLOSE_CLICK);
     }
     /**
      * 点击title栏
@@ -280,6 +280,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.fullContentMarginTop = 0;
         this.deviceBorderRadius = '0';
         this.privacyAnimator = undefined;
+        this.halfLaunchRatio = undefined;
         this.smListener = mediaquery.matchMediaSync('(0vp<width) and (width<600vp)');
         this.mdListener = mediaquery.matchMediaSync('(600vp<=width) and (width<840vp)');
         this.lgListener = mediaquery.matchMediaSync('(840vp<=width) and (width<1440vp)');
@@ -415,10 +416,13 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.menuMarginEnd = menuMarginEndMap.get(this.breakPoint);
         }
         if (this.isHalfScreen) {
+            let ratio = undefined;
+            let containerHeight = '100%';
             if (this.breakPoint === BreakPointsType.SM) {
+                hilog.info(0x3900, LOG_TAG, `onBreakPointChange SM`);
                 this.containerWidth = '100%';
-                this.containerHeight = '100%';
-                this.ratio = undefined;
+                containerHeight = '100%';
+                ratio = undefined;
             }
             else if (this.breakPoint === BreakPointsType.MD || this.breakPoint === BreakPointsType.LG ||
                 this.breakPoint === BreakPointsType.XL) {
@@ -433,17 +437,28 @@ export class CustomAppBar extends MenubarBaseInfo {
                         this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
                     }
                     if (this.containerWidth * LG_WIDTH_HEIGHT_RATIO < windowHeight) {
-                        this.ratio = 1 / LG_WIDTH_HEIGHT_RATIO;
+                        ratio = 1 / LG_WIDTH_HEIGHT_RATIO;
                     } else {
-                        this.containerHeight = '100%';
-                        this.ratio = undefined;
+                        containerHeight = '100%';
+                        ratio = undefined;
                     }
                 }
                 catch (error) {
                     hilog.error(0x3900, LOG_TAG, `getDefaultDisplaySync failed, code is ${error?.code}, message is ${error?.message}`);
                 }
             }
+            if (this.isHalfScreenCompFirstLaunch) {
+                this.halfLaunchRatio = ratio;
+            }
+            else {
+                this.ratio = ratio;
+                this.containerHeight = containerHeight;
+            }
         }
+    }
+    halfScreenLaunchAnimation() {
+        this.ratio = this.halfLaunchRatio;
+        this.containerHeight = '100%';
     }
     parseBoolean(value) {
         return value === 'true';
@@ -567,7 +582,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             duration: 250,
             curve: curves.interpolatingSpring(0, 1, 328, 36),
         }, () => {
-            this.containerHeight = '100%';
+            this.halfScreenLaunchAnimation();
         });
         // 标题栏渐显
         Context.animateTo({
@@ -644,6 +659,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         }, () => {
             this.containerHeight = '0%';
             this.ratio = undefined;
+            this.halfLaunchRatio = undefined;
         });
         // 蒙层渐隐
         Context.animateTo({
