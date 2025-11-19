@@ -83,6 +83,8 @@ const EVENT_NAME_CUSTOM_APP_BAR_DID_BUILD = 'arkui_custom_app_bar_did_build';
 const EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL = 'arkui_custom_app_bar_create_service_panel';
 const ARKUI_APP_BAR_MAXIMIZE = 'arkui_app_bar_maximize';
 const ARKUI_APP_BAR_PRIVACY_AUTHORIZE = 'arkui_app_bar_privacy_authorize';
+const ARKUI_APP_BAR_ON_BACK_PRESSED = 'arkui_app_bar_on_back_pressed';
+const ARKUI_APP_BAR_ON_BACK_PRESSED_CONSUMED = 'arkui_app_bar_on_back_pressed_consumed';
 /**
  * 断点类型
  */
@@ -153,6 +155,14 @@ class NativeEventManager {
      */
     static onDidBuild() {
         ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_DID_BUILD);
+    }
+
+    /**
+     * 手势退出，通知底层手势退出拦截已消费，后续由menubar控制元服务退出
+     * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+     */
+    static onBackPressConsumed() {
+        ContainerAppBar.callNative(ARKUI_APP_BAR_ON_BACK_PRESSED_CONSUMED);
     }
 }
 
@@ -549,6 +559,12 @@ export class CustomAppBar extends MenubarBaseInfo {
         } else if (eventName === ARKUI_APP_BG_COLOR) {
             hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyBgColor, params: {param}`);
             this.contentBgColor = this.isHalfScreen ? Color.Transparent : param;
+        } else if (eventName === ARKUI_APP_BAR_ON_BACK_PRESSED) {
+            if (this.isHalfScreen || this.isHalfToFullScreen) {
+                hilog.info(0x3900, LOG_TAG, 'setCustomCallback onBackPress');
+                this.closeContainerAnimation();
+                NativeEventManager.onBackPressConsumed();
+            }
         }
     }
     /**
