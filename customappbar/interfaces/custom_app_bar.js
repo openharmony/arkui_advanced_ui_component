@@ -561,7 +561,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.contentBgColor = this.isHalfScreen ? Color.Transparent : param;
         } else if (eventName === ARKUI_APP_BAR_ON_BACK_PRESSED) {
             if (this.isHalfScreen || this.isHalfToFullScreen) {
-                hilog.info(0x3900, LOG_TAG, 'setCustomCallback onBackPress');
+                hilog.info(0x3900, LOG_TAG, 'setCustomCallback halfScreen onBackPress');
                 this.closeContainerAnimation();
                 NativeEventManager.onBackPressConsumed();
             }
