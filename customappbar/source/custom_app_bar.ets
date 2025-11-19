@@ -351,7 +351,7 @@ export struct CustomAppBar {
         containerHeight = '100%';
         ratio = undefined;
       } else if (this.breakPoint === BreakPointsType.MD || this.breakPoint === BreakPointsType.LG ||
-        this.breakPoint === BreakPointsType.XL) {
+          this.breakPoint === BreakPointsType.XL) {
         try {
           let displayData = display.getDefaultDisplaySync();
           let windowWidth = px2vp(displayData.width);
