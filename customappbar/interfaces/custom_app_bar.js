@@ -298,7 +298,8 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.xlListener = mediaquery.matchMediaSync('(1440vp<=width)');
         this.smVerticalListener = mediaquery.matchMediaSync('(0vp<height) and (height<600vp)');
         this.mdVerticalListener = mediaquery.matchMediaSync('(600vp<=height) and (height<840vp)');
-        this.lgVerticalListener = mediaquery.matchMediaSync('(840vp<=height)');
+        this.lgVerticalListener = mediaquery.matchMediaSync('(840vp<=height) and (height<1440vp)');
+        this.xlVerticalListener = mediaquery.matchMediaSync('(1440vp<=height)');
         this.subscriber = null;
         this.subscribeInfo = {
             events: ['usual.event.PRIVACY_STATE_CHANGED']
@@ -343,6 +344,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.smVerticalListener.off('change');
         this.mdVerticalListener.off('change');
         this.lgVerticalListener.off('change');
+        this.xlVerticalListener.off('change');
         if (this.subscriber !== null) {
             commonEventManager.unsubscribe(this.subscriber, (err) => {
                 if (err) {
@@ -434,6 +436,11 @@ export class CustomAppBar extends MenubarBaseInfo {
                 this.verticalBreakPoint = BreakPointsType.LG;
             }
         });
+        this.xlVerticalListener.on('change', (mediaQueryResult) => {
+            if (mediaQueryResult.matches) {
+                this.verticalBreakPoint = BreakPointsType.XL;
+            }
+        });
     }
     /**
      * 半屏嵌入式定制使用，当半屏嵌入式组件首次被拉起或者屏幕宽度断点发生变化时被调用
@@ -490,8 +497,8 @@ export class CustomAppBar extends MenubarBaseInfo {
         }
     }
     isBreakPointMatchWidthHeightRatio() {
-        return (this.breakPoint === BreakPointsType.MD || this.breakPoint === BreakPointsType.LG) &&
-            this.verticalBreakPoint === BreakPointsType.LG;
+        return (this.breakPoint === BreakPointsType.MD && this.verticalBreakPoint === BreakPointsType.LG) ||
+            (this.breakPoint === BreakPointsType.LG && this.verticalBreakPoint === BreakPointsType.XL);
     }
     halfScreenLaunchAnimation() {
         this.ratio = this.halfLaunchRatio;
