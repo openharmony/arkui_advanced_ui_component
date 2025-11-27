@@ -210,6 +210,7 @@ export struct CustomAppBar {
   @State statusBarHeight: number = 0;
   @State ratio: number | undefined = undefined;
   @State @Watch('onBreakPointChange') breakPoint: BreakPointsType = BreakPointsType.NONE;
+  @State @Watch('onBreakPointChange') verticalBreakPoint: BreakPointsType = BreakPointsType.NONE;
   @State serviceMenuRead: string = this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL);
   @State closeRead: string = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
   @State maximizeRead: string = this.getStringByResourceToken(ARKUI_APP_BAR_MAXIMIZE);
@@ -236,6 +237,10 @@ export struct CustomAppBar {
   private mdListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(600vp<=width) and (width<840vp)');
   private lgListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(840vp<=width) and (width<1440vp)');
   private xlListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(1440vp<=width)');
+  private smVerticalListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(0vp<height) and (height<600vp)');
+  private mdVerticalListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(600vp<=height) and (height<840vp)');
+  private lgVerticalListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(840vp<=height) and (height<1440vp)');
+  private xlVerticalListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(1440vp<=height)');
   // 订阅者信息, 用于保存创建成功的订阅者对象，后续使用其完成订阅及退订的动作
   private subscriber: commonEventManager.CommonEventSubscriber | null = null;
   // 事件列表
@@ -248,6 +253,10 @@ export struct CustomAppBar {
     this.mdListener.off('change');
     this.lgListener.off('change');
     this.xlListener.off('change');
+    this.smVerticalListener.off('change');
+    this.mdVerticalListener.off('change');
+    this.lgVerticalListener.off('change');
+    this.xlVerticalListener.off('change');
     if (this.subscriber !== null) {
       commonEventManager.unsubscribe(this.subscriber, (err) => {
         if (err) {
@@ -326,6 +335,26 @@ export struct CustomAppBar {
         this.breakPoint = BreakPointsType.XL;
       }
     });
+    this.smVerticalListener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
+      if (mediaQueryResult.matches) {
+        this.verticalBreakPoint = BreakPointsType.SM;
+      }
+    });
+    this.mdVerticalListener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
+      if (mediaQueryResult.matches) {
+        this.verticalBreakPoint = BreakPointsType.MD;
+      }
+    });
+    this.lgVerticalListener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
+      if (mediaQueryResult.matches) {
+        this.verticalBreakPoint = BreakPointsType.LG;
+      }
+    });
+    this.xlVerticalListener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
+      if (mediaQueryResult.matches) {
+        this.verticalBreakPoint = BreakPointsType.XL;
+      }
+    });
   }
 
   /**
@@ -346,23 +375,23 @@ export struct CustomAppBar {
       let ratio: number | undefined = undefined;
       let containerHeight: string | number = '100%';
       if (this.breakPoint === BreakPointsType.SM) {
-        hilog.info(0x3900, LOG_TAG, `onBreakPointChange SM`);
+        hilog.info(0x3900, LOG_TAG, `onBreakPointChange breakPoint=SM verticalBreakPoint=${this.verticalBreakPoint}`);
         this.containerWidth = '100%';
         containerHeight = '100%';
         ratio = undefined;
       } else if (this.breakPoint === BreakPointsType.MD || this.breakPoint === BreakPointsType.LG ||
-          this.breakPoint === BreakPointsType.XL) {
+        this.breakPoint === BreakPointsType.XL) {
         try {
           let displayData = display.getDefaultDisplaySync();
           let windowWidth = px2vp(displayData.width);
           let windowHeight = px2vp(displayData.height);
-          hilog.info(0x3900, LOG_TAG, `onBreakPointChange ${this.breakPoint} windowWidth=${windowWidth} windowHeight=${windowHeight}`);
+          hilog.info(0x3900, LOG_TAG, `onBreakPointChange breakPoint=${this.breakPoint} verticalBreakPoint=${this.verticalBreakPoint} windowWidth=${windowWidth} windowHeight=${windowHeight}`);
           if (this.breakPoint === BreakPointsType.MD) {
             this.containerWidth = MD_WIDTH;
           } else {
             this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
           }
-          if (this.containerWidth * LG_WIDTH_HEIGHT_RATIO < windowHeight) {
+          if (this.containerWidth * LG_WIDTH_HEIGHT_RATIO < windowHeight && this.isBreakPointMatchWidthHeightRatio()) {
             // 高度大于宽高比的高度，保持宽高比
             ratio = 1 / LG_WIDTH_HEIGHT_RATIO;
           } else {
@@ -381,6 +410,14 @@ export struct CustomAppBar {
         this.containerHeight = containerHeight;
       }
     }
+  }
+
+  /**
+   * 窗口断点是否匹配1:1.95的宽高比
+   */
+  isBreakPointMatchWidthHeightRatio(): boolean {
+    return (this.breakPoint === BreakPointsType.MD && this.verticalBreakPoint === BreakPointsType.LG) ||
+      (this.breakPoint === BreakPointsType.LG && this.verticalBreakPoint === BreakPointsType.XL);
   }
 
   /**

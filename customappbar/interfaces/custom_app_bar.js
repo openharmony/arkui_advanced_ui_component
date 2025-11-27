@@ -222,6 +222,7 @@ class MenubarBaseInfo extends ViewPU {
         stateProps.statusBarHeight = 0;
         stateProps.ratio = undefined;
         stateProps.breakPoint = BreakPointsType.NONE;
+        stateProps.verticalBreakPoint = BreakPointsType.NONE;
         stateProps.serviceMenuRead = this.getStringByResourceToken(ARKUI_APP_BAR_SERVICE_PANEL);
         stateProps.closeRead = this.getStringByResourceToken(ARKUI_APP_BAR_CLOSE);
         stateProps.maximizeRead = this.getStringByResourceToken(ARKUI_APP_BAR_MAXIMIZE);
@@ -295,12 +296,17 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.mdListener = mediaquery.matchMediaSync('(600vp<=width) and (width<840vp)');
         this.lgListener = mediaquery.matchMediaSync('(840vp<=width) and (width<1440vp)');
         this.xlListener = mediaquery.matchMediaSync('(1440vp<=width)');
+        this.smVerticalListener = mediaquery.matchMediaSync('(0vp<height) and (height<600vp)');
+        this.mdVerticalListener = mediaquery.matchMediaSync('(600vp<=height) and (height<840vp)');
+        this.lgVerticalListener = mediaquery.matchMediaSync('(840vp<=height) and (height<1440vp)');
+        this.xlVerticalListener = mediaquery.matchMediaSync('(1440vp<=height)');
         this.subscriber = null;
         this.subscribeInfo = {
             events: ['usual.event.PRIVACY_STATE_CHANGED']
         };
         this.setInitiallyProvidedValue(params);
         this.declareWatch('breakPoint', this.onBreakPointChange);
+        this.declareWatch('verticalBreakPoint', this.onBreakPointChange);
         this.finalizeConstruction();
     }
     setInitiallyProvidedValue(params) {
@@ -335,6 +341,10 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.mdListener.off('change');
         this.lgListener.off('change');
         this.xlListener.off('change');
+        this.smVerticalListener.off('change');
+        this.mdVerticalListener.off('change');
+        this.lgVerticalListener.off('change');
+        this.xlVerticalListener.off('change');
         if (this.subscriber !== null) {
             commonEventManager.unsubscribe(this.subscriber, (err) => {
                 if (err) {
@@ -411,6 +421,26 @@ export class CustomAppBar extends MenubarBaseInfo {
                 this.breakPoint = BreakPointsType.XL;
             }
         });
+        this.smVerticalListener.on('change', (mediaQueryResult) => {
+            if (mediaQueryResult.matches) {
+                this.verticalBreakPoint = BreakPointsType.SM;
+            }
+        });
+        this.mdVerticalListener.on('change', (mediaQueryResult) => {
+            if (mediaQueryResult.matches) {
+                this.verticalBreakPoint = BreakPointsType.MD;
+            }
+        });
+        this.lgVerticalListener.on('change', (mediaQueryResult) => {
+            if (mediaQueryResult.matches) {
+                this.verticalBreakPoint = BreakPointsType.LG;
+            }
+        });
+        this.xlVerticalListener.on('change', (mediaQueryResult) => {
+            if (mediaQueryResult.matches) {
+                this.verticalBreakPoint = BreakPointsType.XL;
+            }
+        });
     }
     /**
      * 半屏嵌入式定制使用，当半屏嵌入式组件首次被拉起或者屏幕宽度断点发生变化时被调用
@@ -429,7 +459,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             let ratio = undefined;
             let containerHeight = '100%';
             if (this.breakPoint === BreakPointsType.SM) {
-                hilog.info(0x3900, LOG_TAG, `onBreakPointChange SM`);
+                hilog.info(0x3900, LOG_TAG, `onBreakPointChange breakPoint=SM verticalBreakPoint=${this.verticalBreakPoint}`);
                 this.containerWidth = '100%';
                 containerHeight = '100%';
                 ratio = undefined;
@@ -440,13 +470,13 @@ export class CustomAppBar extends MenubarBaseInfo {
                     let displayData = display.getDefaultDisplaySync();
                     let windowWidth = px2vp(displayData.width);
                     let windowHeight = px2vp(displayData.height);
-                    hilog.info(0x3900, LOG_TAG, `onBreakPointChange ${this.breakPoint} windowWidth=${windowWidth} windowHeight=${windowHeight}`);
+                    hilog.info(0x3900, LOG_TAG, `onBreakPointChange breakPoint=${this.breakPoint} verticalBreakPoint=${this.verticalBreakPoint} windowWidth=${windowWidth} windowHeight=${windowHeight}`);
                     if (this.breakPoint === BreakPointsType.MD) {
                         this.containerWidth = MD_WIDTH;
                     } else {
                         this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
                     }
-                    if (this.containerWidth * LG_WIDTH_HEIGHT_RATIO < windowHeight) {
+                    if (this.containerWidth * LG_WIDTH_HEIGHT_RATIO < windowHeight && this.isBreakPointMatchWidthHeightRatio()) {
                         ratio = 1 / LG_WIDTH_HEIGHT_RATIO;
                     } else {
                         containerHeight = '100%';
@@ -465,6 +495,10 @@ export class CustomAppBar extends MenubarBaseInfo {
                 this.containerHeight = containerHeight;
             }
         }
+    }
+    isBreakPointMatchWidthHeightRatio() {
+        return (this.breakPoint === BreakPointsType.MD && this.verticalBreakPoint === BreakPointsType.LG) ||
+            (this.breakPoint === BreakPointsType.LG && this.verticalBreakPoint === BreakPointsType.XL);
     }
     halfScreenLaunchAnimation() {
         this.ratio = this.halfLaunchRatio;
