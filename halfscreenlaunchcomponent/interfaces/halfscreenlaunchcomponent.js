@@ -128,6 +128,7 @@ export class HalfScreenLaunchComponent extends ViewPU {
             this.options.parameters['ohos.extra.param.key.showMode'] = EMBEDDED_HALF_MODE;
             this.options.parameters['ability.want.params.IsNotifyOccupiedAreaChange'] = true;
             this.options.parameters['ability.want.params.IsModal'] = true;
+            this.options.parameters['com.atomicservice.params.key.launchType'] = 'EMBED_HALF';
             hilog.info(0x3900, LOG_TAG, 'replaced options is %{public}s !', JSON.stringify(this.options));
         }
         else {
@@ -135,7 +136,8 @@ export class HalfScreenLaunchComponent extends ViewPU {
                 parameters: {
                     'ohos.extra.param.key.showMode': EMBEDDED_HALF_MODE,
                     'ability.want.params.IsNotifyOccupiedAreaChange': true,
-                    'ability.want.params.IsModal': true
+                    'ability.want.params.IsModal': true,
+                    'com.atomicservice.params.key.launchType': 'EMBED_HALF'
                 }
             };
         }

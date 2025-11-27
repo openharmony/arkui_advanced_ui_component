@@ -80,6 +80,10 @@ const ARKUI_APP_BAR_MAXIMIZE: string = 'arkui_app_bar_maximize';
 const ARKUI_APP_BAR_PRIVACY_AUTHORIZE: string = 'arkui_app_bar_privacy_authorize';
 const ARKUI_APP_BAR_ON_BACK_PRESSED: string = 'arkui_app_bar_on_back_pressed';
 const ARKUI_APP_BAR_ON_BACK_PRESSED_CONSUMED: string = 'arkui_app_bar_on_back_pressed_consumed';
+const ARKUI_APP_BAR_IS_MENUBAR_VISIBLE: string = 'arkui_menu_bar_visible';
+const ARKUI_APP_BAR_GET_WANT_PARAM: string = 'arkui_extension_host_params';
+const ARKUI_APP_BAR_LAUNCH_TYPE: string = 'com.atomicservice.params.key.launchType';
+const ARKUI_APP_BAR_VISIBILITY_INFO: string = 'com.atomicservice.visible';
 
 /**
  * 颜色配置，适用于同一对象属性需要配置深色模式、浅色模式的场景
@@ -115,6 +119,8 @@ const colorMap: Map<string, ColorMode> = new Map<string, ColorMode>([
   [HALF_BUTTON_BACK_COLOR, { light: '#0D000000', dark: '#19FFFFFF' }],
   [HALF_BUTTON_IMAGE_COLOR, { light: '#000000', dark: '#FFFFFF' }]
 ]);
+// 在元服务被嵌入式拉起时会将如下参数发送过来
+const embedCompTypeList = new Set([ 'EMBED_HALF', 'EMBED_INNER_FULL' ]);
 
 /**
  * 与Native侧通信的事件回调管理类
@@ -224,6 +230,7 @@ export struct CustomAppBar {
   @State isShowPrivacyAnimation: boolean = false;
   @State privacyAuthText: string = '';
   @State labelName: string = '';
+  @State isShowMenubar: Visibility = Visibility.Visible;
   private isHalfToFullScreen: boolean = false;
   private isDark: boolean = true;
   private bundleName: string = '';
@@ -247,6 +254,7 @@ export struct CustomAppBar {
   private subscribeInfo: commonEventManager.CommonEventSubscribeInfo = {
     events: ['usual.event.PRIVACY_STATE_CHANGED']
   };
+  private isEmbedComp: boolean = false;
 
   aboutToDisappear(): void {
     this.smListener.off('change');
@@ -474,6 +482,46 @@ export struct CustomAppBar {
   }
 
   /**
+   * menubar关闭事件
+   */
+  private menubarCloseEvent(): void {
+    this.isEmbedComp = false;
+    NativeEventManager.onBackPressConsumed();
+  }
+
+  /**
+   * onBackPress事件执行函数
+   * 由ArkUI通知调用
+   */
+  private backPressedEvent(): void {
+    this.isEmbedComp = false;
+    if (this.isHalfScreen || this.isHalfToFullScreen) {
+      hilog.info(0x3900, LOG_TAG, 'setCustomCallback halfScreen onBackPress');
+      this.closeContainerAnimation();
+      this.menubarCloseEvent();
+    }
+  }
+
+  /**
+   * 初始化获取元服务Want参数
+   * 由ArkUI通知调用
+   */
+  private getWantParamEvent(param: string): void {
+    try {
+      const wantParam = JSON.parse(param);
+      this.isEmbedComp = embedCompTypeList.has(wantParam[ARKUI_APP_BAR_LAUNCH_TYPE]);
+      const visibleInfo = wantParam[ARKUI_APP_BAR_VISIBILITY_INFO];
+      if (typeof visibleInfo === 'boolean') {
+        this.isShowMenubar = visibleInfo ? Visibility.Visible : Visibility.None;
+      } else {
+        hilog.error(0x3900, LOG_TAG, `fail to set visibility of menubar because of invalid param`);
+      }
+    } catch (err) {
+      hilog.error(0x3900, LOG_TAG, `fail to parse param, err = ${err.message}`);
+    }
+  }
+
+  /**
    * atomicservice侧的事件变化回调
    *
    * @param eventName 事件名称
@@ -484,12 +532,12 @@ export struct CustomAppBar {
       hilog.error(0x3900, LOG_TAG, 'invalid params');
       return;
     }
+    hilog.info(0x3900, LOG_TAG, `setCustomCallback called, eventName = ${eventName}`);
     if (eventName === ARKUI_APP_BAR_COLOR_CONFIGURATION) {
-      hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyMenuColor, params: {param}`);
       this.onColorConfigurationUpdate(this.parseBoolean(param));
     } else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
-      hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyMenuSafeArea, params: {param}`);
       if (this.statusBarHeight === px2vp(Number(param))) {
+        hilog.error(0x3900, LOG_TAG, 'statusBarHeight is equal to current value');
         return;
       }
       this.statusBarHeight = Number(param);
@@ -497,7 +545,7 @@ export struct CustomAppBar {
     } else if (eventName === ARKUI_APP_BAR_CONTENT_SAFE_AREA) {
       let splitArray: string[] = param.split('|');
       if (splitArray.length < 4) {
-        hilog.error(0x3900, LOG_TAG, `setCustomCallback updateSafeArea failed, params: {param}`);
+        hilog.error(0x3900, LOG_TAG, 'setCustomCallback updateSafeArea failed');
         return;
       }
       hilog.error(0x3900, LOG_TAG, `setCustomCallback updateSafeArea success, margin: {JSON.stringify(splitArray)}`);
@@ -509,6 +557,7 @@ export struct CustomAppBar {
     } else if (eventName === ARKUI_APP_BAR_BAR_INFO) {
       let splitArray: string[] = param.split('|');
       if (splitArray.length < 2) {
+        hilog.error(0x3900, LOG_TAG, 'setCustomCallback update appBar info failed');
         return;
       }
       this.bundleName = splitArray[0];
@@ -518,14 +567,13 @@ export struct CustomAppBar {
       this.isHalfScreen = this.parseBoolean(param);
       this.initBreakPointListener();
     } else if (eventName === ARKUI_APP_BG_COLOR) {
-      hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyBgColor, params: {param}`);
       this.contentBgColor = this.isHalfScreen ? Color.Transparent : param;
     } else if (eventName === ARKUI_APP_BAR_ON_BACK_PRESSED) {
-      if (this.isHalfScreen || this.isHalfToFullScreen) {
-        hilog.info(0x3900, LOG_TAG, 'setCustomCallback halfScreen onBackPress');
-        this.closeContainerAnimation();
-        NativeEventManager.onBackPressConsumed();
-      }
+      this.backPressedEvent();
+    } else if (eventName === ARKUI_APP_BAR_IS_MENUBAR_VISIBLE && !this.isEmbedComp) {
+        this.isShowMenubar = (param === 'true') ? Visibility.Visible : Visibility.None;
+    } else if (eventName === ARKUI_APP_BAR_GET_WANT_PARAM) {
+        this.getWantParamEvent(param);
     }
   }
 
@@ -615,13 +663,13 @@ export struct CustomAppBar {
         duration: 250,
         curve: curves.interpolatingSpring(0, 1, 328, 36),
         onFinish: () => {
-          NativeEventManager.onCloseButtonClick();
+          this.menubarCloseEvent();
         }
       }, () => {
         this.stackHeight = '0%';
       });
     } else {
-      NativeEventManager.onCloseButtonClick();
+      this.menubarCloseEvent();
     }
     this.isHalfScreenCompFirstLaunch = true;
   }
@@ -635,7 +683,7 @@ export struct CustomAppBar {
       duration: 250,
       curve: curves.interpolatingSpring(0, 1, 328, 36),
       onFinish: () => {
-        NativeEventManager.onCloseButtonClick();
+        this.menubarCloseEvent();
       }
     }, () => {
       this.containerHeight = '0%';
@@ -876,6 +924,7 @@ export struct CustomAppBar {
     .height(VIEW_HEIGHT)
     .hitTestBehavior(HitTestMode.Transparent)
     .width('100%')
+    .visibility(this.isShowMenubar)
   }
 
   @Builder

@@ -175,6 +175,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             this.options.parameters['ohos.extra.param.key.showMode'] = EMBEDDED_FULL_MODE;
             this.options.parameters['ability.want.params.IsNotifyOccupiedAreaChange'] = true;
             this.options.parameters['ohos.extra.atomicservice.param.key.isFollowHostWindowMode'] = (this.apiVersion >= API20);
+            this.options.parameters['com.atomicservice.params.key.launchType'] = 'EMBED_INNER_FULL';
             hilog.info(0x3900, LOG_TAG, 'replaced options is %{public}s !', JSON.stringify(this.options));
         }
         else {
@@ -182,7 +183,8 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
                 parameters: {
                     'ohos.extra.param.key.showMode': EMBEDDED_FULL_MODE,
                     'ability.want.params.IsNotifyOccupiedAreaChange': true,
-                    'ohos.extra.atomicservice.param.key.isFollowHostWindowMode': (this.apiVersion >= API20)
+                    'ohos.extra.atomicservice.param.key.isFollowHostWindowMode': (this.apiVersion >= API20),
+                    'com.atomicservice.params.key.launchType': 'EMBED_INNER_FULL'
                 }
             };
         }
