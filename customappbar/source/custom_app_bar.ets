@@ -239,7 +239,8 @@ export struct CustomAppBar {
   private xlListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(1440vp<=width)');
   private smVerticalListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(0vp<height) and (height<600vp)');
   private mdVerticalListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(600vp<=height) and (height<840vp)');
-  private lgVerticalListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(840vp<=height)');
+  private lgVerticalListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(840vp<=height) and (height<1440vp)');
+  private xlVerticalListener: mediaquery.MediaQueryListener = mediaquery.matchMediaSync('(1440vp<=height)');
   // 订阅者信息, 用于保存创建成功的订阅者对象，后续使用其完成订阅及退订的动作
   private subscriber: commonEventManager.CommonEventSubscriber | null = null;
   // 事件列表
@@ -255,6 +256,7 @@ export struct CustomAppBar {
     this.smVerticalListener.off('change');
     this.mdVerticalListener.off('change');
     this.lgVerticalListener.off('change');
+    this.xlVerticalListener.off('change');
     if (this.subscriber !== null) {
       commonEventManager.unsubscribe(this.subscriber, (err) => {
         if (err) {
@@ -348,6 +350,11 @@ export struct CustomAppBar {
         this.verticalBreakPoint = BreakPointsType.LG;
       }
     });
+    this.xlVerticalListener.on('change', (mediaQueryResult: mediaquery.MediaQueryResult) => {
+      if (mediaQueryResult.matches) {
+        this.verticalBreakPoint = BreakPointsType.XL;
+      }
+    });
   }
 
   /**
@@ -409,8 +416,8 @@ export struct CustomAppBar {
    * 窗口断点是否匹配1:1.95的宽高比
    */
   isBreakPointMatchWidthHeightRatio(): boolean {
-    return (this.breakPoint === BreakPointsType.MD || this.breakPoint === BreakPointsType.LG) &&
-      this.verticalBreakPoint === BreakPointsType.LG;
+    return (this.breakPoint === BreakPointsType.MD && this.verticalBreakPoint === BreakPointsType.LG) ||
+      (this.breakPoint === BreakPointsType.LG && this.verticalBreakPoint === BreakPointsType.XL);
   }
 
   /**
