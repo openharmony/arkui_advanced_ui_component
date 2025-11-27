@@ -32,7 +32,8 @@
               "//foundation/arkui/advanced_ui_component/innerfullscreenlaunchcomponent/interfaces:innerfullscreenlaunchcomponent",
               "//foundation/arkui/advanced_ui_component/interstitialdialogaction/interfaces:interstitialdialogaction",
               "//foundation/arkui/advanced_ui_component/customappbar/interfaces:custom_app_bar",
-              "//foundation/arkui/advanced_ui_component/halfscreenlaunchcomponent/interfaces:halfscreenlaunchcomponent"
+              "//foundation/arkui/advanced_ui_component/halfscreenlaunchcomponent/interfaces:halfscreenlaunchcomponent",
+              "//foundation/arkui/advanced_ui_component/fullscreenlaunchcomponent/interfaces:fullscreenlaunchcomponent"
             ],
             "inner_kits": [],
             "test": []
