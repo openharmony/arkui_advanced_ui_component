@@ -19,7 +19,7 @@ import { ErrorCallback, Callback, BusinessError } from '@ohos.base';
 import AtomicServiceOptions from '@ohos.app.ability.AtomicServiceOptions';
 import commonEventManager from '@ohos.commonEventManager';
 import Base from '@ohos.base';
-import { bundleManager } from '@ohos.bundle.bundleManager';
+import { bundleManager } from '@kit.AbilityKit';
 
 const EMBEDDED_HALF_MODE = 2;
 const atomicServiceDataTag: string = 'ohos.atomicService.window';
