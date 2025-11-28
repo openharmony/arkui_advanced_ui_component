@@ -48,6 +48,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
         this.onReceive = undefined;
         this.onError = undefined;
         this.onTerminated = undefined;
+        this.isSystemApp = false;
         this.launchAtomicService = (k1, l1) => {
             hilog.info(0x3900, LOG_TAG, 'launchAtomicService, appId: %{public}s.', k1);
             this.appId = k1;
@@ -147,6 +148,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
                     return;
                 }
                 this.apiVersion = g.targetVersion % 1000;
+                this.isSystemApp = g.appInfo?.systemApp;
                 hilog.info(0x3900, LOG_TAG, 'getBundleInfoForSelf success, data: %{public}d.', this.apiVersion);
             }).catch((f) => {
                 hilog.error(0x3900, LOG_TAG, 'getBundleInfoForSelf fail_1, cause: %{public}s.', f.message);
@@ -175,6 +177,8 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             this.options.parameters['ohos.extra.param.key.showMode'] = EMBEDDED_FULL_MODE;
             this.options.parameters['ability.want.params.IsNotifyOccupiedAreaChange'] = true;
             this.options.parameters['ohos.extra.atomicservice.param.key.isFollowHostWindowMode'] = (this.apiVersion >= API20);
+            this.options.parameters['com.atomicservice.params.key.launchType'] = 'EMBED_INNER_FULL';
+            this.options.parameters['com.atomicservice.params.key.isSystemApp'] = this.isSystemApp;
             hilog.info(0x3900, LOG_TAG, 'replaced options is %{public}s !', JSON.stringify(this.options));
         }
         else {
@@ -182,7 +186,9 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
                 parameters: {
                     'ohos.extra.param.key.showMode': EMBEDDED_FULL_MODE,
                     'ability.want.params.IsNotifyOccupiedAreaChange': true,
-                    'ohos.extra.atomicservice.param.key.isFollowHostWindowMode': (this.apiVersion >= API20)
+                    'ohos.extra.atomicservice.param.key.isFollowHostWindowMode': (this.apiVersion >= API20),
+                    'com.atomicservice.params.key.launchType': 'EMBED_INNER_FULL',
+                    'com.atomicservice.params.key.isSystemApp': this.isSystemApp
                 }
             };
         }

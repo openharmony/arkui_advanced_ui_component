@@ -19,7 +19,8 @@
         "deps": {
             "components": [
                 "hilog",
-                "napi"
+                "napi",
+                "ace_engine"
             ],
             "third_party": []
         },
@@ -31,6 +32,7 @@
               "//foundation/arkui/advanced_ui_component/atomicserviceweb/interfaces:atomicserviceweb",
               "//foundation/arkui/advanced_ui_component/innerfullscreenlaunchcomponent/interfaces:innerfullscreenlaunchcomponent",
               "//foundation/arkui/advanced_ui_component/interstitialdialogaction/interfaces:interstitialdialogaction",
+              "//foundation/arkui/advanced_ui_component/customappbar/atomicservicemenubar:atomicservicemenubar",
               "//foundation/arkui/advanced_ui_component/customappbar/interfaces:custom_app_bar",
               "//foundation/arkui/advanced_ui_component/halfscreenlaunchcomponent/interfaces:halfscreenlaunchcomponent",
               "//foundation/arkui/advanced_ui_component/fullscreenlaunchcomponent/interfaces:fullscreenlaunchcomponent"
