@@ -89,7 +89,7 @@ export class HalfScreenLaunchComponent extends ViewPU {
         this.__isShow.set(newValue);
     }
     aboutToAppear() {
-        const bundleFlags = bundleManager.bundleFlags.GET_BUNDLE_INFO_WITH_APPLICATION;
+        const bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
         const selfBundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags);
         this.isSystemApp = selfBundleInfo?.appInfo?.systemApp;
         let subscribeInfo = {
