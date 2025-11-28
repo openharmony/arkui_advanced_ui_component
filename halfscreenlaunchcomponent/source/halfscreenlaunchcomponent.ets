@@ -19,6 +19,7 @@ import { ErrorCallback, Callback, BusinessError } from '@ohos.base';
 import AtomicServiceOptions from '@ohos.app.ability.AtomicServiceOptions';
 import commonEventManager from '@ohos.commonEventManager';
 import Base from '@ohos.base';
+import { bundleManager } from '@ohos.bundle.bundleManager';
 
 const EMBEDDED_HALF_MODE = 2;
 const atomicServiceDataTag: string = 'ohos.atomicService.window';
@@ -35,8 +36,12 @@ export struct HalfScreenLaunchComponent {
   onError?: ErrorCallback;
   onTerminated?: Callback<TerminationInfo>;
   onReceive?: Callback<Record<string, Object>>;
+  private isSystemApp: boolean = false;
 
   aboutToAppear(): void {
+    const bundleFlags = bundleManager.bundleFlags.GET_BUNDLE_INFO_WITH_APPLICATION;
+    const selfBundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags);
+    this.isSystemApp = selfBundleInfo?.appInfo?.systemApp;
     let subscribeInfo: commonEventManager.CommonEventSubscribeInfo = {
       events: [commonEventManager.Support.COMMON_EVENT_DISTRIBUTED_ACCOUNT_LOGOUT],
     };
@@ -90,6 +95,7 @@ export struct HalfScreenLaunchComponent {
       this.options.parameters['ability.want.params.IsNotifyOccupiedAreaChange'] = true;
       this.options.parameters['ability.want.params.IsModal'] = true;
       this.options.parameters['com.atomicservice.params.key.launchType'] = 'EMBED_HALF';
+      this.options.parameters['com.atomicservice.params.key.isSystemApp'] = this.isSystemApp;
       hilog.info(0x3900, LOG_TAG, 'replaced options is %{public}s !', JSON.stringify(this.options));
     } else {
       this.options = {
@@ -97,7 +103,8 @@ export struct HalfScreenLaunchComponent {
           'ohos.extra.param.key.showMode': EMBEDDED_HALF_MODE,
           'ability.want.params.IsNotifyOccupiedAreaChange': true,
           'ability.want.params.IsModal': true,
-          'com.atomicservice.params.key.launchType': 'EMBED_HALF'
+          'com.atomicservice.params.key.launchType': 'EMBED_HALF',
+          'com.atomicservice.params.key.isSystemApp': this.isSystemApp
         }
       }
     }

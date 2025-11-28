@@ -88,6 +88,7 @@ const ARKUI_APP_BAR_ON_BACK_PRESSED_CONSUMED = 'arkui_app_bar_on_back_pressed_co
 const ARKUI_APP_BAR_IS_MENUBAR_VISIBLE = 'arkui_menu_bar_visible';
 const ARKUI_APP_BAR_GET_WANT_PARAM = 'arkui_extension_host_params';
 const ARKUI_APP_BAR_LAUNCH_TYPE = 'com.atomicservice.params.key.launchType';
+const ARKUI_APP_BAR_SYSTEM_APP_FLAG = 'com.atomicservice.params.key.isSystemApp';
 const ARKUI_APP_BAR_VISIBILITY_INFO = 'com.atomicservice.visible';
 /**
  * 断点类型
@@ -309,6 +310,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.xlVerticalListener = mediaquery.matchMediaSync('(1440vp<=height)');
         this.subscriber = null;
         this.isEmbedComp = false;
+        this.isSystemApp = false;
         this.subscribeInfo = {
             events: ['usual.event.PRIVACY_STATE_CHANGED']
         };
@@ -584,11 +586,14 @@ export class CustomAppBar extends MenubarBaseInfo {
             const wantParam = JSON.parse(param);
             this.isEmbedComp = embedCompTypeList.has(wantParam[ARKUI_APP_BAR_LAUNCH_TYPE]);
             const visibleInfo = wantParam[ARKUI_APP_BAR_VISIBILITY_INFO];
+            // isVisible信息由用户传入，类型不定，需要严格判断
             if (typeof visibleInfo === 'boolean') {
                 this.isShowMenubar = visibleInfo ? Visibility.Visible : Visibility.None;
             } else {
                 hilog.error(0x3900, LOG_TAG, `fail to set visibility of menubar because of invalid param`);
             }
+            // isSystemApp信息由内部接口定义，只能返回boolean类型或者undefined类型
+            this.isSystemApp = wantParam[ARKUI_APP_BAR_SYSTEM_APP_FLAG] ?? false;
         } catch (err) {
             hilog.error(0x3900, LOG_TAG, `fail to parse param, err = ${err.message}`);
         }
@@ -642,7 +647,8 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.contentBgColor = this.isHalfScreen ? Color.Transparent : param;
         } else if (eventName === ARKUI_APP_BAR_ON_BACK_PRESSED) {
             this.backPressedEvent();
-        } else if (eventName === ARKUI_APP_BAR_IS_MENUBAR_VISIBLE && !this.isEmbedComp) {
+        } else if (eventName === ARKUI_APP_BAR_IS_MENUBAR_VISIBLE && !this.isEmbedComp && this.isSystemApp) {
+            // 仅当嵌入式组件拉起元服务，且拉起方是一方系统应用时，对menubar显隐的设置才会生效
             this.isShowMenubar = (param === 'true') ? Visibility.Visible : Visibility.None;
         } else if (eventName === ARKUI_APP_BAR_GET_WANT_PARAM) {
             this.getWantParamEvent(param);
