@@ -304,6 +304,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.subscribeInfo = {
             events: ['usual.event.PRIVACY_STATE_CHANGED']
         };
+        this.timeoutList = [];
         this.setInitiallyProvidedValue(params);
         this.declareWatch('breakPoint', this.onBreakPointChange);
         this.declareWatch('verticalBreakPoint', this.onBreakPointChange);
@@ -337,6 +338,12 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.aboutToBeDeletedInternal();
     }
     aboutToDisappear() {
+        if (this.timeoutList.length) {
+            this.timeoutList.forEach(id => {
+                clearTimeout(id);
+            });
+            this.timeoutList = [];
+        }
         this.smListener.off('change');
         this.mdListener.off('change');
         this.lgListener.off('change');
@@ -758,7 +765,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.dividerOpacity = 1;
         });
         // 延迟5s后开始退出动画
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
             this.initPrivacyAnimator();
             Context.animateTo({
                 duration: 50,
@@ -779,7 +786,9 @@ export class CustomAppBar extends MenubarBaseInfo {
                 this.privacySymbolOpacity = 0;
             });
             this.privacyAnimator?.play();
+            this.timeoutList.splice(this.timeoutList.indexOf(timeoutId));
         }, 5000);
+        this.timeoutList.push(timeoutId);
     }
     /**
      * 隐私标识动效退出，menubar长度缩小帧动画初始化
