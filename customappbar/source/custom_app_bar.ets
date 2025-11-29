@@ -247,8 +247,15 @@ export struct CustomAppBar {
   private subscribeInfo: commonEventManager.CommonEventSubscribeInfo = {
     events: ['usual.event.PRIVACY_STATE_CHANGED']
   };
+  private timeoutList: Array<number> = [];
 
   aboutToDisappear(): void {
+    if (this.timeoutList.length) {
+      this.timeoutList.forEach(id => {
+        clearTimeout(id);
+      });
+      this.timeoutList = [];
+    }
     this.smListener.off('change');
     this.mdListener.off('change');
     this.lgListener.off('change');
@@ -690,7 +697,7 @@ export struct CustomAppBar {
       this.dividerOpacity = 1;
     });
     // 延迟5s后开始退出动画
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       this.initPrivacyAnimator();
       animateTo({
         duration: 50,
@@ -711,7 +718,9 @@ export struct CustomAppBar {
         this.privacySymbolOpacity = 0;
       });
       this.privacyAnimator?.play();
+      this.timeoutList.splice(this.timeoutList.indexOf(timeoutId));
     }, 5000);
+    this.timeoutList.push(timeoutId);
   }
 
   /**
