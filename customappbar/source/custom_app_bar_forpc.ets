@@ -22,6 +22,7 @@ const BUTTON_WIDTH: number = 28;
 const VIEW_HEIGHT: number = 28;
 const IMAGE_SIZE: number = 16;
 const MENU_RADIUS: number = 15.5;
+const MENU_RADIUS_UNIT = 1;
 const DIVIDER_HEIGHT: number = 16.5;
 const DIVIDER_WIDTH: number = 0.5;
 const MENU_BUTTON_MARGIN: number = 2;
@@ -259,7 +260,10 @@ export struct CustomAppBarForPC {
             }
             .id('AtomicServiceMenuId')
             .type(ButtonType.Normal)
-            .borderRadius({ topLeft: MENU_RADIUS, bottomLeft: MENU_RADIUS })
+            .borderRadius({ 
+              topStart: { value: MENU_RADIUS, unit: MENU_RADIUS_UNIT },
+              bottomStart: { value: MENU_RADIUS, unit: MENU_RADIUS_UNIT }
+            })
             .backgroundColor(Color.Transparent)
             .width(BUTTON_WIDTH + MENU_BUTTON_MARGIN)
             .height(VIEW_HEIGHT)
@@ -319,7 +323,10 @@ export struct CustomAppBarForPC {
             .id('AtomicServiceCloseId')
             .type(ButtonType.Normal)
             .backgroundColor(Color.Transparent)
-            .borderRadius({ topRight: MENU_RADIUS, bottomRight: MENU_RADIUS })
+            .borderRadius({
+              topEnd: { value: MENU_RADIUS, unit: MENU_RADIUS_UNIT },
+              bottomEnd: { value: MENU_RADIUS, unit: MENU_RADIUS_UNIT }
+            })
             .width(BUTTON_WIDTH + MENU_BUTTON_MARGIN)
             .height(VIEW_HEIGHT)
             .gesture(TapGesture().onAction(() => {
@@ -341,7 +348,6 @@ export struct CustomAppBarForPC {
         .justifyContent(FlexAlign.End)
         .margin({ top: LengthMetrics.vp(this.statusBarHeight + VIEW_MARGIN_TOP), end: LengthMetrics.vp(VIEW_MARGIN_RIGHT) })
         .height(VIEW_HEIGHT)
-        .hitTestBehavior(HitTestMode.Transparent)
       }
       .id('AtomicServiceContainerId')
       .height('100%')

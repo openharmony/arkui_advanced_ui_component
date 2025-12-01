@@ -27,6 +27,8 @@ const VIEW_HEIGHT: number = 36;
 const BUTTON_SIZE: number = 40;
 const IMAGE_SIZE: string = '20vp';
 const MENU_RADIUS: string = '20vp';
+const MENU_RADIUS_VALUE number = 20;
+const MENU_RADIUS_UNIT: number = 1;
 const DIVIDER_HEIGHT: string = '16vp';
 const BORDER_WIDTH: string = '1px';
 const VIEW_MARGIN_RIGHT: number = 8;
@@ -397,7 +399,7 @@ export struct CustomAppBar {
         containerHeight = '100%';
         ratio = undefined;
       } else if (this.breakPoint === BreakPointsType.MD || this.breakPoint === BreakPointsType.LG ||
-        this.breakPoint === BreakPointsType.XL) {
+          this.breakPoint === BreakPointsType.XL) {
         try {
           let displayData = display.getDefaultDisplaySync();
           let windowWidth = px2vp(displayData.width);
@@ -879,7 +881,10 @@ export struct CustomAppBar {
         }
         .id('AtomicServiceMenuId')
         .type(ButtonType.Normal)
-        .borderRadius({ topLeft: MENU_RADIUS, bottomLeft: MENU_RADIUS })
+        .borderRadius({ 
+          topStart: { value: MENU_RADIUS_VALUE, unit: MENU_RADIUS_UNIT },
+          bottomStart: { value: MENU_RADIUS_VALUE, unit: MENU_RADIUS_UNIT }
+        })
         .backgroundColor(Color.Transparent)
         .width(this.buttonSize)
         .height(VIEW_HEIGHT)
@@ -908,7 +913,10 @@ export struct CustomAppBar {
         .id('AtomicServiceCloseId')
         .type(ButtonType.Normal)
         .backgroundColor(Color.Transparent)
-        .borderRadius({ topRight: MENU_RADIUS, bottomRight: MENU_RADIUS })
+        .borderRadius({ 
+          topEnd: { value: MENU_RADIUS_VALUE, unit: MENU_RADIUS_UNIT },
+          bottomEnd: { value: MENU_RADIUS_VALUE, unit: MENU_RADIUS_UNIT }
+        })
         .width(BUTTON_SIZE)
         .height(VIEW_HEIGHT)
         .accessibilityText(this.closeRead)
@@ -937,8 +945,6 @@ export struct CustomAppBar {
     })
     .justifyContent(FlexAlign.End)
     .height(VIEW_HEIGHT)
-    .hitTestBehavior(HitTestMode.Transparent)
-    .width('100%')
     .visibility(this.isShowMenubar)
   }
 
