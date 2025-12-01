@@ -32,6 +32,8 @@ const VIEW_HEIGHT = 36;
 const BUTTON_SIZE = 40;
 const IMAGE_SIZE = '20vp';
 const MENU_RADIUS = '20vp';
+const MENU_RADIUS_VALUE = 20;
+const MENU_RADIUS_UNIT = 1;
 const DIVIDER_HEIGHT = '16vp';
 const BORDER_WIDTH = '1px';
 const VIEW_MARGIN_RIGHT = 8;
@@ -941,8 +943,6 @@ export class CustomAppBar extends MenubarBaseInfo {
             });
             Row.justifyContent(FlexAlign.End);
             Row.height(VIEW_HEIGHT);
-            Row.hitTestBehavior(HitTestMode.Transparent);
-            Row.width('100%');
             Row.visibility(this.isShowMenubar);
         }, Row);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -978,7 +978,10 @@ export class CustomAppBar extends MenubarBaseInfo {
             Button.createWithChild();
             Button.id('AtomicServiceMenuId');
             Button.type(ButtonType.Normal);
-            Button.borderRadius({ topLeft: MENU_RADIUS, bottomLeft: MENU_RADIUS });
+            Button.borderRadius({ 
+                topStart: { value: MENU_RADIUS_VALUE, unit: MENU_RADIUS_UNIT },
+                bottomStart: { value: MENU_RADIUS_VALUE, unit: MENU_RADIUS_UNIT }
+            });
             Button.backgroundColor(Color.Transparent);
             Button.width(this.buttonSize);
             Button.height(VIEW_HEIGHT);
@@ -1015,7 +1018,10 @@ export class CustomAppBar extends MenubarBaseInfo {
             Button.id('AtomicServiceCloseId');
             Button.type(ButtonType.Normal);
             Button.backgroundColor(Color.Transparent);
-            Button.borderRadius({ topRight: MENU_RADIUS, bottomRight: MENU_RADIUS });
+            Button.borderRadius({ 
+                topEnd: { value: MENU_RADIUS_VALUE, unit: MENU_RADIUS_UNIT },
+                bottomEnd: { value: MENU_RADIUS_VALUE, unit: MENU_RADIUS_UNIT }
+            });
             Button.width(BUTTON_SIZE);
             Button.height(VIEW_HEIGHT);
             Button.accessibilityText(this.closeRead);
