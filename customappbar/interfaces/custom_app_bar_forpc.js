@@ -25,6 +25,7 @@ const BUTTON_WIDTH = 28;
 const VIEW_HEIGHT = 28;
 const IMAGE_SIZE = 16;
 const MENU_RADIUS = 15.5;
+const MENU_RADIUS_UNIT = 1;
 const DIVIDER_HEIGHT = 16.5;
 const DIVIDER_WIDTH = 0.5;
 const MENU_BUTTON_MARGIN = 2;
@@ -452,7 +453,10 @@ export class CustomAppBarForPC extends ViewPU {
             Button.createWithChild();
             Button.id('AtomicServiceMenuId');
             Button.type(ButtonType.Normal);
-            Button.borderRadius({ topLeft: MENU_RADIUS, bottomLeft: MENU_RADIUS });
+            Button.borderRadius({ 
+                topStart: { value: MENU_RADIUS, unit: MENU_RADIUS_UNIT },
+                bottomStart: { value: MENU_RADIUS, unit: MENU_RADIUS_UNIT }
+            });
             Button.backgroundColor(Color.Transparent);
             Button.width(BUTTON_WIDTH + MENU_BUTTON_MARGIN);
             Button.height(VIEW_HEIGHT);
@@ -542,7 +546,10 @@ export class CustomAppBarForPC extends ViewPU {
             Button.id('AtomicServiceCloseId');
             Button.type(ButtonType.Normal);
             Button.backgroundColor(Color.Transparent);
-            Button.borderRadius({ topRight: MENU_RADIUS, bottomRight: MENU_RADIUS });
+            Button.borderRadius({ 
+                topEnd: { value: MENU_RADIUS, unit: MENU_RADIUS_UNIT },
+                bottomEnd: { value: MENU_RADIUS, unit: MENU_RADIUS_UNIT }
+            });
             Button.width(BUTTON_WIDTH + MENU_BUTTON_MARGIN);
             Button.height(VIEW_HEIGHT);
             Gesture.create(GesturePriority.Low);
