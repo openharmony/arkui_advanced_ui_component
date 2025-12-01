@@ -19,6 +19,7 @@ if (!('finalizeConstruction' in ViewPU.prototype)) {
 const hilog = requireNapi('hilog');
 const abilityManager = requireNapi('app.ability.abilityManager');
 const commonEventManager = requireNapi('commonEventManager');
+const bundleManager = requireNapi('bundle.bundleManager');
 const EMBEDDED_HALF_MODE = 2;
 const atomicServiceDataTag = 'ohos.atomicService.window';
 const ERR_CODE_CAPABILITY_NOT_SUPPORT = 801;
@@ -38,6 +39,7 @@ export class HalfScreenLaunchComponent extends ViewPU {
         this.onError = undefined;
         this.onTerminated = undefined;
         this.onReceive = undefined;
+        this.isSystemApp = false;
         this.setInitiallyProvidedValue(params);
         this.finalizeConstruction();
     }
@@ -87,6 +89,9 @@ export class HalfScreenLaunchComponent extends ViewPU {
         this.__isShow.set(newValue);
     }
     aboutToAppear() {
+        const bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
+        const selfBundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags);
+        this.isSystemApp = selfBundleInfo?.appInfo?.systemApp;
         let subscribeInfo = {
             events: [commonEventManager.Support.COMMON_EVENT_DISTRIBUTED_ACCOUNT_LOGOUT],
         };
@@ -128,6 +133,8 @@ export class HalfScreenLaunchComponent extends ViewPU {
             this.options.parameters['ohos.extra.param.key.showMode'] = EMBEDDED_HALF_MODE;
             this.options.parameters['ability.want.params.IsNotifyOccupiedAreaChange'] = true;
             this.options.parameters['ability.want.params.IsModal'] = true;
+            this.options.parameters['com.atomicservice.params.key.launchType'] = 'EMBED_HALF';
+            this.options.parameters['com.atomicservice.params.key.isSystemApp'] = this.isSystemApp;
             hilog.info(0x3900, LOG_TAG, 'replaced options is %{public}s !', JSON.stringify(this.options));
         }
         else {
@@ -135,7 +142,9 @@ export class HalfScreenLaunchComponent extends ViewPU {
                 parameters: {
                     'ohos.extra.param.key.showMode': EMBEDDED_HALF_MODE,
                     'ability.want.params.IsNotifyOccupiedAreaChange': true,
-                    'ability.want.params.IsModal': true
+                    'ability.want.params.IsModal': true,
+                    'com.atomicservice.params.key.launchType': 'EMBED_HALF',
+                    'com.atomicservice.params.key.isSystemApp': this.isSystemApp
                 }
             };
         }

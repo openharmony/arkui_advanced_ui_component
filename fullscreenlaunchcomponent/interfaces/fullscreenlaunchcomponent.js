@@ -43,6 +43,7 @@ export class FullScreenLaunchComponent extends ViewPU {
         this.onError = undefined;
         this.onTerminated = undefined;
         this.onReceive = undefined;
+        this.isSystemApp = false;
         this.setInitiallyProvidedValue(params);
         this.finalizeConstruction();
     }
@@ -101,6 +102,7 @@ export class FullScreenLaunchComponent extends ViewPU {
             bundleManager.getBundleInfoForSelf(bundleFlags).then((data) => {
                 hilog.info(0x3900, 'FullScreenLaunchComponent', 'getBundleInfoForSelf success, data: %{public}s.', JSON.stringify(data.targetVersion % 1000));
                 this.apiVersion = data.targetVersion % 1000;
+                this.isSystemApp = data.appInfo?.systemApp;
             }).catch((err) => {
                 hilog.error(0x3900, 'FullScreenLaunchComponent', 'getBundleInfoForSelf fail_1, cause: %{public}s.', err.message);
             });
@@ -153,6 +155,8 @@ export class FullScreenLaunchComponent extends ViewPU {
             this.options.parameters['ability.want.params.IsNotifyOccupiedAreaChange'] = true;
             this.options.parameters['ability.want.params.IsModal'] = true;
             this.options.parameters['ohos.extra.atomicservice.param.key.isFollowHostWindowMode'] = (this.apiVersion >= api20);
+            this.options.parameters['com.atomicservice.params.key.launchType'] = 'FULL_SCREEN_LAUNCH';
+            this.options.parameters['com.atomicservice.params.key.isSystemApp'] = this.isSystemApp;
             hilog.info(0x3900, 'FullScreenLaunchComponent', 'replaced options is %{public}s !', JSON.stringify(this.options));
         }
         else {
@@ -161,7 +165,9 @@ export class FullScreenLaunchComponent extends ViewPU {
                     'ohos.extra.param.key.showMode': 1,
                     'ability.want.params.IsNotifyOccupiedAreaChange': true,
                     'ability.want.params.IsModal': true,
-                    'ohos.extra.atomicservice.param.key.isFollowHostWindowMode': (this.apiVersion >= api20)
+                    'ohos.extra.atomicservice.param.key.isFollowHostWindowMode': (this.apiVersion >= api20),
+                    'com.atomicservice.params.key.launchType': 'FULL_SCREEN_LAUNCH',
+                    'com.atomicservice.params.key.isSystemApp': this.isSystemApp
                 }
             };
         }

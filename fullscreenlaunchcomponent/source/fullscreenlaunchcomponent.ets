@@ -39,6 +39,7 @@ export struct FullScreenLaunchComponent {
   onError?: ErrorCallback;
   onTerminated?: Callback<TerminationInfo>;
   onReceive?: Callback<Record<string, Object>>;
+  private isSystemApp: boolean = false;
  
   aboutToAppear() {
     let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
@@ -48,6 +49,7 @@ export struct FullScreenLaunchComponent {
         hilog.info(0x3900, 'FullScreenLaunchComponent',
           'getBundleInfoForSelf success, data: %{public}s.', JSON.stringify(data.targetVersion % 1000));
           this.apiVersion = data.targetVersion % 1000;
+          this.isSystemApp = data.appInfo?.systemApp;
       }).catch((err: BusinessError) => {
         hilog.error(0x3900, 'FullScreenLaunchComponent',
           'getBundleInfoForSelf fail_1, cause: %{public}s.', err.message);
@@ -113,6 +115,8 @@ export struct FullScreenLaunchComponent {
       this.options.parameters['ability.want.params.IsNotifyOccupiedAreaChange'] = true;
       this.options.parameters['ability.want.params.IsModal'] = true;
       this.options.parameters['ohos.extra.atomicservice.param.key.isFollowHostWindowMode'] = (this.apiVersion >= API20);
+      this.options.parameters['com.atomicservice.params.key.launchType'] = 'FULL_SCREEN_LAUNCH';
+      this.options.parameters['com.atomicservice.params.key.isSystemApp'] = this.isSystemApp;
       hilog.info(0x3900, 'FullScreenLaunchComponent', 'replaced options is %{public}s !', JSON.stringify(this.options))
     } else {
       this.options = {
@@ -120,7 +124,9 @@ export struct FullScreenLaunchComponent {
           'ohos.extra.param.key.showMode': 1,
           'ability.want.params.IsNotifyOccupiedAreaChange': true,
           'ability.want.params.IsModal': true,
-          'ohos.extra.atomicservice.param.key.isFollowHostWindowMode': (this.apiVersion >= API20)
+          'ohos.extra.atomicservice.param.key.isFollowHostWindowMode': (this.apiVersion >= API20),
+          'com.atomicservice.params.key.launchType': 'FULL_SCREEN_LAUNCH',
+          'com.atomicservice.params.key.isSystemApp': this.isSystemApp
         }
       }
     }

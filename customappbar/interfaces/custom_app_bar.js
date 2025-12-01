@@ -85,6 +85,11 @@ const ARKUI_APP_BAR_MAXIMIZE = 'arkui_app_bar_maximize';
 const ARKUI_APP_BAR_PRIVACY_AUTHORIZE = 'arkui_app_bar_privacy_authorize';
 const ARKUI_APP_BAR_ON_BACK_PRESSED = 'arkui_app_bar_on_back_pressed';
 const ARKUI_APP_BAR_ON_BACK_PRESSED_CONSUMED = 'arkui_app_bar_on_back_pressed_consumed';
+const ARKUI_APP_BAR_IS_MENUBAR_VISIBLE = 'arkui_menu_bar_visible';
+const ARKUI_APP_BAR_GET_WANT_PARAM = 'arkui_extension_host_params';
+const ARKUI_APP_BAR_LAUNCH_TYPE = 'com.atomicservice.params.key.launchType';
+const ARKUI_APP_BAR_SYSTEM_APP_FLAG = 'com.atomicservice.params.key.isSystemApp';
+const ARKUI_APP_BAR_VISIBILITY_INFO = 'com.atomicservice.visible';
 /**
  * 断点类型
  */
@@ -109,6 +114,8 @@ const colorMap = new Map([
     [HALF_BUTTON_BACK_COLOR, { light: '#0D000000', dark: '#19FFFFFF' }],
     [HALF_BUTTON_IMAGE_COLOR, { light: '#000000', dark: '#FFFFFF' }]
 ]);
+// 在元服务被嵌入式拉起时会将如下参数发送过来
+const embedCompTypeList = new Set([ 'EMBED_HALF', 'EMBED_INNER_FULL' ]);
 /**
  * 与Native侧通信的事件回调管理类
  *
@@ -236,6 +243,7 @@ class MenubarBaseInfo extends ViewPU {
         stateProps.dividerOpacity = 0;
         stateProps.isShowPrivacyAnimation = false;
         stateProps.labelName = '';
+        stateProps.isShowMenubar = Visibility.Visible;
         this.__menubarStateProps = stateProps;
         this.statePropsNameList = Object.keys(this.__menubarStateProps);
         // @State修饰成员变量统一处理
@@ -301,6 +309,8 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.lgVerticalListener = mediaquery.matchMediaSync('(840vp<=height) and (height<1440vp)');
         this.xlVerticalListener = mediaquery.matchMediaSync('(1440vp<=height)');
         this.subscriber = null;
+        this.isEmbedComp = false;
+        this.isSystemApp = false;
         this.subscribeInfo = {
             events: ['usual.event.PRIVACY_STATE_CHANGED']
         };
@@ -554,6 +564,49 @@ export class CustomAppBar extends MenubarBaseInfo {
     }
 
     /**
+     * menubar关闭事件
+     */
+    menubarCloseEvent() {
+        this.isEmbedComp = false;
+        NativeEventManager.onCloseButtonClick();
+    }
+
+    /**
+     * onBackPress事件执行函数
+     * 由ArkUI通知调用
+     */
+    backPressedEvent() {
+        this.isEmbedComp = false;
+        if (this.isHalfScreen || this.isHalfToFullScreen) {
+            hilog.info(0x3900, LOG_TAG, 'setCustomCallback halfScreen onBackPress');
+            this.closeContainerAnimation();
+            this.menubarCloseEvent();
+        }
+    }
+
+    /**
+     * 初始化获取元服务Want参数
+     * 由ArkUI通知调用
+     */
+    getWantParamEvent(param) {
+        try {
+            const wantParam = JSON.parse(param);
+            this.isEmbedComp = embedCompTypeList.has(wantParam[ARKUI_APP_BAR_LAUNCH_TYPE]);
+            // isSystemApp信息由内部接口定义，只能返回boolean类型或者undefined类型
+            this.isSystemApp = wantParam[ARKUI_APP_BAR_SYSTEM_APP_FLAG] ?? false;
+            const visibleInfo = wantParam[ARKUI_APP_BAR_VISIBILITY_INFO];
+            // isVisible信息由用户传入，类型不定，需要严格判断
+            if (typeof visibleInfo === 'boolean' && this.isSystemApp) {
+                this.isShowMenubar = visibleInfo ? Visibility.Visible : Visibility.None;
+            } else {
+                hilog.error(0x3900, LOG_TAG, `fail to set visibility of menubar because of invalid param`);
+            }
+        } catch (err) {
+            hilog.error(0x3900, LOG_TAG, `fail to parse param, err = ${err.message}`);
+        }
+    }
+
+    /**
      * atomicservice侧的事件变化回调
      *
      * @param eventName 事件名称
@@ -564,12 +617,12 @@ export class CustomAppBar extends MenubarBaseInfo {
             hilog.error(0x3900, LOG_TAG, 'invalid params');
             return;
         }
+        hilog.info(0x3900, LOG_TAG, `setCustomCallback called, eventName = ${eventName}`);
         if (eventName === ARKUI_APP_BAR_COLOR_CONFIGURATION) {
-            hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyMenuColor, params: {param}`);
             this.onColorConfigurationUpdate(this.parseBoolean(param));
         } else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
-            hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyMenuSafeArea, params: {param}`);
             if (this.statusBarHeight === px2vp(Number(param))) {
+                hilog.error(0x3900, LOG_TAG, 'statusBarHeight is equal to current value');
                 return;
             }
             this.statusBarHeight = Number(param);
@@ -577,10 +630,9 @@ export class CustomAppBar extends MenubarBaseInfo {
         } else if (eventName === ARKUI_APP_BAR_CONTENT_SAFE_AREA) {
             let splitArray = param.split('|');
             if (splitArray.length < 4) {
-                hilog.error(0x3900, LOG_TAG, `setCustomCallback updateSafeArea failed, params: {param}`);
+                hilog.error(0x3900, LOG_TAG, 'setCustomCallback updateSafeArea failed');
                 return;
             }
-            hilog.error(0x3900, LOG_TAG, `setCustomCallback updateSafeArea success, margin: {JSON.stringify(splitArray)}`);
             this.contentMarginTop = this.isHalfScreen ? 0 : Number(splitArray[0]);
             this.fullContentMarginTop = Number(splitArray[0]);
             this.contentMarginLeft = Number(splitArray[1]);
@@ -589,6 +641,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         } else if (eventName === ARKUI_APP_BAR_BAR_INFO) {
             let splitArray = param.split('|');
             if (splitArray.length < 2) {
+                hilog.error(0x3900, LOG_TAG, 'setCustomCallback update appBar info failed');
                 return;
             }
             this.bundleName = splitArray[0];
@@ -598,14 +651,14 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.isHalfScreen = this.parseBoolean(param);
             this.initBreakPointListener();
         } else if (eventName === ARKUI_APP_BG_COLOR) {
-            hilog.error(0x3900, LOG_TAG, `setCustomCallback notifyBgColor, params: {param}`);
             this.contentBgColor = this.isHalfScreen ? Color.Transparent : param;
         } else if (eventName === ARKUI_APP_BAR_ON_BACK_PRESSED) {
-            if (this.isHalfScreen || this.isHalfToFullScreen) {
-                hilog.info(0x3900, LOG_TAG, 'setCustomCallback halfScreen onBackPress');
-                this.closeContainerAnimation();
-                NativeEventManager.onBackPressConsumed();
-            }
+            this.backPressedEvent();
+        } else if (eventName === ARKUI_APP_BAR_IS_MENUBAR_VISIBLE && !this.isEmbedComp) {
+            // 仅当嵌入式组件拉起元服务，且拉起方是一方系统应用时，对menubar显隐的设置才会生效
+            this.isShowMenubar = (param === 'true') ? Visibility.Visible : Visibility.None;
+        } else if (eventName === ARKUI_APP_BAR_GET_WANT_PARAM) {
+            this.getWantParamEvent(param);
         }
     }
     /**
@@ -691,14 +744,14 @@ export class CustomAppBar extends MenubarBaseInfo {
                 duration: 250,
                 curve: curves.interpolatingSpring(0, 1, 328, 36),
                 onFinish: () => {
-                    NativeEventManager.onCloseButtonClick();
+                    this.menubarCloseEvent();
                 }
             }, () => {
                 this.stackHeight = '0%';
             });
         }
         else {
-            NativeEventManager.onCloseButtonClick();
+            this.menubarCloseEvent();
         }
         this.isHalfScreenCompFirstLaunch = true;
     }
@@ -711,7 +764,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             duration: 250,
             curve: curves.interpolatingSpring(0, 1, 328, 36),
             onFinish: () => {
-                NativeEventManager.onCloseButtonClick();
+                this.menubarCloseEvent();
             }
         }, () => {
             this.containerHeight = '0%';
@@ -890,6 +943,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             Row.height(VIEW_HEIGHT);
             Row.hitTestBehavior(HitTestMode.Transparent);
             Row.width('100%');
+            Row.visibility(this.isShowMenubar);
         }, Row);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
             Row.create();
