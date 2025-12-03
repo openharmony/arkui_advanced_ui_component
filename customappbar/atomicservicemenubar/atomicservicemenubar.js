@@ -17,7 +17,7 @@ const appBar = requireInternal('atomicservice.AtomicServiceMenubar');
 /**
  * Provide configuration capabilities for the menubar of AtomicService
  */
-class AtomicServiceMenubar {
+class AtomicServiceMenuBar {
     /**
      * The constructor used to create a AtomicService menubar object
      *
@@ -37,4 +37,4 @@ class AtomicServiceMenubar {
     }
 }
  
-export default { AtomicServiceMenubar };
+export default { AtomicServiceMenuBar };
