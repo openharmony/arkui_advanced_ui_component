@@ -343,6 +343,7 @@ export struct AtomicServiceNavigation {
     if (this.onWindowSizeChangeCallback) {
       this.mainWindow?.off('windowSizeChange', this.onWindowSizeChangeCallback);
     }
+    this.sideBarHelper.unregisterListener();
   }
 
   /**
