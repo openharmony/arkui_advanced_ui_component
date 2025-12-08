@@ -21,7 +21,6 @@ import commonEventManager from '@ohos.commonEventManager';
 import { bundleManager } from '@kit.AbilityKit';
 import Base from '@ohos.base';
  
-const errCodeAbnormal: number = 100014;
 const errCodeCapabilityNotSupported: number = 801;
 const atomicServiceDataTag: string = 'ohos.atomicService.window';
 const API20: number = 20;
@@ -199,11 +198,6 @@ export struct FullScreenLaunchComponent {
           this.isShow = false;
           hilog.error(0x3900, 'FullScreenLaunchComponent', 'call up UIExtension error:%{public}d!%{public}s', err.code,
             err.message)
-          if (err.code != errCodeAbnormal) {
-            this.getUIContext().showAlertDialog({
-              message: err.message
-            })
-          }
         }
       )
       .onTerminated(info => {

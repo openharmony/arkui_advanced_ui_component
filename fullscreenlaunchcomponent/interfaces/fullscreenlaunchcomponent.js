@@ -21,7 +21,6 @@ const abilityManager = requireNapi('app.ability.abilityManager');
 const commonEventManager = requireNapi('commonEventManager');
 const bundleManager = requireNapi('bundle.bundleManager');
 const BusinessError = requireNapi('base');
-const t = 100014;
 const u = 801;
 const atomicServiceDataTag = 'ohos.atomicService.window';
 const api20 = 20;
@@ -238,11 +237,6 @@ export class FullScreenLaunchComponent extends ViewPU {
                 }
                 this.isShow = false;
                 hilog.error(0x3900, 'FullScreenLaunchComponent', 'call up UIExtension error:%{public}d!%{public}s', err.code, err.message);
-                if (err.code !== t) {
-                    this.getUIContext().showAlertDialog({
-                        message: err.message
-                    });
-                }
             });
             UIExtensionComponent.onTerminated(info => {
                 this.isShow = false;
