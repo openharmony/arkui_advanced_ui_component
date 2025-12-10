@@ -405,9 +405,12 @@ export struct CustomAppBar {
           let windowWidth = px2vp(displayData.width);
           let windowHeight = px2vp(displayData.height);
           hilog.info(0x3900, LOG_TAG, `onBreakPointChange breakPoint=${this.breakPoint} verticalBreakPoint=${this.verticalBreakPoint} windowWidth=${windowWidth} windowHeight=${windowHeight}`);
-          if (this.breakPoint === BreakPointsType.MD) {
+          if (this.breakPoint === BreakPointsType.MD || this.verticalBreakPoint === BreakPointsType.SM) {
+            // 窗口宽度为MD（大于600，小于840），嵌入式组件宽度为480
+            // 窗口宽度为LG、XL（大于840），窗口高度为SM（小于600），嵌入式组件宽度为480
             this.containerWidth = MD_WIDTH;
           } else {
+            // 窗口宽度为LG、XL（大于840），窗口高度为MD、LG、XL（大于600），嵌入式组件宽度为窗口宽度和窗口高度最小值的60%
             this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
           }
           if (this.containerWidth * LG_WIDTH_HEIGHT_RATIO < windowHeight && this.isBreakPointMatchWidthHeightRatio()) {
