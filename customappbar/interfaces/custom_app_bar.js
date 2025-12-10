@@ -490,7 +490,7 @@ export class CustomAppBar extends MenubarBaseInfo {
                     let windowWidth = px2vp(displayData.width);
                     let windowHeight = px2vp(displayData.height);
                     hilog.info(0x3900, LOG_TAG, `onBreakPointChange breakPoint=${this.breakPoint} verticalBreakPoint=${this.verticalBreakPoint} windowWidth=${windowWidth} windowHeight=${windowHeight}`);
-                    if (this.breakPoint === BreakPointsType.MD) {
+                    if (this.breakPoint === BreakPointsType.MD || this.verticalBreakPoint === BreakPointsType.SM) {
                         this.containerWidth = MD_WIDTH;
                     } else {
                         this.containerWidth = windowWidth > windowHeight ? windowHeight * LG_WIDTH_LIMIT : windowWidth * LG_WIDTH_LIMIT;
