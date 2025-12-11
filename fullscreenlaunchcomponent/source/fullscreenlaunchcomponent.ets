@@ -25,6 +25,8 @@ const errCodeCapabilityNotSupported: number = 801;
 const atomicServiceDataTag: string = 'ohos.atomicService.window';
 const API20: number = 20;
 const requestComponentTerminateKey: string = 'ohos.param.key.requestComponentTerminate';
+const LOG_TAG: string = 'FullScreenLaunchComponent';
+const ERR_CODE_NOT_OPEN: number = 16000012;
  
 @Component
 export struct FullScreenLaunchComponent {
@@ -145,12 +147,14 @@ export struct FullScreenLaunchComponent {
           }
         } else {
           hilog.info(0x3900, 'FullScreenLaunchComponent', 'is not allowed open!')
- 
+          this.pullUpError(ERR_CODE_NOT_OPEN, 'atomic_service_open_fail', 'is not allowed open!');
         }
       }).catch((err: BusinessError) => {
         hilog.error(0x3900, 'FullScreenLaunchComponent', 'queryAtomicServiceStartupRule called error!%{public}s', err.message)
         if (errCodeCapabilityNotSupported === err.code) {
           this.popUp()
+        } else {
+          this.pullUpError(err.code, 'query_atomic_service_startup__rule_fail', err.message);
         }
       });
   }
@@ -162,6 +166,23 @@ export struct FullScreenLaunchComponent {
       hilog.info(0x3900, 'FullScreenLaunchComponent', '%{public}s open service success!', ability.want)
     } catch (e) {
       hilog.error(0x3900, 'FullScreenLaunchComponent', '%{public}s open service error!', e.message)
+      this.pullUpError(e.code, 'open_atomic_service_fail', e.message);
+    }
+  }
+  
+  pullUpError(code: number, name: string, message: string): void {
+    if (!this.onError) {
+      return;
+    }
+    let error: BusinessError = {
+      code: code,
+      name: name,
+      message: message
+    };
+    try {
+      this.onError(error);
+    } catch (err) {
+      hilog.error(0x3900, LOG_TAG, 'onError callback error! %{public}s', err.message);
     }
   }
  
