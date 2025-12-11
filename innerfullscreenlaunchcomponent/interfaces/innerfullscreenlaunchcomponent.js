@@ -24,6 +24,7 @@ const atomicServiceDataTag = 'ohos.atomicService.window';
 const ERR_CODE_CAPABILITY_NOT_SUPPORT = 801;
 const API20 = 20;
 const LOG_TAG = 'InnerFullScreenLaunchComponent';
+const ERR_CODE_NOT_OPEN = 16000012;
 export class LaunchController {
     constructor() {
         this.launchAtomicService = (n1, o1) => { };
@@ -212,12 +213,16 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
                         }
                     } else {
                         hilog.info(0x3900, LOG_TAG, 'is not allowed open!');
+                        this.pullUpError(ERR_CODE_NOT_OPEN, 'atomic_service_open_fail', 'is not allowed open!');
                     }
                 }).catch((err) => {
                     hilog.error(0x3900, LOG_TAG, 'queryAtomicServiceStartupRule called error!%{public}s', err.message);
                     if (ERR_CODE_CAPABILITY_NOT_SUPPORT === err.code) {
                         this.popUp();
                     }
+                    else {
+                        this.pullUpError(err.code, 'query_atomic_service_startup__rule_fail', err.message);
+                    } 
             });
         }
         catch (err) {
@@ -233,6 +238,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
         }
         catch (l) {
             hilog.error(0x3900, LOG_TAG, '%{public}s open service error!', l.message);
+            this.pullUpError(l.code, 'open_atomic_service_fail', l.message);
         }
     }
     handleOnReceiveEvent(data) {
@@ -271,6 +277,21 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             catch (d21) {
                 hilog.error(0x3900, LOG_TAG, 'onTerminated callback error! %{public}s', d21.message);
             }
+        }
+    }
+    pullUpError(code, name, message) {
+        if(!this.onError) {
+            return;
+        }
+        let error = {
+            code: code,
+            name: name,
+            message: message
+        };
+        try {
+            this.onError(error);
+        } catch (err) {
+            hilog.error(0x3900, LOG_TAG, 'onError callback error! %{public}s', err.message);
         }
     }
     initialRender() {

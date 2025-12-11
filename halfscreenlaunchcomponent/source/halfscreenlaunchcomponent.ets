@@ -25,6 +25,7 @@ const EMBEDDED_HALF_MODE = 2;
 const atomicServiceDataTag: string = 'ohos.atomicService.window';
 const ERR_CODE_CAPABILITY_NOT_SUPPORT: number = 801;
 const LOG_TAG: string = 'HalfScreenLaunchComponent';
+const ERR_CODE_NOT_OPEN: number = 16000012;
 @Component
 export struct HalfScreenLaunchComponent {
   @BuilderParam content: Callback<void> = this.doNothingBuilder;
@@ -129,12 +130,15 @@ export struct HalfScreenLaunchComponent {
             }
           } else {
             hilog.info(0x3900, LOG_TAG, 'is not allowed open!');
+            this.pullUpError(ERR_CODE_NOT_OPEN, 'atomic_service_open_fail', 'is not allowed open!');
           }
         }).catch((err: BusinessError) => {
           hilog.error(0x3900, LOG_TAG, 'queryAtomicServiceStartupRule called error!%{public}s', err.message);
           if (ERR_CODE_CAPABILITY_NOT_SUPPORT === err.code) {
             this.popUp();
-          }
+          } else {
+          this.pullUpError(err.code, 'query_atomic_service_startup__rule_fail', err.message);
+        }
       });
     } catch (err: BusinessError) {
       hilog.error(0x3900, LOG_TAG, 'AtomicServiceStartupRule failed: %{public}s', err.message);
@@ -149,6 +153,7 @@ export struct HalfScreenLaunchComponent {
       hilog.info(0x3900, LOG_TAG, '%{public}s open service success!', ability.want);
     } catch (e) {
       hilog.error(0x3900, LOG_TAG, '%{public}s open service error!', e.message);
+      this.pullUpError(e.code, 'open_atomic_service_fail', e.message);
     }
   }
 
@@ -165,6 +170,22 @@ export struct HalfScreenLaunchComponent {
         }
       }
       this.onReceive(atomicServiceData);
+    }
+  }
+
+  pullUpError(code: number, name: string, message: string): void {
+    if (!this.onError) {
+      return;
+    }
+    let error: BusinessError = {
+      code: code,
+      name: name,
+      message: message
+    };
+    try {
+      this.onError(error);
+    } catch (err) {
+      hilog.error(0x3900, LOG_TAG, 'onError callback error! %{public}s', err.message);
     }
   }
 

@@ -25,6 +25,8 @@ const u = 801;
 const atomicServiceDataTag = 'ohos.atomicService.window';
 const api20 = 20;
 const requestComponentTerminateKey = 'ohos.param.key.requestComponentTerminate';
+const LOG_TAG = 'FullScreenLaunchComponent';
+const ERR_CODE_NOT_OPEN = 16000012;
 
 export class FullScreenLaunchComponent extends ViewPU {
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
@@ -187,11 +189,15 @@ export class FullScreenLaunchComponent extends ViewPU {
             }
             else {
                 hilog.info(0x3900, 'FullScreenLaunchComponent', 'is not allowed open!');
+                this.pullUpError(ERR_CODE_NOT_OPEN, 'atomic_service_open_fail', 'is not allowed open!');
             }
         }).catch((err) => {
             hilog.error(0x3900, 'FullScreenLaunchComponent', 'queryAtomicServiceStartupRule called error!%{public}d:%{public}s', err.code, err.message);
             if (u === err.code) {
                 this.popUp();
+            }
+            else {
+                this.pullUpError(err.code, 'query_atomic_service_startup__rule_fail', err.message);
             }
         });
     }
@@ -203,6 +209,22 @@ export class FullScreenLaunchComponent extends ViewPU {
         }
         catch (e) {
             hilog.error(0x3900, 'FullScreenLaunchComponent', '%{public}s open service error!', e.message);
+            this.pullUpError(e.code, 'open_atomic_service_fail', e.message);
+        }
+    }
+    pullUpError(code, name, message) {
+        if(!this.onError) {
+            return;
+        }
+        let error = {
+            code: code,
+            name: name,
+            message: message
+        };
+        try {
+            this.onError(error);
+        } catch (err) {
+            hilog.error(0x3900, LOG_TAG, 'onError callback error! %{public}s', err.message);
         }
     }
     initialRender() {
