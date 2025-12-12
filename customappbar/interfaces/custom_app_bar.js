@@ -70,6 +70,7 @@ const PRIVACY_FONT_SIZE = '12vp';
 const PRIVACY_TEXT_MARGIN_START = 4;
 const PRIVACY_TEXT_MARGIN_END = 8;
 const PRIVACY_CONSTRAINT_SIZE = 'calc(100% - 136vp)';
+// 定义由ArkUI发来的事件名称
 const ARKUI_APP_BAR_COLOR_CONFIGURATION = 'arkui_app_bar_color_configuration';
 const ARKUI_APP_BAR_MENU_SAFE_AREA = 'arkui_app_bar_menu_safe_area';
 const ARKUI_APP_BAR_CONTENT_SAFE_AREA = 'arkui_app_bar_content_safe_area';
@@ -89,6 +90,8 @@ const ARKUI_APP_BAR_ON_BACK_PRESSED = 'arkui_app_bar_on_back_pressed';
 const ARKUI_APP_BAR_ON_BACK_PRESSED_CONSUMED = 'arkui_app_bar_on_back_pressed_consumed';
 const ARKUI_APP_BAR_IS_MENUBAR_VISIBLE = 'arkui_menu_bar_visible';
 const ARKUI_APP_BAR_GET_WANT_PARAM = 'arkui_extension_host_params';
+const ArkUI_APP_BAR_ON_RECEIVE_EVENT = 'arkui_app_bar_receive'
+// 定义由嵌入式组件发来的Want消息事件名称
 const ARKUI_APP_BAR_LAUNCH_TYPE = 'com.atomicservice.params.key.launchType';
 const ARKUI_APP_BAR_SYSTEM_APP_FLAG = 'com.atomicservice.params.key.isSystemApp';
 const ARKUI_APP_BAR_VISIBILITY_INFO = 'com.atomicservice.visible';
@@ -118,6 +121,19 @@ const colorMap = new Map([
 ]);
 // 在元服务被嵌入式拉起时会将如下参数发送过来
 const embedCompTypeList = new Set([ 'EMBED_HALF', 'EMBED_INNER_FULL' ]);
+let atomicBasicEngine = null;
+function loadAtomicBasicEngine() {
+    try {
+        import('@hms:atomicservicedistribution.atomicbasicengine').then((res) => {
+            atomicBasicEngine = res;
+        }).catch((err) => {
+            hilog.error(0x3900, LOG_TAG, `dynamic import atomicbasicengine failed, error: ${err.message}`);
+        });
+    } catch (err) {
+        hilog.error(0x3900, LOG_TAG, `loadAtomicBasicEngine failed, error: ${err.message}`);
+    }
+}
+loadAtomicBasicEngine();
 /**
  * 与Native侧通信的事件回调管理类
  *
@@ -172,6 +188,27 @@ class NativeEventManager {
      */
     static onBackPressConsumed() {
         ContainerAppBar.callNative(ARKUI_APP_BAR_ON_BACK_PRESSED_CONSUMED);
+    }
+
+    /**
+     * 拉起复访引导弹框，通知ArkUI去创建对应的UIAbility
+     * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+     *
+     * @param bundleName 待获取资料信息的元服务bundleName
+     */
+    static startRevisitServicePanel(bundleName) {
+        let info = {
+            'bundleName': 'com.huawei.hmos.asde',
+            'abilityName': 'PanelAbility',
+            'params': [
+                `bundleName:${bundleName}`,
+                'abilityName:MainAbility',
+                'module:entry',
+                'pageName:REVISIT',
+                'ability.want.params.uiExtensionType:sysDialog/atomicServicePanel'
+            ]
+        };
+        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL, info);
     }
 }
 
@@ -313,6 +350,8 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.subscriber = null;
         this.isEmbedComp = false;
         this.isSystemApp = false;
+        this.isShowRevisit = false;
+        this.isShowRevisitFinished = false;
         this.subscribeInfo = {
             events: ['usual.event.PRIVACY_STATE_CHANGED']
         };
@@ -338,6 +377,23 @@ export class CustomAppBar extends MenubarBaseInfo {
                 this[privatePropName].purgeDependencyOnElmtId(rmElmtId);
             }
         });
+    }
+    aboutToAppear() {
+        try {
+            if (atomicBasicEngine && typeof atomicBasicEngine?.default?.checkShowRevisit === 'function') {
+                atomicBasicEngine.default.checkShowRevisit(this.bundleName).then((res) => {
+                    this.isShowRevisit = res;
+                    this.isShowRevisitFinished = true;
+                }).catch((err) => {
+                    hilog.error(0x3900, LOG_TAG, `checkShowRevisit failed, error is ${err.message}`);
+                    this.isShowRevisitFinished = true;
+                });
+            } else {
+                this.isShowRevisitFinished = true;
+            }
+        } catch(err) {
+            hilog.error(0x3900, LOG_TAG, `exception occurred while aboutToAppear, error is ${err.message}`);
+        }
     }
     aboutToBeDeleted() {
         this.statePropsNameList.forEach((propName) => {
@@ -566,11 +622,25 @@ export class CustomAppBar extends MenubarBaseInfo {
     }
 
     /**
-     * menubar关闭事件
+     * menubar关闭事件，此处用于直接关闭元服务，并重置相关字段信息
      */
     menubarCloseEvent() {
         this.isEmbedComp = false;
         NativeEventManager.onCloseButtonClick();
+    }
+
+    /**
+     * 退出前尝试拉起复访弹框
+     * 如果需要拉起弹框，则无需关闭元服务，关闭的动作由onReceive通知'code: 1'作为关闭标志
+     * 如果不需要拉起弹框，则直接关闭元服务
+     */
+    pullUpRevisitPanel() {
+        if (this.isShowRevisitFinished && this.isShowRevisit) {
+            NativeEventManager.startRevisitServicePanel(this.bundleName);
+            NativeEventManager.onBackPressConsumed();
+        } else {
+            this.menubarCloseEvent();
+        }
     }
 
     /**
@@ -582,7 +652,30 @@ export class CustomAppBar extends MenubarBaseInfo {
         if (this.isHalfScreen || this.isHalfToFullScreen) {
             hilog.info(0x3900, LOG_TAG, 'setCustomCallback halfScreen onBackPress');
             this.closeContainerAnimation();
-            this.menubarCloseEvent();
+            NativeEventManager.onBackPressConsumed();
+        } else {
+            this.pullUpRevisitPanel();
+        }
+    }
+
+    /**
+     * onReceive事件通知内容
+     * 由ArkUI通知调用
+     */
+    onReceiveEvent(param) {
+        try {
+            const result = JSON.parse(param);
+            // 针对 复访引导，"'RevisitPanelExitCode': 1"作为服务面板通知元服务关闭的事件消息
+            if (result['RevisitPanelExitCode'] === 1) {
+                NativeEventManager.onCloseButtonClick();
+            } else if (result['RevisitPanelExitCode'] === 2) {
+                NativeEventManager.onCloseButtonClick();
+                this.isShowRevisit = false;
+            } else {
+                hilog.error(0x3900, LOG_TAG, `onReceiveEvent, RevisitPanelExitCode is invalid, code = ${result['RevisitPanelExitCode']}`);
+            }
+        } catch (err) {
+            hilog.error(0x3900, LOG_TAG, `onReceiveEvent, fail to parse param, error: ${err.message}`);
         }
     }
 
@@ -661,6 +754,8 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.isShowMenubar = (param === 'true') ? Visibility.Visible : Visibility.None;
         } else if (eventName === ARKUI_APP_BAR_GET_WANT_PARAM) {
             this.getWantParamEvent(param);
+        } else if (eventName === ArkUI_APP_BAR_ON_RECEIVE_EVENT) {
+            this.onReceiveEvent(param);
         }
     }
     /**
@@ -1028,7 +1123,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             Gesture.create(GesturePriority.Low);
             TapGesture.create();
             TapGesture.onAction(() => {
-                this.closeContainerAnimation();
+                this.backPressedEvent();
             });
             TapGesture.pop();
             Gesture.pop();
