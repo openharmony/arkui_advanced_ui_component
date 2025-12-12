@@ -648,7 +648,6 @@ export class CustomAppBar extends MenubarBaseInfo {
      * 由ArkUI通知调用
      */
     backPressedEvent() {
-        this.isEmbedComp = false;
         if (this.isHalfScreen || this.isHalfToFullScreen) {
             hilog.info(0x3900, LOG_TAG, 'setCustomCallback halfScreen onBackPress');
             this.closeContainerAnimation();
@@ -656,6 +655,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         } else if (!this.isEmbedComp) {
             this.pullUpRevisitPanel();
         }
+        this.isEmbedComp = false;
     }
 
     /**

@@ -569,7 +569,6 @@ export struct CustomAppBar {
    * 由ArkUI通知调用
    */
   private backPressedEvent(): void {
-    this.isEmbedComp = false;
     if (this.isHalfScreen || this.isHalfToFullScreen) {
       hilog.info(0x3900, LOG_TAG, 'setCustomCallback halfScreen onBackPress');
       this.closeContainerAnimation();
@@ -577,6 +576,7 @@ export struct CustomAppBar {
     } else if (!this.isEmbedComp) {
       this.pullUpRevisitPanel();
     }
+    this.isEmbedComp = false;
   }
 
   /**
