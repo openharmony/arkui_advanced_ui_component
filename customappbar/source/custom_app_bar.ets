@@ -126,7 +126,7 @@ const colorMap: Map<string, ColorMode> = new Map<string, ColorMode>([
   [HALF_BUTTON_IMAGE_COLOR, { light: '#000000', dark: '#FFFFFF' }]
 ]);
 // 在元服务被嵌入式拉起时会将如下参数发送过来
-const embedCompTypeList = new Set([ 'EMBED_HALF', 'EMBED_INNER_FULL' ]);
+const embedCompTypeList = new Set([ 'EMBED_HALF', 'EMBED_INNER_FULL', 'FULL_SCREEN_LAUNCH' ]);
 // 加载asde
 let atomicBasicEngine = null;
 function loadAtomicBasicEngine() {
@@ -574,7 +574,7 @@ export struct CustomAppBar {
       hilog.info(0x3900, LOG_TAG, 'setCustomCallback halfScreen onBackPress');
       this.closeContainerAnimation();
       NativeEventManager.onBackPressConsumed();
-    } else {
+    } else if (!this.isEmbedComp) {
       this.pullUpRevisitPanel();
     }
   }
