@@ -1013,7 +1013,7 @@ export struct CustomAppBar {
         .accessibilityText(this.closeRead)
         .gesture(TapGesture().onAction(() => {
           if (!this.isEmbedComp) {
-            this,this.pullUpRevisitPanel();
+            this.pullUpRevisitPanel();
           } else {
             this.closeContainerAnimation();
             this.isEmbedComp = false;
