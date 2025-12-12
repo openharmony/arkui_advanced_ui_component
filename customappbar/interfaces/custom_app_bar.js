@@ -90,7 +90,7 @@ const ARKUI_APP_BAR_ON_BACK_PRESSED = 'arkui_app_bar_on_back_pressed';
 const ARKUI_APP_BAR_ON_BACK_PRESSED_CONSUMED = 'arkui_app_bar_on_back_pressed_consumed';
 const ARKUI_APP_BAR_IS_MENUBAR_VISIBLE = 'arkui_menu_bar_visible';
 const ARKUI_APP_BAR_GET_WANT_PARAM = 'arkui_extension_host_params';
-const ArkUI_APP_BAR_ON_RECEIVE_EVENT = 'arkui_app_bar_receive'
+const ArkUI_APP_BAR_ON_RECEIVE_EVENT = 'arkui_app_bar_receive';
 // 定义由嵌入式组件发来的Want消息事件名称
 const ARKUI_APP_BAR_LAUNCH_TYPE = 'com.atomicservice.params.key.launchType';
 const ARKUI_APP_BAR_SYSTEM_APP_FLAG = 'com.atomicservice.params.key.isSystemApp';
@@ -1125,7 +1125,12 @@ export class CustomAppBar extends MenubarBaseInfo {
             Gesture.create(GesturePriority.Low);
             TapGesture.create();
             TapGesture.onAction(() => {
-                this.backPressedEvent();
+                if (!this.isEmbedComp) {
+                    this,this.pullUpRevisitPanel();
+                } else {
+                    this.closeContainerAnimation();
+                    this.isEmbedComp = false;
+                }
             });
             TapGesture.pop();
             Gesture.pop();

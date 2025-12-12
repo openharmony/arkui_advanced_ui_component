@@ -1012,7 +1012,12 @@ export struct CustomAppBar {
         .height(VIEW_HEIGHT)
         .accessibilityText(this.closeRead)
         .gesture(TapGesture().onAction(() => {
-          this.backPressedEvent();
+          if (!this.isEmbedComp) {
+            this,this.pullUpRevisitPanel();
+          } else {
+            this.closeContainerAnimation();
+            this.isEmbedComp = false;
+          }
         }))
       }
       .borderRadius(MENU_RADIUS)
