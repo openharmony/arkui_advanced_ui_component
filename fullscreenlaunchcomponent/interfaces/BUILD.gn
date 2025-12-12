@@ -63,6 +63,11 @@ ohos_shared_library("fullscreenlaunchcomponent") {
     "c_utils:utils",
     "ipc:ipc_core"
   ]
+
+  if (frame_trace_support) {
+    external_deps += [ "frame_aware_sched:frame_trace_intf" ]
+    defines += [ "FRAME_TRACE_ENABLE" ]
+  }
  
   relative_install_dir = "module/arkui/advanced"
   subsystem_name = "arkui"
