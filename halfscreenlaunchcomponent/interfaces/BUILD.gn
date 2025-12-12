@@ -54,6 +54,11 @@ ohos_shared_library("halfscreenlaunchcomponent") {
     "ipc:ipc_core"
   ]
 
+  if (frame_trace_support) {
+    external_deps += [ "frame_aware_sched:frame_trace_intf" ]
+    defines += [ "FRAME_TRACE_ENABLE" ]
+  }
+
   relative_install_dir = "module/atomicservice"
   subsystem_name = "arkui"
   part_name = "advanced_ui_component"
