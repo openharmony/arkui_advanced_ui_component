@@ -666,15 +666,15 @@ export class CustomAppBar extends MenubarBaseInfo {
         try {
             const result = JSON.parse(param);
             // 针对 复访引导，处理由服务面板回传的事件值
-            if (result['RevisitPanelExitCode'] === 1) {
+            if (result.RevisitPanelExitCode === 1) {
                 // 接受到"'RevisitPanelExitCode': 1"，表示服务面板通知元服务直接关闭
                 NativeEventManager.onCloseButtonClick();
-            } else if (result['RevisitPanelExitCode'] === 2) {
+            } else if (result.RevisitPanelExitCode === 2) {
                 // 接受到"'RevisitPanelExitCode': 2"，表示服务面板通知，元服务关闭并将isShowRevisit设置为false
                 NativeEventManager.onCloseButtonClick();
                 this.isShowRevisit = false;
             } else {
-                hilog.error(0x3900, LOG_TAG, `onReceiveEvent, RevisitPanelExitCode is invalid, code = ${result['RevisitPanelExitCode']}`);
+                hilog.error(0x3900, LOG_TAG, `onReceiveEvent, RevisitPanelExitCode is invalid, code = ${result.RevisitPanelExitCode}`);
             }
         } catch (err) {
             hilog.error(0x3900, LOG_TAG, `onReceiveEvent, fail to parse param, error: ${err.message}`);
