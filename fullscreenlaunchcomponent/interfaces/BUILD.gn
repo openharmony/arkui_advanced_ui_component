@@ -59,6 +59,9 @@ ohos_shared_library("fullscreenlaunchcomponent") {
   external_deps = [
     "hilog:libhilog",
     "napi:ace_napi",
+    "window_manager:libwm",
+    "c_utils:utils",
+    "ipc:ipc_core"
   ]
  
   relative_install_dir = "module/arkui/advanced"
