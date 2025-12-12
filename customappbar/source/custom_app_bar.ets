@@ -586,10 +586,12 @@ export struct CustomAppBar {
   private onReceiveEvent(param: string): void {
     try {
       const result: object = JSON.parse(param);
-      // 针对 复访引导，"'RevisitPanelExitCode': 1"作为服务面板通知元服务关闭的事件消息
+      // 针对 复访引导，处理由服务面板回传的事件值
       if (result['RevisitPanelExitCode'] === 1) {
+        // 接受到"'RevisitPanelExitCode': 1"，表示服务面板通知元服务直接关闭
         NativeEventManager.onCloseButtonClick();
       } else if (result['RevisitPanelExitCode'] === 2) {
+        // 接受到"'RevisitPanelExitCode': 2"，表示服务面板通知，元服务关闭并将isShowRevisit设置为false
         NativeEventManager.onCloseButtonClick();
         this.isShowRevisit = false;
       } else {
