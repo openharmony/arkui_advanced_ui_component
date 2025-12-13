@@ -85,7 +85,7 @@ const ARKUI_APP_BAR_ON_BACK_PRESSED: string = 'arkui_app_bar_on_back_pressed';
 const ARKUI_APP_BAR_ON_BACK_PRESSED_CONSUMED: string = 'arkui_app_bar_on_back_pressed_consumed';
 const ARKUI_APP_BAR_IS_MENUBAR_VISIBLE: string = 'arkui_menu_bar_visible';
 const ARKUI_APP_BAR_GET_WANT_PARAM: string = 'arkui_extension_host_params';
-const ARKUI_APP_BAR_ON_RECEIVE_EVENT = 'arkui_app_bar_receive';
+const ARKUI_APP_BAR_ON_RECEIVE_EVENT: string = 'arkui_app_bar_receive';
 // 定义由嵌入式组件发来的Want消息事件名称
 const ARKUI_APP_BAR_LAUNCH_TYPE: string = 'com.atomicservice.params.key.launchType';
 const ARKUI_APP_BAR_SYSTEM_APP_FLAG: string = 'com.atomicservice.params.key.isSystemApp';
@@ -126,9 +126,9 @@ const colorMap: Map<string, ColorMode> = new Map<string, ColorMode>([
   [HALF_BUTTON_IMAGE_COLOR, { light: '#000000', dark: '#FFFFFF' }]
 ]);
 // 在元服务被嵌入式拉起时会将如下参数发送过来
-const embedCompTypeList = new Set([ 'EMBED_HALF', 'EMBED_INNER_FULL', 'FULL_SCREEN_LAUNCH' ]);
+const embedCompTypeList: Set<string> = new Set([ 'EMBED_HALF', 'EMBED_INNER_FULL', 'FULL_SCREEN_LAUNCH' ]);
 // 加载asde
-let atomicBasicEngine = null;
+let atomicBasicEngine: ESObject | null = null;
 function loadAtomicBasicEngine() {
   try {
     import('@hms:atomicservicedistribution.atomicbasicengine').then((res: ESObject) => {
