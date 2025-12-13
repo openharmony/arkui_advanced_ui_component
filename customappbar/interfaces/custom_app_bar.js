@@ -122,18 +122,6 @@ const colorMap = new Map([
 // 在元服务被嵌入式拉起时会将如下参数发送过来
 const embedCompTypeList = new Set([ 'EMBED_HALF', 'EMBED_INNER_FULL', 'FULL_SCREEN_LAUNCH' ]);
 let atomicBasicEngine = null;
-function loadAtomicBasicEngine() {
-    try {
-        import('@hms:atomicservicedistribution.atomicbasicengine').then((res) => {
-            atomicBasicEngine = res;
-        }).catch((err) => {
-            hilog.error(0x3900, LOG_TAG, `dynamic import atomicbasicengine failed, error: ${err.message}`);
-        });
-    } catch (err) {
-        hilog.error(0x3900, LOG_TAG, `loadAtomicBasicEngine failed, error: ${err.message}`);
-    }
-}
-loadAtomicBasicEngine();
 /**
  * 与Native侧通信的事件回调管理类
  *
@@ -380,17 +368,22 @@ export class CustomAppBar extends MenubarBaseInfo {
     }
     aboutToAppear() {
         try {
-            if (atomicBasicEngine && typeof atomicBasicEngine?.default?.checkShowRevisit === 'function') {
-                atomicBasicEngine.default.checkShowRevisit(this.bundleName).then((res) => {
-                    this.isShowRevisit = res;
+            import('@hms:atomicservicedistribution.atomicbasicengine').then((res) => {
+                atomicBasicEngine = res;
+                if (atomicBasicEngine && typeof atomicBasicEngine?.default?.checkShowRevisit === 'function') {
+                    atomicBasicEngine.default.checkShowRevisit(this.bundleName).then((res) => {
+                        this.isShowRevisit = res;
+                        this.isShowRevisitFinished = true;
+                    }).catch((err) => {
+                        hilog.error(0x3900, LOG_TAG, `checkShowRevisit failed, error is ${err.message}`);
+                        this.isShowRevisitFinished = true;
+                    });
+                } else {
                     this.isShowRevisitFinished = true;
-                }).catch((err) => {
-                    hilog.error(0x3900, LOG_TAG, `checkShowRevisit failed, error is ${err.message}`);
-                    this.isShowRevisitFinished = true;
-                });
-            } else {
-                this.isShowRevisitFinished = true;
-            }
+                }
+            }).catch((err) => {
+                hilog.error(0x3900, LOG_TAG, `dynamic import atomicbasicengine failed, error: ${err.message}`);
+            });
         } catch(err) {
             hilog.error(0x3900, LOG_TAG, `exception occurred while aboutToAppear, error is ${err.message}`);
         }
