@@ -15,6 +15,13 @@
 
 #include "napi/native_node_api.h"
 
+static constexpr int HALF_SCREEN_DOMAIN = 0x5fdd;
+static constexpr char HALF_SCREEN_TAG[] = "WindowAdapter";
+static constexpr OHOS::HiviewDFX::HiLogLabel HALF_SCREEN_LABEL = { LOG_APP, HALF_SCREEN_DOMAIN, HALF_SCREEN_TAG };
+
+#define NATIVE_DEBUG(...) (void)OHOS::HiviewDFX::HiLog::Debug(HALF_SCREEN_LABEL, ##__VA_ARGS__)
+#define NATIVE_ERROR(...) (void)OHOS::HiviewDFX::HiLog::Error(HALF_SCREEN_LABEL, ##__VA_ARGS__)
+
 extern const char _binary_halfscreenlaunchcomponent_abc_start[];
 extern const char _binary_halfscreenlaunchcomponent_abc_end[];
 
