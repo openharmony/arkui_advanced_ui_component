@@ -25,8 +25,9 @@
 
 static constexpr int INNER_FULL_SCREEN_DOMAIN = 0x5fdd;
 static constexpr char INNER_FULL_SCREEN_TAG[] = "WindowAdapter";
-static constexpr OHOS::HiviewDFX::HiLogLabel INNER_FULL_SCREEN_LABEL = 
-    { LOG_APP, INNER_FULL_SCREEN_DOMAIN, INNER_FULL_SCREEN_TAG };
+static constexpr OHOS::HiviewDFX::HiLogLabel INNER_FULL_SCREEN_LABEL = {
+    LOG_APP, INNER_FULL_SCREEN_DOMAIN, INNER_FULL_SCREEN_TAG
+};
 
 #define NATIVE_DEBUG(...) (void)OHOS::HiviewDFX::HiLog::Debug(INNER_FULL_SCREEN_LABEL, ##__VA_ARGS__)
 #define NATIVE_ERROR(...) (void)OHOS::HiviewDFX::HiLog::Error(INNER_FULL_SCREEN_LABEL, ##__VA_ARGS__)
