@@ -20,6 +20,7 @@ const hilog = requireNapi('hilog');
 const abilityManager = requireNapi('app.ability.abilityManager');
 const commonEventManager = requireNapi('commonEventManager');
 const bundleManager = requireNapi('bundle.bundleManager');
+const fullScreenLaunchComponentNapi = requireInternal('arkui.advanced.FullScreenLaunchComponent');
 const BusinessError = requireNapi('base');
 const u = 801;
 const atomicServiceDataTag = 'ohos.atomicService.window';
@@ -27,6 +28,10 @@ const api20 = 20;
 const requestComponentTerminateKey = 'ohos.param.key.requestComponentTerminate';
 const LOG_TAG = 'FullScreenLaunchComponent';
 const ERR_CODE_NOT_OPEN = 16000012;
+const COLOR_HEX_MAX = 0xffffffff;
+const SET_STATUS_BAR_COLOR = 'setStatusBarColor';
+const RECEIVE_FUNCTION = 'ohos.atomicService.window.function';
+const RECEIVE_PARAM_COLOR_NUMERIC = 'ohos.atomicService.window.param.color.numeric';
 
 export class FullScreenLaunchComponent extends ViewPU {
     constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
@@ -235,8 +240,12 @@ export class FullScreenLaunchComponent extends ViewPU {
                 this.checkAbility();
             });
             Row.bindContentCover({ value: this.isShow, changeEvent: newValue => { this.isShow = newValue; } }, { builder: () => {
-                    this.uiExtensionBuilder.call(this);
-                } });
+                this.uiExtensionBuilder.call(this);
+            } }, {
+                onWillDisappear: () => {
+                    this.resetStatusBarContentColor();
+                }
+            });
         }, Row);
         this.content.bind(this)();
         Row.pop();
@@ -267,24 +276,83 @@ export class FullScreenLaunchComponent extends ViewPU {
                 }
             });
             UIExtensionComponent.onReceive(data => {
-                if (this.onReceive !== undefined) {
-                    const sourceKeys = Object.keys(data);
-                    let atomicServiceData = {};
-                    for (let i = 0; i < sourceKeys.length; i++) {
-                        if (sourceKeys[i].includes(atomicServiceDataTag)) {
-                            atomicServiceData[sourceKeys[i]] = data[sourceKeys[i]];
-                        }
-                    }
-                    this.onReceive(atomicServiceData);
-                }
-                if (data[requestComponentTerminateKey]) {
-                    this.isShow = false;
-                }
+                this.handleOnReceiveEvent(data);
             });
         }, UIExtensionComponent);
     }
+    handleOnReceiveEvent(data) {
+        if (!data) {
+            return;
+        }
+        if (data[RECEIVE_FUNCTION] === SET_STATUS_BAR_COLOR) {
+            this.updateStatusBarContentColor(data[RECEIVE_PARAM_COLOR_NUMERIC]);
+        }
+        if (this.onReceive) {
+            const sourceKeys = Object.keys(data);
+            let atomicServiceData = {};
+            for (let i = 0; i < sourceKeys.length; i++) {
+                if (this.isOnReceiveCallback(sourceKeys[i], data[sourceKeys[i]])) {
+                    atomicServiceData[sourceKeys[i]] = data[sourceKeys[i]];
+                }
+            }
+            if (Object.keys(atomicServiceData).length > 0) {
+                this.onReceive(atomicServiceData);
+            }
+        }
+        if (data[requestComponentTerminateKey]) {
+            this.isShow = false;
+        }
+    }
+    updateStatusBarContentColor(g22) {
+        if (typeof g22 !== 'number' || g22 < 0 || g22 > COLOR_HEX_MAX) {
+            hilog.error(0x3900, LOG_TAG, `updateStatusBarContentColor fail, receivedColor is invalid`);
+            return;
+        }
+        try {
+            hilog.info(0x3900, LOG_TAG, `updateStatusBarContentColor receivedColor=${g22}`);
+            let i22 = this.context.windowStage.getMainWindowSync();
+            let j22 = i22?.getWindowProperties()?.id;
+            if (typeof j22 !== 'number') {
+                hilog.error(0x3900, LOG_TAG, `updateStatusBarContentColor fail, mainWindowId is undefined`);
+                return;
+            }
+            WindowManager.setStatusBarColor(j22, g22);
+        }
+        catch (h22) {
+            hilog.error(0x3900, LOG_TAG, `updateStatusBarContentColor error, message: ${h22.message}`);
+        }
+    }
+    resetStatusBarContentColor() {
+        try {
+            let e22 = this.context.windowStage.getMainWindowSync();
+            let f22 = e22?.getWindowProperties()?.id;
+            if (typeof f22 !== 'number') {
+                hilog.error(0x3900, LOG_TAG, `resetStatusBarContentColor fail, mainWindowId is undefined`);
+                return;
+            }
+            WindowManager.clearStatusBarColor(f22);
+        }
+        catch (d22) {
+            hilog.error(0x3900, LOG_TAG, `resetStatusBarContentColor error, message: ${d22.message}`);
+        }
+    }
+    isOnReceiveCallback(m19, n19) {
+        return !!m19 && m19.includes(atomicServiceDataTag) &&
+            !(m19 === RECEIVE_PARAM_COLOR_NUMERIC ||
+                (m19 === RECEIVE_FUNCTION && n19 === SET_STATUS_BAR_COLOR));
+    }
     rerender() {
         this.updateDirtyElements();
+    }
+}
+
+class WindowManager {
+    static setStatusBarColor(windowId, color) {
+        fullScreenLaunchComponentNapi.setStatusBarColor(windowId, color);
+    }
+
+    static clearStatusBarColor(windowId) {
+        fullScreenLaunchComponentNapi.clearStatusBarColor(windowId);
     }
 }
 

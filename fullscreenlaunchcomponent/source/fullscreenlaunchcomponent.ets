@@ -19,6 +19,7 @@ import { ErrorCallback, Callback, BusinessError } from '@ohos.base';
 import AtomicServiceOptions from '@ohos.app.ability.AtomicServiceOptions';
 import commonEventManager from '@ohos.commonEventManager';
 import { bundleManager } from '@kit.AbilityKit';
+import window from '@ohos.window';
 import Base from '@ohos.base';
  
 const errCodeCapabilityNotSupported: number = 801;
@@ -27,7 +28,11 @@ const API20: number = 20;
 const requestComponentTerminateKey: string = 'ohos.param.key.requestComponentTerminate';
 const LOG_TAG: string = 'FullScreenLaunchComponent';
 const ERR_CODE_NOT_OPEN: number = 16000012;
- 
+const COLOR_HEX_MAX: number = 0xffffffff;
+const SET_STATUS_BAR_COLOR: string = 'setStatusBarColor';
+const RECEIVE_FUNCTION: string = 'ohos.atomicService.window.function';
+const RECEIVE_PARAM_COLOR_NUMERIC: string = 'ohos.atomicService.window.param.color.numeric';
+
 @Component
 export struct FullScreenLaunchComponent {
   @BuilderParam content: Callback<void> = this.doNothingBuilder;
@@ -194,8 +199,12 @@ export struct FullScreenLaunchComponent {
       () => {
         this.checkAbility();
       }
-    ).bindContentCover($$this.isShow, this.uiExtensionBuilder());
- 
+    ).bindContentCover($$this.isShow, this.uiExtensionBuilder(), {
+      onWillDisappear: () => {
+        this.resetStatusBarContentColor();
+      }
+    });
+
   }
  
   @Builder
@@ -228,19 +237,87 @@ export struct FullScreenLaunchComponent {
         }
       })
       .onReceive(data => {
-        if (this.onReceive !== undefined) {
-            const sourceKeys = Object.keys(data);
-            let atomicServiceData: Record<string, Object> = {};
-            for (let i = 0; i < sourceKeys.length; i++) {
-                if (sourceKeys[i].includes(atomicServiceDataTag)) {
-                    atomicServiceData[sourceKeys[i]] = data[sourceKeys[i]];
-                }
-            }
-            this.onReceive(atomicServiceData);
-        }
-        if (data[requestComponentTerminateKey]) {
-          this.isShow = false;
-        }
+        this.handleOnReceiveEvent(data);
       })
+  }
+
+  private handleOnReceiveEvent(data: object): void {
+    if (!data) {
+      return;
+    }
+    if (data[RECEIVE_FUNCTION] === SET_STATUS_BAR_COLOR) {
+      this.updateStatusBarContentColor(data[RECEIVE_PARAM_COLOR_NUMERIC]);
+    }
+    if (this.onReceive) {
+      const sourceKeys = Object.keys(data);
+      let atomicServiceData: Record<string, Object> = {};
+      for (let i = 0; i < sourceKeys.length; i++) {
+        if (this.isOnReceiveCallback(sourceKeys[i], data[sourceKeys[i]])) {
+          atomicServiceData[sourceKeys[i]] = data[sourceKeys[i]];
+        }
+      }
+      if (Object.keys(atomicServiceData).length > 0) {
+        this.onReceive(atomicServiceData);
+      }
+    }
+    if (data[requestComponentTerminateKey]) {
+      this.isShow = false;
+    }
+  }
+
+  /**
+   * 接收提供方onReceive通知，更新宿主的状态栏文字颜色
+   */
+  private updateStatusBarContentColor(receivedColor: number): void {
+    if (typeof receivedColor !== 'number' || receivedColor < 0 || receivedColor > COLOR_HEX_MAX) {
+      hilog.error(0x3900, LOG_TAG, `updateStatusBarContentColor fail, receivedColor is invalid`);
+      return;
+    }
+    try {
+      hilog.info(0x3900, LOG_TAG, `updateStatusBarContentColor receivedColor=${receivedColor}`);
+      let mainWindow: window.Window = this.context.windowStage.getMainWindowSync();
+      let mainWindowId: number = mainWindow?.getWindowProperties()?.id;
+      if (typeof mainWindowId !== 'number') {
+        hilog.error(0x3900, LOG_TAG, `updateStatusBarContentColor fail, mainWindowId is undefined`);
+        return;
+      }
+      WindowManager.setStatusBarColor(mainWindowId, receivedColor);
+    } catch (err) {
+      hilog.error(0x3900, LOG_TAG, `updateStatusBarContentColor error, message: ${err.message}`);
+    }
+  }
+
+  /**
+   * 恢复宿主的状态栏文字颜色
+   */
+  private resetStatusBarContentColor(): void {
+    try {
+      let mainWindow: window.Window = this.context.windowStage.getMainWindowSync();
+      let mainWindowId: number = mainWindow?.getWindowProperties()?.id;
+      if (typeof mainWindowId !== 'number') {
+        hilog.error(0x3900, LOG_TAG, `resetStatusBarContentColor fail, mainWindowId is undefined`);
+        return;
+      }
+      WindowManager.clearStatusBarColor(mainWindowId);
+    } catch (err) {
+      hilog.error(0x3900, LOG_TAG, `resetStatusBarContentColor error, message: ${err.message}`);
+    }
+  }
+
+  /**
+   * onReceive()是否回调给开发者
+   */
+  private isOnReceiveCallback(key: string, value: string): boolean {
+    return !!key && key.includes(atomicServiceDataTag) &&
+      !(key === RECEIVE_PARAM_COLOR_NUMERIC ||
+        (key === RECEIVE_FUNCTION && value === SET_STATUS_BAR_COLOR));
+  }
+}
+
+class WindowManager {
+  static setStatusBarColor(windowId: number, color: number): void {
+  }
+
+  static clearStatusBarColor(windowId: number): void {
   }
 }
