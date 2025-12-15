@@ -42,16 +42,23 @@ gen_obj("innerfullscreenlaunchcomponent_abc_preview") {
 ohos_shared_library("innerfullscreenlaunchcomponent") {
   sources = [ "innerfullscreenlaunchcomponent.cpp" ]
 
-  if (use_mingw_win || use_mac || use_linux) {
-    deps = [ ":gen_obj_src_innerfullscreenlaunchcomponent_abc_preview" ]
-  } else {
-    deps = [ ":innerfullscreenlaunchcomponent_abc" ]
-  }
-
   external_deps = [
     "hilog:libhilog",
     "napi:ace_napi",
   ]
+
+  defines = []
+  if (use_mingw_win || use_mac || use_linux) {
+    deps = [ ":gen_obj_src_innerfullscreenlaunchcomponent_abc_preview" ]
+  } else {
+    deps = [ ":innerfullscreenlaunchcomponent_abc" ]
+    defines += [ "WINDOW_MANAGER_ENABLE" ]
+    external_deps += [
+      "window_manager:libwm",
+      "c_utils:utils",
+      "ipc:ipc_core",
+    ]
+  }
 
   relative_install_dir = "module/arkui/advanced"
   subsystem_name = "arkui"

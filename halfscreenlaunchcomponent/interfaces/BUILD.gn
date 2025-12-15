@@ -40,16 +40,23 @@ gen_obj("halfscreenlaunchcomponent_abc_preview") {
 ohos_shared_library("halfscreenlaunchcomponent") {
   sources = [ "halfscreenlaunchcomponent.cpp" ]
 
-  if (use_mingw_win || use_mac || use_linux) {
-    deps = [ ":gen_obj_src_halfscreenlaunchcomponent_abc_preview" ]
-  } else {
-    deps = [ ":halfscreenlaunchcomponent_abc" ]
-  }
-
   external_deps = [
     "hilog:libhilog",
     "napi:ace_napi",
   ]
+
+  defines = []
+  if (use_mingw_win || use_mac || use_linux) {
+    deps = [ ":gen_obj_src_halfscreenlaunchcomponent_abc_preview" ]
+  } else {
+    deps = [ ":halfscreenlaunchcomponent_abc" ]
+    defines += [ "WINDOW_MANAGER_ENABLE" ]
+    external_deps += [
+      "window_manager:libwm",
+      "c_utils:utils",
+      "ipc:ipc_core",
+    ]
+  }
 
   relative_install_dir = "module/atomicservice"
   subsystem_name = "arkui"
