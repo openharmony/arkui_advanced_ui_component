@@ -23,12 +23,12 @@
 #include <optional>
 #endif
 
-static constexpr int DOMAIN = 0x5fdd;
-static constexpr char TAG[] = "WindowAdapter";
-static constexpr OHOS::HiviewDFX::HiLogLabel LABEL = { LOG_APP, DOMAIN, TAG };
+static constexpr int HALF_SCREEN_DOMAIN = 0x5fdd;
+static constexpr char HALF_SCREEN_TAG[] = "WindowAdapter";
+static constexpr OHOS::HiviewDFX::HiLogLabel HALF_SCREEN_LABEL = { LOG_APP, HALF_SCREEN_DOMAIN, HALF_SCREEN_TAG };
 
-#define NATIVE_DEBUG(...) (void)OHOS::HiviewDFX::HiLog::Debug(LABEL, ##__VA_ARGS__)
-#define NATIVE_ERROR(...) (void)OHOS::HiviewDFX::HiLog::Error(LABEL, ##__VA_ARGS__)
+#define NATIVE_DEBUG(...) (void)OHOS::HiviewDFX::HiLog::Debug(HALF_SCREEN_LABEL, ##__VA_ARGS__)
+#define NATIVE_ERROR(...) (void)OHOS::HiviewDFX::HiLog::Error(HALF_SCREEN_LABEL, ##__VA_ARGS__)
 
 static napi_value SetStatusBarColor(napi_env env, napi_callback_info info)
 {
