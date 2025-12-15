@@ -15,6 +15,13 @@
  
 #include "napi/native_node_api.h"
  
+static constexpr int FULL_SCREEN_DOMAIN = 0x5fdd;
+static constexpr char FULL_SCREEN_TAG[] = "WindowAdapter";
+static constexpr OHOS::HiviewDFX::HiLogLabel FULL_SCREEN_LABEL = { LOG_APP, FULL_SCREEN_DOMAIN, FULL_SCREEN_TAG };
+
+#define NATIVE_DEBUG(...) (void)OHOS::HiviewDFX::HiLog::Debug(FULL_SCREEN_LABEL, ##__VA_ARGS__)
+#define NATIVE_ERROR(...) (void)OHOS::HiviewDFX::HiLog::Error(FULL_SCREEN_LABEL, ##__VA_ARGS__)
+
 extern const char _binary_fullscreenlaunchcomponent_abc_start[];
 extern const char _binary_fullscreenlaunchcomponent_abc_end[];
  
