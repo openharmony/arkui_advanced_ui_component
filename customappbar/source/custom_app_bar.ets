@@ -278,21 +278,28 @@ export struct CustomAppBar {
   private isShowRevisit: boolean = false;
   private isShowRevisitFinished: boolean = false;
 
+  /**
+   * 在动态引入atomicbasicengine模块后，查询一次接口，将“是否拉起复访弹框”的信息进行一次更新
+   */
+  private updateShowVisitStatus(): void {
+    if (atomicBasicEngine && typeof atomicBasicEngine?.default?.checkShowRevisit === 'function') {
+      atomicBasicEngine.default.checkShowRevisit(this.bundleName).then((res) => {
+        this.isShowRevisit = res;
+        this.isShowRevisitFinished = true;
+      }).catch((err) => {
+        hilog.error(0x3900, LOG_TAG, `checkShowRevisit failed, error is ${err.message}`);
+        this.isShowRevisitFinished = true;
+      });
+    } else {
+      this.isShowRevisitFinished = true;
+    }
+  }
+
   aboutToAppear() {
     try {
       import('@hms:atomicservicedistribution.atomicbasicengine').then((res: ESObject) => {
         atomicBasicEngine = res;
-        if (atomicBasicEngine && typeof atomicBasicEngine?.default?.checkShowRevisit === 'function') {
-          atomicBasicEngine.default.checkShowRevisit(this.bundleName).then((flag) => {
-            this.isShowRevisit = flag;
-            this.isShowRevisitFinished = true;
-          }).catch((err) => {
-            hilog.error(0x3900, LOG_TAG, `checkShowRevisit failed, error is ${err.message}`);
-            this.isShowRevisitFinished = true;
-          });
-        } else {
-          this.isShowRevisitFinished = true;
-        }
+        this.updateShowVisitStatus();
       }).catch((err: BusinessError) => {
         hilog.error(0x3900, LOG_TAG, `dynamic import atomicbasicengine failed, error: ${err.message}`);
       });
