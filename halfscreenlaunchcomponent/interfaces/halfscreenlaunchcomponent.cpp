@@ -15,10 +15,13 @@
 
 #include "napi/native_node_api.h"
 #include "hilog/log.h"
+
+#ifdef WINDOW_MANAGER_ENABLE
 #include "refbase.h"
 #include "iremote_object.h"
 #include "window.h"
 #include <optional>
+#endif
 
 static constexpr int DOMAIN = 0x5fdd;
 static constexpr char TAG[] = "WindowAdapter";
@@ -48,6 +51,7 @@ static napi_value SetStatusBarColor(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_value_uint32(env, args[1], &color));
     
     NATIVE_DEBUG("SetStatusBarColor windowId: %{public}d, color: %{public}u", windowId, color);
+#ifdef WINDOW_MANAGER_ENABLE
     auto window = OHOS::Rosen::Window::GetWindowWithId(windowId);
     if (!window) {
         NATIVE_ERROR("SetStatusBarColor window is nullptr");
@@ -55,6 +59,9 @@ static napi_value SetStatusBarColor(napi_env env, napi_callback_info info)
     }
     std::optional<uint32_t> contentColor { color };
     window->SetStatusBarColorForPage(contentColor);
+#else
+    NATIVE_ERROR("SetStatusBarColor is not support");
+#endif
     return nullptr;
 }
 
@@ -74,12 +81,16 @@ static napi_value ClearStatusBarColor(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_value_int32(env, args[0], &windowId));
     
     NATIVE_DEBUG("ClearStatusBarColor windowId: %{public}d", windowId);
+#ifdef WINDOW_MANAGER_ENABLE
     auto window = OHOS::Rosen::Window::GetWindowWithId(windowId);
     if (!window) {
         NATIVE_ERROR("ClearStatusBarColor window is nullptr");
         return nullptr;
     }
     window->SetStatusBarColorForPage(std::nullopt);
+#else
+    NATIVE_ERROR("ClearStatusBarColor is not support");
+#endif
     return nullptr;
 }
 
