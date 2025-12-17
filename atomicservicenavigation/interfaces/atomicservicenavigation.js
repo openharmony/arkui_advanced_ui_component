@@ -493,6 +493,7 @@ export class AtomicServiceNavigation extends ViewPU {
         if (this.onWindowSizeChangeCallback) {
             this.mainWindow?.off('windowSizeChange', this.onWindowSizeChangeCallback);
         }
+        this.sideBarHelper?.c2();
     }
     updateControlButtonVisibility() {
         if (this.titleOptions?.titleBarType !== TitleBarType.DRAWER) {
