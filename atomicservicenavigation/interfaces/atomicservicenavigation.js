@@ -496,7 +496,7 @@ export class AtomicServiceNavigation extends ViewPU {
         if (this.sideBarHelper) {
             this.sideBarHelper.c2();
         } else {
-            hilog.error(0x0000, 'AtomicServiceNavigation', `sideBarHelper is undefined, release listener failed`);
+            hilog.error(0x0000, 'AtomicServiceNavigation', 'sideBarHelper is undefined, release listener failed');
         }
     }
     updateControlButtonVisibility() {

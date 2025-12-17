@@ -346,7 +346,7 @@ export struct AtomicServiceNavigation {
     if (this.sideBarHelper) {
       this.sideBarHelper.unregisterListener();
     } else {
-      hilog.error(0x0000, 'AtomicServiceNavigation', `sideBarHelper is undefined, release listener failed`);
+      hilog.error(0x0000, 'AtomicServiceNavigation', 'sideBarHelper is undefined, release listener failed');
     }
   }
 
