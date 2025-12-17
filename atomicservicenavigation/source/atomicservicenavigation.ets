@@ -343,11 +343,7 @@ export struct AtomicServiceNavigation {
     if (this.onWindowSizeChangeCallback) {
       this.mainWindow?.off('windowSizeChange', this.onWindowSizeChangeCallback);
     }
-    if (this.sideBarHelper) {
-      this.sideBarHelper.unregisterListener();
-    } else {
-      hilog.error(0x0000, 'AtomicServiceNavigation', 'sideBarHelper is undefined, release listener failed');
-    }
+    this.sideBarHelper?.unregisterListener();
   }
 
   /**
