@@ -40,7 +40,7 @@ namespace OHOS::AtomicServiceMenubar {
  
     // Napi get abc code function
     extern "C" __attribute__((visibility("default")))
-    void NAPI_atomicservice_AtomicServiceMenubar_GetABCCode(const char **buf, int *buflen)
+    void NAPI_atomicservice_AtomicServiceMenuBar_GetABCCode(const char **buf, int *buflen)
     {
         if (buf != nullptr) {
             *buf = _binary_atomicservicemenubar_abc_start;
@@ -53,12 +53,12 @@ namespace OHOS::AtomicServiceMenubar {
     /*
      * Module define
      */
-    static napi_module AtomicServiceMenubarModule = {
+    static napi_module AtomicServiceMenuBarModule = {
         .nm_version = 1,
         .nm_flags = 0,
         .nm_filename = nullptr,
         .nm_register_func = Init,
-        .nm_modname = "atomicservice.AtomicServiceMenubar",
+        .nm_modname = "atomicservice.AtomicServiceMenuBar",
         .nm_priv = ((void*)0),
         .reserved = { 0 },
     };
@@ -66,8 +66,8 @@ namespace OHOS::AtomicServiceMenubar {
     /*
      * Module registerfunction
      */
-    extern "C" __attribute__((constructor)) void AtomicServiceMenubarRegisterModule(void)
+    extern "C" __attribute__((constructor)) void AtomicServiceMenuBarRegisterModule(void)
     {
-        napi_module_register(&AtomicServiceMenubarModule);
+        napi_module_register(&AtomicServiceMenuBarModule);
     }
 }
