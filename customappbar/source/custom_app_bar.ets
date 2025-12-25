@@ -1116,6 +1116,9 @@ export struct CustomAppBar {
           .onClick(() => {
             this.expendContainerAnimation();
           })
+          .onTouch((event)=>{
+            event.stopPropagation();
+          })
           .accessibilityText(this.maximizeRead)
           Button({ type: ButtonType.Circle }) {
             SymbolGlyph($r('sys.symbol.xmark'))
@@ -1131,6 +1134,9 @@ export struct CustomAppBar {
           .backgroundColor(this.halfButtonBackColor)
           .onClick(() => {
             this.closeContainerAnimation();
+          })
+          .onTouch((event)=>{
+            event.stopPropagation();
           })
           .accessibilityText(this.closeRead)
         }

@@ -1251,6 +1251,9 @@ export class CustomAppBar extends MenubarBaseInfo {
             Button.onClick(() => {
                 this.expendContainerAnimation();
             });
+            Button.onTouch((event)=>{
+                event.stopPropagation();
+            })
             Button.accessibilityText(this.maximizeRead);
         }, Button);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -1271,6 +1274,9 @@ export class CustomAppBar extends MenubarBaseInfo {
             Button.onClick(() => {
                 this.closeContainerAnimation();
             });
+            Button.onTouch((event)=>{
+                event.stopPropagation();
+            })
             Button.accessibilityText(this.closeRead);
         }, Button);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
