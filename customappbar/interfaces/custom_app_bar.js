@@ -341,7 +341,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.isShowRevisit = false;
         this.isShowRevisitFinished = false;
         this.stopPropagation = (event) => {
-            event.stopPropagation();
+            event?.stopPropagation();
         }
         this.subscribeInfo = {
             events: ['usual.event.PRIVACY_STATE_CHANGED']

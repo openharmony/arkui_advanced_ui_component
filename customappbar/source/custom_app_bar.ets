@@ -277,8 +277,8 @@ export struct CustomAppBar {
   private timeoutList: Array<number> = [];
   private isShowRevisit: boolean = false;
   private isShowRevisitFinished: boolean = false;
-  private stopPropagation = (event: TouchEvent) => {
-    event.stopPropagation();
+  private stopPropagation = (event?: TouchEvent) => {
+    event?.stopPropagation();
   }
 
   /**
