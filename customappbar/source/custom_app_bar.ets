@@ -277,6 +277,9 @@ export struct CustomAppBar {
   private timeoutList: Array<number> = [];
   private isShowRevisit: boolean = false;
   private isShowRevisitFinished: boolean = false;
+  private stopPropagation = (event?: TouchEvent) => {
+    event?.stopPropagation();
+  }
 
   /**
    * 在动态引入atomicbasicengine模块后，查询一次接口，将“是否拉起复访弹框”的信息进行一次更新
@@ -1116,6 +1119,7 @@ export struct CustomAppBar {
           .onClick(() => {
             this.expendContainerAnimation();
           })
+          .onTouch(this.stopPropagation)
           .accessibilityText(this.maximizeRead)
           Button({ type: ButtonType.Circle }) {
             SymbolGlyph($r('sys.symbol.xmark'))
@@ -1132,6 +1136,7 @@ export struct CustomAppBar {
           .onClick(() => {
             this.closeContainerAnimation();
           })
+          .onTouch(this.stopPropagation)
           .accessibilityText(this.closeRead)
         }
         .geometryTransition('menubar')

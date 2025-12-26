@@ -340,6 +340,9 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.isSystemApp = false;
         this.isShowRevisit = false;
         this.isShowRevisitFinished = false;
+        this.stopPropagation = (event) => {
+            event?.stopPropagation();
+        }
         this.subscribeInfo = {
             events: ['usual.event.PRIVACY_STATE_CHANGED']
         };
@@ -1251,6 +1254,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             Button.onClick(() => {
                 this.expendContainerAnimation();
             });
+            Button.onTouch(this.stopPropagation);
             Button.accessibilityText(this.maximizeRead);
         }, Button);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -1271,6 +1275,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             Button.onClick(() => {
                 this.closeContainerAnimation();
             });
+            Button.onTouch(this.stopPropagation);
             Button.accessibilityText(this.closeRead);
         }, Button);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
