@@ -22,6 +22,7 @@
 #include "napi/native_node_api.h"
 #include "include/menubar_api_implement.h"
 #include "include/log.h"
+#include "node_module_inner.h"
  
 static constexpr char FILE_TAG[] = "MenubarAPIImplement";
  
@@ -55,6 +56,10 @@ napi_value MenubarAPIImplement::setMenubarVisible(napi_env env, napi_callback_in
     if (code || !context) {
         FLOG_INFO("fail to get context from napi value, errCode = %{public}d", code);
         napi_close_handle_scope(env, handleScope);
+        if (context != nullptr) {
+            delete context;
+            context = nullptr;
+        }
         return nullptr;
     }
     static ArkUI_NativeNodeAPI_1 *nodeAPI = nullptr;
@@ -64,6 +69,10 @@ napi_value MenubarAPIImplement::setMenubarVisible(napi_env env, napi_callback_in
         FLOG_INFO("fail to call setVisible, errCode = %{public}d", code);
     }
     status = napi_close_handle_scope(env, handleScope);
+    if (context != nullptr) {
+        delete context;
+        context = nullptr;
+    }
     return nullptr;
 }
 }
