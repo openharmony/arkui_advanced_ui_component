@@ -220,6 +220,7 @@ export struct FullScreenLaunchComponent {
       })
       .height('100%')
       .width('100%')
+      .accessibilityUseSamePage(AccessibilitySamePageMode.SEMI_SILENT)
       .onError(
         err => {
           if (this.onError != undefined) {
