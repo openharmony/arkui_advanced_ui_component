@@ -295,6 +295,7 @@ export struct InnerFullScreenLaunchComponent {
         .defaultFocus(true)
         .height('100%')
         .width('100%')
+        .accessibilityUseSamePage(AccessibilitySamePageMode.SEMI_SILENT)
         .onRelease(
           () => {
             hilog.error(0x3900, LOG_TAG, 'onRelease');
