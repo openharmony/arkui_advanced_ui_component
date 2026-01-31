@@ -277,6 +277,7 @@ export class HalfScreenLaunchComponent extends ViewPU {
             });
             UIExtensionComponent.height('100%');
             UIExtensionComponent.width('100%');
+            UIExtensionComponent.accessibilityUseSamePage(AccessibilitySamePageMode.SEMI_SILENT);
             UIExtensionComponent.backgroundColor(Color.Transparent);
             UIExtensionComponent.onError(err => {
                 if (this.onError) {

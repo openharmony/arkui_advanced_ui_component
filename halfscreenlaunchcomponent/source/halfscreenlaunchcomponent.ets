@@ -232,6 +232,7 @@ export struct HalfScreenLaunchComponent {
         })
         .height('100%')
         .width('100%')
+        .accessibilityUseSamePage(AccessibilitySamePageMode.SEMI_SILENT)
         .backgroundColor(Color.Transparent)
         .onError(
           err => {
