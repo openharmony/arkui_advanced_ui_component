@@ -340,6 +340,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             UIExtensionComponent.defaultFocus(true);
             UIExtensionComponent.height('100%');
             UIExtensionComponent.width('100%');
+            UIExtensionComponent.accessibilityUseSamePage(AccessibilitySamePageMode.SEMI_SILENT);
             UIExtensionComponent.onRelease(() => {
                 hilog.error(0x3900, LOG_TAG, 'onRelease');
                 this.isShow = false;
