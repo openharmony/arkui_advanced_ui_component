@@ -600,7 +600,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             }
             return getContext(this).resourceManager.getStringByNameSync(resName);
         } catch (err) {
-            hilog.error(0x3900, LOG_TAG, `getAccessibilityDescription, error: ${err.toString()}`);
+            hilog.warn(0x3900, LOG_TAG, `getAccessibilityDescription, reason: ${err.toString()}`);
         }
         return '';
     }
@@ -713,7 +713,7 @@ export class CustomAppBar extends MenubarBaseInfo {
      */
     setCustomCallback(eventName, param) {
         if (param === null || param === '' || param === undefined) {
-            hilog.error(0x3900, LOG_TAG, 'invalid params');
+            hilog.warn(0x3900, LOG_TAG, 'invalid params');
             return;
         }
         hilog.info(0x3900, LOG_TAG, `setCustomCallback called, eventName = ${eventName}`);
