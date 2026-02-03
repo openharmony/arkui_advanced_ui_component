@@ -600,7 +600,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             }
             return getContext(this).resourceManager.getStringByNameSync(resName);
         } catch (err) {
-            hilog.error(0x3900, LOG_TAG, `getAccessibilityDescription, error: ${err.toString()}`);
+            hilog.warn(0x3900, LOG_TAG, `getAccessibilityDescription, reason: ${err.toString()}`);
         }
         return '';
     }
@@ -713,7 +713,7 @@ export class CustomAppBar extends MenubarBaseInfo {
      */
     setCustomCallback(eventName, param) {
         if (param === null || param === '' || param === undefined) {
-            hilog.error(0x3900, LOG_TAG, 'invalid params');
+            hilog.warn(0x3900, LOG_TAG, 'invalid params');
             return;
         }
         hilog.info(0x3900, LOG_TAG, `setCustomCallback called, eventName = ${eventName}`);
@@ -721,7 +721,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.onColorConfigurationUpdate(this.parseBoolean(param));
         } else if (eventName === ARKUI_APP_BAR_MENU_SAFE_AREA) {
             if (this.statusBarHeight === px2vp(Number(param))) {
-                hilog.error(0x3900, LOG_TAG, 'statusBarHeight is equal to current value');
+                hilog.warn(0x3900, LOG_TAG, 'statusBarHeight is equal to current value');
                 return;
             }
             this.statusBarHeight = Number(param);
@@ -729,7 +729,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         } else if (eventName === ARKUI_APP_BAR_CONTENT_SAFE_AREA) {
             let splitArray = param.split('|');
             if (splitArray.length < 4) {
-                hilog.error(0x3900, LOG_TAG, 'setCustomCallback updateSafeArea failed');
+                hilog.warn(0x3900, LOG_TAG, 'setCustomCallback updateSafeArea failed');
                 return;
             }
             this.contentMarginTop = this.isHalfScreen ? 0 : Number(splitArray[0]);
@@ -740,7 +740,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         } else if (eventName === ARKUI_APP_BAR_BAR_INFO) {
             let splitArray = param.split('|');
             if (splitArray.length < 2) {
-                hilog.error(0x3900, LOG_TAG, 'setCustomCallback update appBar info failed');
+                hilog.warn(0x3900, LOG_TAG, 'setCustomCallback update appBar info failed');
                 return;
             }
             this.bundleName = splitArray[0];
