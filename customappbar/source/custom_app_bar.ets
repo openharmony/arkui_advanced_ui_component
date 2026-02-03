@@ -635,7 +635,7 @@ export struct CustomAppBar {
    */
   setCustomCallback(eventName: string, param: string): void {
     if (param === null || param === '' || param === undefined) {
-      hilog.error(0x3900, LOG_TAG, 'invalid params');
+      hilog.warn(0x3900, LOG_TAG, 'invalid params');
       return;
     }
     hilog.info(0x3900, LOG_TAG, `setCustomCallback called, eventName = ${eventName}`);
