@@ -9,9 +9,9 @@ AtomicServiceNavigation 是 HarmonyOS 元服务的导航组件，提供统一的
 ```
 atomicservicenavigation/
 ├── source/
-│   └── atomicservicenavigation.ets    # 导航组件实现
+│   └── atomicservicenavigation.ets    # 导航组件arkts侧的代码实现
 ├── interfaces/
-│   └── atomicservicenavigation.js     # 接口定义
+│   └── atomicservicenavigation.js     # 导航组件经过编译后的js侧的代码实现
 └── BUILD.gn
 ```
 

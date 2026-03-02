@@ -11,7 +11,7 @@ atomicservicetabs/
 ├── source/
 │   └── atomicservicetabs.ets    # 标签页组件实现
 ├── interfaces/
-│   └── atomicservicetabs.js     # 接口定义
+│   └── atomicservicetabs.js     # 标签页组件经过编译后的js侧的代码实现
 └── BUILD.gn
 ```
 

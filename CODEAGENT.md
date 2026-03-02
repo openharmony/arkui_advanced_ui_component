@@ -2,42 +2,44 @@
 
 ## 项目概述
 
-本项目是 HarmonyOS 元服务（Atomic Service）的高级 UI 组件库，提供一套完整的嵌入式场景下元服务开发所需的 UI 组件和交互能力。
+本项目是 HarmonyOS 元服务（Atomic Service）的高阶组件库，提供一套在元服务场景下开发所需的 UI 组件和交互能力。
 
 ## 组件列表
 
 | 组件名称 | 功能描述 |
 |---------|---------|
-| [customappbar](./customappbar/CODEAGENT.md) | 自定义应用栏组件，支持半屏/全屏嵌入式模式 |
-| [atomicservicenavigation](./atomicservicenavigation/CODEAGENT.md) | 导航组件，提供统一导航框架和标题栏定制 |
-| [atomicservicesearch](./atomicservicesearch/CODEAGENT.md) | 搜索组件，提供统一搜索交互体验 |
-| [atomicservicetabs](./atomicservicetabs/CODEAGENT.md) | 标签页组件，提供标签切换功能 |
-| [atomicserviceweb](./atomicserviceweb/CODEAGENT.md) | Web组件，提供Web内容加载和交互 |
-| [fullscreenlaunchcomponent](./fullscreenlaunchcomponent/CODEAGENT.md) | 全屏启动组件，支持全屏模式拉起元服务 |
-| [halfscreenlaunchcomponent](./halfscreenlaunchcomponent/CODEAGENT.md) | 半屏启动组件，支持半屏弹窗模式拉起元服务 |
-| [innerfullscreenlaunchcomponent](./innerfullscreenlaunchcomponent/CODEAGENT.md) | 内部全屏启动组件，支持在应用内部全屏拉起元服务 |
-| [interstitialdialogaction](./interstitialdialogaction/CODEAGENT.md) | 插页式对话框组件，提供临时任务型弹窗 |
-| [navpushpathhelper](./navpushpathhelper/CODEAGENT.md) | 导航路径助手，支持静默安装的导航推送 |
-| [advanced_ui_component_static](./advanced_ui_component_static/CODEAGENT.md) | 静态版本组件库，支持静态集成场景 |
+| [customappbar](./customappbar/CODEAGENT.md) | menubar的代码实现，包括了在半屏嵌入式组件/全屏嵌入式组件中的menubar样式 |
+| [atomicservicenavigation](./atomicservicenavigation/CODEAGENT.md) | AtomicServiceNavigation导航组件，提供统一导航框架和标题栏定制 |
+| [atomicservicesearch](./atomicservicesearch/CODEAGENT.md) | AtomicServiceSearch搜索组件，提供统一搜索交互体验 |
+| [atomicservicetabs](./atomicservicetabs/CODEAGENT.md) | AtomicServiceTabs标签页组件，提供标签切换功能 |
+| [atomicserviceweb](./atomicserviceweb/CODEAGENT.md) | 适用于元服务的Web组件，提供Web内容加载和交互 |
+| [fullscreenlaunchcomponent](./fullscreenlaunchcomponent/CODEAGENT.md) | 全屏嵌入式组件，支持在元服务中全屏嵌入式拉起元服务 |
+| [halfscreenlaunchcomponent](./halfscreenlaunchcomponent/CODEAGENT.md) | 半屏嵌入式组件，支持在元服务中半屏嵌入式拉起元服务 |
+| [innerfullscreenlaunchcomponent](./innerfullscreenlaunchcomponent/CODEAGENT.md) | 全屏嵌入式组件，支持在一方系统应用中全屏嵌入式拉起元服务 |
+| [interstitialdialogaction](./interstitialdialogaction/CODEAGENT.md) | 弹框组件，提供临时任务型弹窗 |
+| [navpushpathhelper](./navpushpathhelper/CODEAGENT.md) | 页面路由管理工具，对ArkUI的NavPathStack进行封装，提供页面路由管理功能 |
+| [advanced_ui_component_static](./advanced_ui_component_static/CODEAGENT.md) | 静态版本组件库，对标ArkTS 1.2标准的组件 |
 
 ## 目录结构
 
 ```
 arkui_advanced_ui_component/
-├── customappbar/                    # 自定义应用栏
+├── customappbar/                    # menubar组件
 ├── atomicservicenavigation/         # 导航组件
 ├── atomicservicesearch/             # 搜索组件
 ├── atomicservicetabs/               # 标签页组件
 ├── atomicserviceweb/                # Web组件
-├── fullscreenlaunchcomponent/       # 全屏启动组件
-├── halfscreenlaunchcomponent/       # 半屏启动组件
-├── innerfullscreenlaunchcomponent/  # 内部全屏启动组件
-├── interstitialdialogaction/         # 插页对话框
+├── fullscreenlaunchcomponent/       # 全屏嵌入式组件
+├── halfscreenlaunchcomponent/       # 半屏嵌入式组件
+├── innerfullscreenlaunchcomponent/  # Inner全屏嵌入式组件
+├── interstitialdialogaction/        # 弹框组件
 ├── navpushpathhelper/               # 导航路径助手
-├── advanced_ui_component_static/     # 静态组件
+├── advanced_ui_component_static/    # 静态组件
 ├── figures/                         # 图片资源
 └── patches/                         # 补丁文件
 ```
+
+**备注：** 目前仅navpushpathhelper、advanced_ui_component_static两份代码在不在本仓库生效
 
 ## 嵌入式场景
 
@@ -51,7 +53,7 @@ arkui_advanced_ui_component/
 ## 技术栈
 
 - **框架**：ArkUI (ETS)
-- **语言**：TypeScript/ArkTS
+- **语言**：TypeScript/ArkTS/JS
 - **Native 层**：C++
 - **构建系统**：GN + Hvigor
 

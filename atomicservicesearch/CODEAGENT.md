@@ -11,7 +11,7 @@ atomicservicesearch/
 ├── source/
 │   └── atomicservicesearch.ets    # 搜索组件实现
 ├── interfaces/
-│   └── atomicservicesearch.js    # 接口定义
+│   └── atomicservicesearch.js    # 搜索组件经过编译后的js侧的代码实现
 └── BUILD.gn
 ```
 
