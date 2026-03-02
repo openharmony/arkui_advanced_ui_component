@@ -60,3 +60,23 @@ arkui_advanced_ui_component/
 ## 使用说明
 
 各组件详细使用说明请参考各组件目录下的 CODEAGENT.md 文件。
+
+## 组件结构说明
+
+目前大部分组件的目录结构如下：
+
+```
+component_name/
+├── source/
+│   └── component_name.ets    # 组件在ArkTS侧的代码实现
+├── interfaces/
+│   └── component_name.js     # 组件经过编译后的js侧的代码实现
+└── BUILD.gn
+```
+
+`component_name` 是组件的名称。
+
+各个文件的作用如下：
+- `component_name.ets`：组件在ArkTS侧的代码实现，在实际的编译过程中不会参与编译，对编译过程而言这个是无用的冗余代码。只在组件功能开发时提供ArkTS侧的参考。
+- `component_name.js`：组件经过编译后的js侧的代码实现，在实际的编译过程中会参与编译。
+- `BUILD.gn`：组件的构建配置文件，用于指定组件的编译规则和依赖项。
