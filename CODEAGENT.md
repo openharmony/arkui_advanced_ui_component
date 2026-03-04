@@ -80,3 +80,46 @@ component_name/
 - `component_name.ets`：组件在ArkTS侧的代码实现，在实际的编译过程中不会参与编译，对编译过程而言这个是无用的冗余代码。只在组件功能开发时提供ArkTS侧的参考。
 - `component_name.js`：组件经过编译后的js侧的代码实现，在实际的编译过程中会参与编译。
 - `BUILD.gn`：组件的构建配置文件，用于指定组件的编译规则和依赖项。
+
+## 编译方法
+
+在项目的根目录（例如极速空间为`code`目录下）执行下列命令
+| 组件名称 | 编译命令 |
+| - | - |
+| AtomicServiceNavigation | sudo ./build_system.sh --abi-type generic_generic_arm_64only --device-type general_all_phone_standard --ccache --build-variant root --build-target foundation/arkui/advanced_ui_component/atomicservicenavigation/interfaces:atomicservicenavigation |
+| AtomicServiceSearch | sudo ./build_system.sh --abi-type generic_generic_arm_64only --device-type general_all_phone_standard --ccache --build-variant root --build-target foundation/arkui/advanced_ui_component/atomicservicesearch/interfaces:atomicservicesearch |
+| AtomicServiceTabs | sudo ./build_system.sh --abi-type generic_generic_arm_64only --device-type general_all_phone_standard --ccache --build-variant root --build-target foundation/arkui/advanced_ui_component/atomicservicetabs/interfaces:atomicservicetabs |
+| InnerFull全屏嵌入式组件 | sudo ./build_system.sh --abi-type generic_generic_arm_64only --device-type general_all_phone_standard --ccache --build-variant root --build-target foundation/arkui/advanced_ui_component/innerfullscreenlaunchcomponent/interfaces:innerfullscreenlaunchcomponent |
+| Dialog弹框 | sudo ./build_system.sh --abi-type generic_generic_arm_64only --device-type general_all_phone_standard --ccache --build-variant root --build-target foundation/arkui/advanced_ui_component/interstitialdialogaction/interfaces:interstitialdialogaction |
+| AtomicServiceMenuBar接口类 | sudo ./build_system.sh --abi-type generic_generic_arm_64only --device-type general_all_phone_standard --ccache --build-variant root --build-target foundation/arkui/advanced_ui_component/customappbar/atomicservicemenubar:atomicservicemenubar |
+| menubar | sudo ./build_system.sh --abi-type generic_generic_arm_64only --device-type general_all_phone_standard --ccache --build-variant root --build-target foundation/arkui/advanced_ui_component/customappbar/interfaces:custom_app_bar |
+| 半屏嵌入式组件 | sudo ./build_system.sh --abi-type generic_generic_arm_64only --device-type general_all_phone_standard --ccache --build-variant root --build-target foundation/arkui/advanced_ui_component/halfscreenlaunchcomponent/interfaces:halfscreenlaunchcomponent |
+| FullScreen全屏嵌入式组件 | foundation/arkui/advanced_ui_component/fullscreenlaunchcomponent/interfaces:fullscreenlaunchcomponent |
+| NavPushPathHelper | sudo ./build_system.sh --abi-type generic_generic_arm_64only --device-type general_all_phone_standard --ccache --build-variant root --build-target navpushpathhelper |
+
+## 推包验证方法
+
+步骤一：挂载
+```
+hdc target mount
+```
+
+步骤二：推包
+| 组件名称 | 推包命令 |
+| - | - |
+| AtomicServiceNavigation | hdc file send ./libatomicservicenavigation.z.so /system/lib64/module/atomicservice/libatomicservicenavigation.z.so |
+| AtomicServiceSearch | hdc file send ./libatomicservicesearch.z.so /system/lib64/module/atomicservice/libatomicservicesearch.z.so |
+| AtomicServiceTabs | hdc file send ./libatomicservicetabs.z.so /system/lib64/module/atomicservice/libatomicservicetabs.z.so |
+| InnerFull全屏嵌入式组件 | hdc file send ./libinnerfullscreenlaunchcomponent.z.so /system/lib64/module/arkui/advanced/libinnerfullscreenlaunchcomponent.z.so |
+| Dialog弹框 | hdc file send ./libinterstitialdialogaction.z.so /system/lib64/module/atomicservice/libinterstitialdialogaction.z.so |
+| AtomicServiceMenuBar接口类 | hdc file send ./libatomicservicemenubar.z.so /system/lib64/module/atomicservice/libatomicservicemenubar.z.so |
+| menubar | hdc file send ./custom_app_bar.abc /system/etc/abc/arkui/custom_app_bar.abc |
+| 半屏嵌入式组件 | hdc file send ./libhalfscreenlaunchcomponent.z.so /system/lib64/module/atomicservice/libhalfscreenlaunchcomponent.z.so |
+| FullScreen全屏嵌入式组件 | hdc file send ./libfullscreenlaunchcomponent.z.so /system/lib64/module/arkui/advanced/libfullscreenlaunchcomponent.z.so |
+| NavPushPathHelper | hdc file send ./libnavpushpathhelper.z.so /system/lib64/module/atomicservice/libnavpushpathhelper.z.so |
+
+步骤三：重启手机
+```
+hdc shell sync
+hdc shell reboot
+```
