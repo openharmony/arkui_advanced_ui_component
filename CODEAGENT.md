@@ -99,6 +99,8 @@ component_name/
 
 ## 推包验证方法
 
+将编译产物下载到本地，在下载目录中按序执行下列命令
+
 步骤一：挂载
 ```
 hdc target mount
