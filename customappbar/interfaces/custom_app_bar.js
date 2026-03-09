@@ -1589,8 +1589,7 @@ class HiAnalyticsUtil {
                 deviceId: analyticsData.deviceId
             });
             HiAnalyticsUtil.writeLaunchEvent(content, Date.now());
-        }
-        catch (err) {
+        } catch (err) {
             hilog.error(0x3900, LOG_TAG, `reportAtomicLaunchTypeEvent failed, error is ${err.message}`);
         }
     }
