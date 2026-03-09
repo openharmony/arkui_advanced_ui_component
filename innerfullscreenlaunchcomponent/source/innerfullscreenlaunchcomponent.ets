@@ -110,8 +110,8 @@ export struct InnerFullScreenLaunchComponent {
         }
         this.apiVersion = data.targetVersion % 1000;
         this.isSystemApp = data.appInfo?.systemApp;
-        this.hostType = g.appInfo?.bundleType;
-        this.hostAppId = g.signatureInfo?.appIdentifier;
+        this.hostType = data.appInfo?.bundleType;
+        this.hostAppId = data.signatureInfo?.appIdentifier;
         hilog.info(0x3900, LOG_TAG, 'getBundleInfoForSelf success, data: %{public}d.', this.apiVersion);
       }).catch((err: BusinessError) => {
         hilog.error(0x3900, LOG_TAG, 'getBundleInfoForSelf fail_1, cause: %{public}s.', err.message);
