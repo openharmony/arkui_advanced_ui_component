@@ -58,6 +58,8 @@ export struct InnerFullScreenLaunchComponent {
   onError?: ErrorCallback;
   onTerminated?: Callback<TerminationInfo>;
   private isSystemApp: boolean = false;
+  private hostType: string = '';
+  private hostAppId: string = '';
 
   aboutToAppear() {
     this.loadApiVersion();
@@ -99,7 +101,7 @@ export struct InnerFullScreenLaunchComponent {
    */
   loadApiVersion() {
     let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
-    bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA;
+    bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA | bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
     try {
       bundleManager.getBundleInfoForSelf(bundleFlags).then((data) => {
         if (!data?.targetVersion) {
@@ -108,6 +110,8 @@ export struct InnerFullScreenLaunchComponent {
         }
         this.apiVersion = data.targetVersion % 1000;
         this.isSystemApp = data.appInfo?.systemApp;
+        this.hostType = g.appInfo?.bundleType;
+        this.hostAppId = g.signatureInfo?.appIdentifier;
         hilog.info(0x3900, LOG_TAG, 'getBundleInfoForSelf success, data: %{public}d.', this.apiVersion);
       }).catch((err: BusinessError) => {
         hilog.error(0x3900, LOG_TAG, 'getBundleInfoForSelf fail_1, cause: %{public}s.', err.message);
@@ -141,6 +145,8 @@ export struct InnerFullScreenLaunchComponent {
       this.options.parameters['ohos.extra.atomicservice.param.key.isFollowHostWindowMode'] = (this.apiVersion >= API20);
       this.options.parameters['com.atomicservice.params.key.launchType'] = 'EMBED_INNER_FULL';
       this.options.parameters['com.atomicservice.params.key.isSystemApp'] = this.isSystemApp;
+      this.options.parameters['com.atomicservice.params.key.hostType'] = this.hostType;
+      this.options.parameters['com.atomicservice.params.key.hostAppId'] = this.hostAppId;
       hilog.info(0x3900, LOG_TAG, 'replaced options is %{public}s !', JSON.stringify(this.options));
     } else {
       this.options = {
@@ -149,7 +155,9 @@ export struct InnerFullScreenLaunchComponent {
           'ability.want.params.IsNotifyOccupiedAreaChange': true,
           'ohos.extra.atomicservice.param.key.isFollowHostWindowMode': (this.apiVersion >= API20),
           'com.atomicservice.params.key.launchType': 'EMBED_INNER_FULL',
-          'com.atomicservice.params.key.isSystemApp': this.isSystemApp
+          'com.atomicservice.params.key.isSystemApp': this.isSystemApp,
+          'com.atomicservice.params.key.hostType': this.hostType,
+          'com.atomicservice.params.key.hostAppId': this.hostAppId
         }
       };
     }
