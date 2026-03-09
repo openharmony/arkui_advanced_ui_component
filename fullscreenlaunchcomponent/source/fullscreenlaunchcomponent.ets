@@ -129,7 +129,6 @@ export struct FullScreenLaunchComponent {
       this.options.parameters['com.atomicservice.params.key.isSystemApp'] = this.isSystemApp;
       this.options.parameters['com.atomicservice.params.key.hostType'] = this.hostType;
       this.options.parameters['com.atomicservice.params.key.hostAppId'] = this.hostAppId;
-      hilog.info(0x3900, 'FullScreenLaunchComponent', 'replaced options is %{public}s !', JSON.stringify(this.options))
     } else {
       this.options = {
         parameters: {
