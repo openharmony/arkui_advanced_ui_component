@@ -55,6 +55,8 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
         this.onError = undefined;
         this.onTerminated = undefined;
         this.isSystemApp = false;
+        this.hostType = '';
+        this.hostAppId = '';
         this.launchAtomicService = (k1, l1) => {
             hilog.info(0x3900, LOG_TAG, 'launchAtomicService, appId: %{public}s.', k1);
             this.appId = k1;
@@ -146,7 +148,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
     }
     loadApiVersion() {
         let d = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
-        bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA;
+        bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA | bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
         try {
             bundleManager.getBundleInfoForSelf(d).then((g) => {
                 if (!g?.targetVersion) {
@@ -155,6 +157,8 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
                 }
                 this.apiVersion = g.targetVersion % 1000;
                 this.isSystemApp = g.appInfo?.systemApp;
+                this.hostType = g.appInfo?.bundleType;
+                this.hostAppId = g.signatureInfo?.appIdentifier;
                 hilog.info(0x3900, LOG_TAG, 'getBundleInfoForSelf success, data: %{public}d.', this.apiVersion);
             }).catch((f) => {
                 hilog.error(0x3900, LOG_TAG, 'getBundleInfoForSelf fail_1, cause: %{public}s.', f.message);
@@ -185,6 +189,8 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             this.options.parameters['ohos.extra.atomicservice.param.key.isFollowHostWindowMode'] = (this.apiVersion >= API20);
             this.options.parameters['com.atomicservice.params.key.launchType'] = 'EMBED_INNER_FULL';
             this.options.parameters['com.atomicservice.params.key.isSystemApp'] = this.isSystemApp;
+            this.options.parameters['com.atomicservice.params.key.hostType'] = this.hostType;
+            this.options.parameters['com.atomicservice.params.key.hostAppId'] = this.hostAppId;
             hilog.info(0x3900, LOG_TAG, 'replaced options is %{public}s !', JSON.stringify(this.options));
         }
         else {
@@ -194,7 +200,9 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
                     'ability.want.params.IsNotifyOccupiedAreaChange': true,
                     'ohos.extra.atomicservice.param.key.isFollowHostWindowMode': (this.apiVersion >= API20),
                     'com.atomicservice.params.key.launchType': 'EMBED_INNER_FULL',
-                    'com.atomicservice.params.key.isSystemApp': this.isSystemApp
+                    'com.atomicservice.params.key.isSystemApp': this.isSystemApp,
+                    'com.atomicservice.params.key.hostType': this.hostType,
+                    'com.atomicservice.params.key.hostAppId': this.hostAppId
                 }
             };
         }
