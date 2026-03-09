@@ -1313,20 +1313,11 @@ class HiAnalyticsUtil {
     try {
       let bundleInfo: bundleManager.BundleInfo =
         bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO);
-      HiAnalyticsUtil.appIdentifier = bundleInfo.signatureInfo.appIdentifier;
+      HiAnalyticsUtil.appIdentifier = bundleInfo.signatureInfo?.appIdentifier;
     } catch (err) {
       hilog.error(0x3900, LOG_TAG, `getAppIdentifier failed, error message is ${err.message}`);
     }
     return HiAnalyticsUtil.appIdentifier;
-  }
-
-  /**
-   * 获取设备ID(ODID)
-   *
-   * @returns 设备ID(ODID)
-   */
-  private static getDeviceOdid(): string {
-    return deviceInfo.ODID;
   }
 
   /**
@@ -1361,7 +1352,7 @@ class HiAnalyticsUtil {
       embedMode: embedMode,
       hostType: hostType,
       hostAppId: hostAppId,
-      deviceId: HiAnalyticsUtil.getDeviceOdid()
+      deviceId: deviceInfo.ODID
     };
   }
 
@@ -1372,7 +1363,6 @@ class HiAnalyticsUtil {
    * @param time 时间戳
    */
   private static writeLaunchEvent(content: string, time: number): void {
-    hilog.info(0x3900, LOG_TAG, `time: ${time}, content: ${content}`);
     try {
       if (!HiAnalyticsUtil.processorId) {
         HiAnalyticsUtil.processorId = HiAnalyticsUtil.addEventProcessor();
