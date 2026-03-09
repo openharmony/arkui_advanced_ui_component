@@ -50,6 +50,8 @@ export class FullScreenLaunchComponent extends ViewPU {
         this.onTerminated = undefined;
         this.onReceive = undefined;
         this.isSystemApp = false;
+        this.hostType = '';
+        this.hostAppId = '';
         this.setInitiallyProvidedValue(params);
         this.finalizeConstruction();
     }
@@ -103,12 +105,14 @@ export class FullScreenLaunchComponent extends ViewPU {
     }
     aboutToAppear() {
         let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
-        bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA;
+        bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA | bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
         try {
             bundleManager.getBundleInfoForSelf(bundleFlags).then((data) => {
                 hilog.info(0x3900, 'FullScreenLaunchComponent', 'getBundleInfoForSelf success, data: %{public}s.', JSON.stringify(data.targetVersion % 1000));
                 this.apiVersion = data.targetVersion % 1000;
                 this.isSystemApp = data.appInfo?.systemApp;
+                this.hostType = data.appInfo?.bundleType;
+                this.hostAppId = data.signatureInfo?.appIdentifier;
             }).catch((err) => {
                 hilog.error(0x3900, 'FullScreenLaunchComponent', 'getBundleInfoForSelf fail_1, cause: %{public}s.', err.message);
             });
@@ -163,6 +167,8 @@ export class FullScreenLaunchComponent extends ViewPU {
             this.options.parameters['ohos.extra.atomicservice.param.key.isFollowHostWindowMode'] = (this.apiVersion >= api20);
             this.options.parameters['com.atomicservice.params.key.launchType'] = 'FULL_SCREEN_LAUNCH';
             this.options.parameters['com.atomicservice.params.key.isSystemApp'] = this.isSystemApp;
+            this.options.parameters['com.atomicservice.params.key.hostType'] = this.hostType;
+            this.options.parameters['com.atomicservice.params.key.hostAppId'] = this.hostAppId;
             hilog.info(0x3900, 'FullScreenLaunchComponent', 'replaced options is %{public}s !', JSON.stringify(this.options));
         }
         else {
@@ -173,7 +179,9 @@ export class FullScreenLaunchComponent extends ViewPU {
                     'ability.want.params.IsModal': true,
                     'ohos.extra.atomicservice.param.key.isFollowHostWindowMode': (this.apiVersion >= api20),
                     'com.atomicservice.params.key.launchType': 'FULL_SCREEN_LAUNCH',
-                    'com.atomicservice.params.key.isSystemApp': this.isSystemApp
+                    'com.atomicservice.params.key.isSystemApp': this.isSystemApp,
+                    'com.atomicservice.params.key.hostType': this.hostType,
+                    'com.atomicservice.params.key.hostAppId': this.hostAppId
                 }
             };
         }
