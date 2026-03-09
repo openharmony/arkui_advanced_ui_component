@@ -1497,20 +1497,11 @@ class HiAnalyticsUtil {
         }
         try {
             let bundleInfo = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO);
-            HiAnalyticsUtil.appIdentifier = bundleInfo.signatureInfo.appIdentifier;
-        }
-        catch (err) {
+            HiAnalyticsUtil.appIdentifier = bundleInfo.signatureInfo?.appIdentifier;
+        } catch (err) {
             hilog.error(0x3900, LOG_TAG, `getAppIdentifier failed, error message is ${err.message}`);
         }
         return HiAnalyticsUtil.appIdentifier;
-    }
-    /**
-     * 获取设备ID(ODID)
-     *
-     * @returns 设备ID(ODID)
-     */
-    static getDeviceOdid() {
-        return deviceInfo.ODID;
     }
     /**
      * 打点数据封装
@@ -1544,7 +1535,7 @@ class HiAnalyticsUtil {
             embedMode: embedMode,
             hostType: hostType,
             hostAppId: hostAppId,
-            deviceId: HiAnalyticsUtil.getDeviceOdid()
+            deviceId: deviceInfo.ODID
         };
     }
     /**
@@ -1554,7 +1545,6 @@ class HiAnalyticsUtil {
      * @param time 时间戳
      */
     static writeLaunchEvent(content, time) {
-        hilog.info(0x3900, LOG_TAG, `time: ${time}, content: ${content}`);
         try {
             if (!HiAnalyticsUtil.processorId) {
                 HiAnalyticsUtil.processorId = HiAnalyticsUtil.addEventProcessor();
@@ -1579,8 +1569,7 @@ class HiAnalyticsUtil {
             }).catch((err) => {
                 hilog.error(0x3900, LOG_TAG, `writeLaunchEvent failed, error is ${err.message}`);
             });
-        }
-        catch (err) {
+        } catch (err) {
             hilog.error(0x3900, LOG_TAG, `writeLaunchEvent failed, error is ${err.message}`);
         }
     }
