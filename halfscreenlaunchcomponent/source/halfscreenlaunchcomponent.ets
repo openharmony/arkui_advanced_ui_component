@@ -44,11 +44,16 @@ export struct HalfScreenLaunchComponent {
   onTerminated?: Callback<TerminationInfo>;
   onReceive?: Callback<Record<string, Object>>;
   private isSystemApp: boolean = false;
+  private hostType: string = '';
+  private hostAppId: string = '';
 
   aboutToAppear(): void {
-    const bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
+    const bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
+    bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
     const selfBundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags);
     this.isSystemApp = selfBundleInfo?.appInfo?.systemApp;
+    this.hostType = selfBundleInfo?.appInfo?.bundleType;
+    this.hostAppId = selfBundleInfo?.signatureInfo?.appIdentifier;
     let subscribeInfo: commonEventManager.CommonEventSubscribeInfo = {
       events: [commonEventManager.Support.COMMON_EVENT_DISTRIBUTED_ACCOUNT_LOGOUT],
     };
@@ -103,7 +108,8 @@ export struct HalfScreenLaunchComponent {
       this.options.parameters['ability.want.params.IsModal'] = true;
       this.options.parameters['com.atomicservice.params.key.launchType'] = 'EMBED_HALF';
       this.options.parameters['com.atomicservice.params.key.isSystemApp'] = this.isSystemApp;
-      hilog.info(0x3900, LOG_TAG, 'replaced options is %{public}s !', JSON.stringify(this.options));
+      this.options.parameters['com.atomicservice.params.key.hostType'] = this.hostType;
+      this.options.parameters['com.atomicservice.params.key.hostAppId'] = this.hostAppId;
     } else {
       this.options = {
         parameters: {
@@ -111,7 +117,9 @@ export struct HalfScreenLaunchComponent {
           'ability.want.params.IsNotifyOccupiedAreaChange': true,
           'ability.want.params.IsModal': true,
           'com.atomicservice.params.key.launchType': 'EMBED_HALF',
-          'com.atomicservice.params.key.isSystemApp': this.isSystemApp
+          'com.atomicservice.params.key.isSystemApp': this.isSystemApp,
+          'com.atomicservice.params.key.hostType': this.hostType,
+          'com.atomicservice.params.key.hostAppId': this.hostAppId
         }
       }
     }

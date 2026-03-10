@@ -14,11 +14,12 @@
  */
 
 import { curves, display, LengthMetrics, mediaquery } from '@kit.ArkUI';
-import { BusinessError, commonEventManager } from '@kit.BasicServicesKit';
-import { hilog } from '@kit.PerformanceAnalysisKit';
+import { BusinessError, commonEventManager, deviceInfo } from '@kit.BasicServicesKit';
+import { hilog, hiAppEvent } from '@kit.PerformanceAnalysisKit';
 import { systemParameterEnhance } from '@kit.BasicServicesKit';
 import { Animator as animator, AnimatorResult, componentUtils } from '@kit.ArkUI';
 import { AnimatorOptions } from '@ohos.animator';
+import { bundleManager } from '@kit.AbilityKit';
 
 // Menubar作用域内的日志打印前缀
 const LOG_TAG: string = 'CustomAppBar';
@@ -90,6 +91,8 @@ const ARKUI_APP_BAR_ON_RECEIVE_EVENT: string = 'arkui_app_bar_receive';
 const ARKUI_APP_BAR_LAUNCH_TYPE: string = 'com.atomicservice.params.key.launchType';
 const ARKUI_APP_BAR_SYSTEM_APP_FLAG: string = 'com.atomicservice.params.key.isSystemApp';
 const ARKUI_APP_BAR_VISIBILITY_INFO: string = 'com.atomicservice.visible';
+const ARKUI_APP_BAR_HOST_TYPE: string = 'com.atomicservice.params.key.hostType';
+const ARKUI_APP_BAR_HOST_APP_ID: string = 'com.atomicservice.params.key.hostAppId';
 
 /**
  * 颜色配置，适用于同一对象属性需要配置深色模式、浅色模式的场景
@@ -277,6 +280,9 @@ export struct CustomAppBar {
   private timeoutList: Array<number> = [];
   private isShowRevisit: boolean = false;
   private isShowRevisitFinished: boolean = false;
+  private launchType: string = '';
+  private hostType: string = '';
+  private hostAppId: string = '';
   private stopPropagation = (event?: TouchEvent) => {
     event?.stopPropagation();
   }
@@ -306,6 +312,9 @@ export struct CustomAppBar {
       }).catch((err: BusinessError) => {
         hilog.error(0x3900, LOG_TAG, `dynamic import atomicbasicengine failed, error: ${err.message}`);
       });
+      const analyticsData: AnalyticsData = 
+        HiAnalyticsUtil.getAnalyticsData(this.launchType, this.hostType, this.hostAppId);
+      HiAnalyticsUtil.reportAtomicLaunchTypeEvent(analyticsData);
     } catch(err) {
       hilog.error(0x3900, LOG_TAG, `exception occurred while aboutToAppear, error is ${err.message}`);
     }
@@ -612,7 +621,10 @@ export struct CustomAppBar {
   private getWantParamEvent(param: string): void {
     try {
       const wantParam: object = JSON.parse(param);
-      this.isEmbedComp = embedCompTypeList.has(wantParam[ARKUI_APP_BAR_LAUNCH_TYPE]);
+      this.launchType = wantParam[ARKUI_APP_BAR_LAUNCH_TYPE];
+      this.hostType = wantParam[ARKUI_APP_BAR_HOST_TYPE];
+      this.hostAppId = wantParam[ARKUI_APP_BAR_HOST_APP_ID];
+      this.isEmbedComp = embedCompTypeList.has(this.launchType);
       // isSystemApp信息由内部接口定义，只能返回boolean类型或者undefined类型
       this.isSystemApp = wantParam[ARKUI_APP_BAR_SYSTEM_APP_FLAG] ?? false;
       const visibleInfo: boolean | undefined = wantParam[ARKUI_APP_BAR_VISIBILITY_INFO];
@@ -1248,4 +1260,165 @@ export struct CustomAppBar {
     .backgroundColor(Color.Transparent)
     .hitTestBehavior(HitTestMode.Transparent)
   }
+}
+
+/**
+ * 元服务启动方式打点工具类
+ */
+class HiAnalyticsUtil {
+  private static processorId: number | undefined = undefined;
+  private static appIdentifier: string = '';
+
+  /**
+   * 添加数据处理者配置信息
+   *
+   * @returns 所添加上报事件数据处理者的ID
+   */
+  private static addEventProcessor(): number {
+    let processor: hiAppEvent.Processor = {
+      name: 'ha_app_event',
+      appId: 'com_huawei_hmos_sdk_ocg',
+      routeInfo: 'AUTO',
+      eventConfigs: [
+        {
+          domain: 'api_diagnostic',
+          name: 'api_exec_end',
+          isRealTime: false
+        },
+        {
+          domain: 'api_diagnostic',
+          name: 'api_called_stat',
+          isRealTime: true
+        },
+        {
+          domain: 'api_diagnostic',
+          name: 'api_called_stat_cnt',
+          isRealTime: true
+        },
+      ],
+      periodReport: 90,
+      batchReport: 30
+    };
+    return hiAppEvent.addProcessor(processor);
+  }
+
+  /**
+   * 获取应用的唯一标识
+   *
+   * @returns 应用的唯一标识
+   */
+  private static getAppIdentifier(): string {
+    if (HiAnalyticsUtil.appIdentifier) {
+      return HiAnalyticsUtil.appIdentifier;
+    }
+    try {
+      let bundleInfo: bundleManager.BundleInfo =
+        bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO);
+      HiAnalyticsUtil.appIdentifier = bundleInfo.signatureInfo?.appIdentifier;
+    } catch (err) {
+      hilog.error(0x3900, LOG_TAG, `getAppIdentifier failed, error message is ${err.message}`);
+    }
+    return HiAnalyticsUtil.appIdentifier;
+  }
+
+  /**
+   * 打点数据封装
+   *
+   * @param startMode 元服务的启动方式
+   * @param hostType 宿主方来源类型，分为应用和元服务
+   * @param hostAppId 宿主方AppId
+   * @returns 封装好的数据对象
+   */
+  private static getAnalyticsData(startMode: string, hostType: string, hostAppId: string): AnalyticsData {
+    let embedMode: string = '';
+    switch (startMode) {
+      case 'FULL_SCREEN_LAUNCH':
+        startMode = '1';
+        embedMode = '2';
+        break;
+      case 'EMBED_INNER_FULL':
+        startMode = '1';
+        embedMode = '3';
+        break;
+      case 'EMBED_HALF':
+        startMode = '2';
+        embedMode = '1';
+        break;
+      default:
+        startMode = '0';
+        break;
+    }
+    return {
+      startMode: startMode,
+      embedMode: embedMode,
+      hostType: hostType,
+      hostAppId: hostAppId,
+      deviceId: deviceInfo.ODID
+    };
+  }
+
+  /**
+   * 打点数据上报
+   *
+   * @param content 打点数据JSON字符串
+   * @param time 时间戳
+   */
+  private static writeLaunchEvent(content: string, time: number): void {
+    try {
+      if (!HiAnalyticsUtil.processorId) {
+        HiAnalyticsUtil.processorId = HiAnalyticsUtil.addEventProcessor();
+      }
+      let event: hiAppEvent.AppEventInfo = {
+        domain: 'api_diagnostic',
+        name: 'api_called_stat',
+        params: {
+          api_name: 'ascf',
+          sdk_name: 'atomic_foundation',
+          begin_time: time,
+          // 调用次数
+          call_times: 3,
+          // 调用成功次数
+          success_times: 1,
+          contents: content
+        },
+        eventType: hiAppEvent.EventType.BEHAVIOR
+      };
+      hiAppEvent.write(event).then(() => {
+        hilog.info(0x3900, LOG_TAG, 'writeLaunchEvent success');
+      }).catch((err: BusinessError) => {
+        hilog.error(0x3900, LOG_TAG, `writeLaunchEvent failed, error is ${err.message}`);
+      })
+    } catch (err) {
+      hilog.error(0x3900, LOG_TAG, `writeLaunchEvent failed, error is ${err.message}`);
+    }
+  }
+
+  /**
+   * 元服务启动方式打点业务处理
+   *
+   * @param analyticsData 封装的打点数据
+   */
+  private static reportAtomicLaunchTypeEvent(analyticsData: AnalyticsData): void {
+    try {
+      const content: string = JSON.stringify({
+        embedAppId: HiAnalyticsUtil.getAppIdentifier(),
+        embedMode: analyticsData.embedMode,
+        startMode: analyticsData.startMode,
+        hostType: analyticsData.hostType,
+        hostAppId: analyticsData.hostAppId,
+        deviceId: analyticsData.deviceId
+      });
+      HiAnalyticsUtil.writeLaunchEvent(content, Date.now());
+    } catch (err) {
+      hilog.error(0x3900, LOG_TAG, `reportAtomicLaunchTypeEvent failed, error is ${err.message}`);
+    }
+  }
+}
+
+interface AnalyticsData {
+  startMode: string,
+  embedMode: string,
+  hostType: string,
+  hostAppId: string,
+  deviceId: string
 }

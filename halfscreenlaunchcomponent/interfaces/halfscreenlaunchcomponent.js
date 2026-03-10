@@ -46,6 +46,8 @@ export class HalfScreenLaunchComponent extends ViewPU {
         this.onTerminated = undefined;
         this.onReceive = undefined;
         this.isSystemApp = false;
+        this.hostType = '';
+        this.hostAppId = '';
         this.setInitiallyProvidedValue(params);
         this.finalizeConstruction();
     }
@@ -95,9 +97,12 @@ export class HalfScreenLaunchComponent extends ViewPU {
         this.__isShow.set(newValue);
     }
     aboutToAppear() {
-        const bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
+        const bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
+        bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
         const selfBundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags);
         this.isSystemApp = selfBundleInfo?.appInfo?.systemApp;
+        this.hostType = selfBundleInfo?.appInfo?.bundleType;
+        this.hostAppId = selfBundleInfo?.signatureInfo?.appIdentifier;
         let subscribeInfo = {
             events: [commonEventManager.Support.COMMON_EVENT_DISTRIBUTED_ACCOUNT_LOGOUT],
         };
@@ -141,7 +146,8 @@ export class HalfScreenLaunchComponent extends ViewPU {
             this.options.parameters['ability.want.params.IsModal'] = true;
             this.options.parameters['com.atomicservice.params.key.launchType'] = 'EMBED_HALF';
             this.options.parameters['com.atomicservice.params.key.isSystemApp'] = this.isSystemApp;
-            hilog.info(0x3900, LOG_TAG, 'replaced options is %{public}s !', JSON.stringify(this.options));
+            this.options.parameters['com.atomicservice.params.key.hostType'] = this.hostType;
+            this.options.parameters['com.atomicservice.params.key.hostAppId'] = this.hostAppId;
         }
         else {
             this.options = {
@@ -150,7 +156,9 @@ export class HalfScreenLaunchComponent extends ViewPU {
                     'ability.want.params.IsNotifyOccupiedAreaChange': true,
                     'ability.want.params.IsModal': true,
                     'com.atomicservice.params.key.launchType': 'EMBED_HALF',
-                    'com.atomicservice.params.key.isSystemApp': this.isSystemApp
+                    'com.atomicservice.params.key.isSystemApp': this.isSystemApp,
+                    'com.atomicservice.params.key.hostType': this.hostType,
+                    'com.atomicservice.params.key.hostAppId': this.hostAppId
                 }
             };
         }
