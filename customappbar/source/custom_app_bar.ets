@@ -312,7 +312,8 @@ export struct CustomAppBar {
       }).catch((err: BusinessError) => {
         hilog.error(0x3900, LOG_TAG, `dynamic import atomicbasicengine failed, error: ${err.message}`);
       });
-      const analyticsData: AnalyticsData = HiAnalyticsUtil.getAnalyticsData(this.launchType, this.hostType, this.hostAppId);
+      const analyticsData: AnalyticsData = 
+        HiAnalyticsUtil.getAnalyticsData(this.launchType, this.hostType, this.hostAppId);
       HiAnalyticsUtil.reportAtomicLaunchTypeEvent(analyticsData);
     } catch(err) {
       hilog.error(0x3900, LOG_TAG, `exception occurred while aboutToAppear, error is ${err.message}`);
