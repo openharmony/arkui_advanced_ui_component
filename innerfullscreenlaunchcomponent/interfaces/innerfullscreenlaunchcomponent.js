@@ -148,7 +148,8 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
     }
     loadApiVersion() {
         let d = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
-        bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA | bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
+        bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA | 
+        bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
         try {
             bundleManager.getBundleInfoForSelf(d).then((g) => {
                 if (!g?.targetVersion) {
