@@ -51,7 +51,8 @@ export struct FullScreenLaunchComponent {
  
   aboutToAppear() {
     let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
-      bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA | bundleManager.bundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
+      bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA | 
+      bundleManager.bundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
     try {
       bundleManager.getBundleInfoForSelf(bundleFlags).then((data) => {
         hilog.info(0x3900, 'FullScreenLaunchComponent',
