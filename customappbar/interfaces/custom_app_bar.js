@@ -401,7 +401,8 @@ export class CustomAppBar extends MenubarBaseInfo {
             }).catch((err) => {
                 hilog.error(0x3900, LOG_TAG, `dynamic import atomicbasicengine failed, error: ${err.message}`);
             });
-            const analyticsData = HiAnalyticsUtil.getAnalyticsData(this.launchType, this.hostType, this.hostAppId);
+            const analyticsData = 
+                HiAnalyticsUtil.getAnalyticsData(this.launchType, this.hostType, this.hostAppId);
             HiAnalyticsUtil.reportAtomicLaunchTypeEvent(analyticsData);
         } catch(err) {
             hilog.error(0x3900, LOG_TAG, `exception occurred while aboutToAppear, error is ${err.message}`);
