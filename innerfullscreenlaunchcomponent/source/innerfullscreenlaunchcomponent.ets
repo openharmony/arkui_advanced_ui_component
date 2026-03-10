@@ -101,7 +101,8 @@ export struct InnerFullScreenLaunchComponent {
    */
   loadApiVersion() {
     let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
-    bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA | bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
+    bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA | 
+    bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
     try {
       bundleManager.getBundleInfoForSelf(bundleFlags).then((data) => {
         if (!data?.targetVersion) {
