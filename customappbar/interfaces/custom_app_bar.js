@@ -141,11 +141,13 @@ class NativeEventManager {
      * @param launchType 嵌入式启动方式
      */
     static onMenuButtonClick(bundleName, launchType) {
-        let showMode = 0;
+        let showMode;
         if (launchType === 'EMBED_HALF') {
             showMode = 2;
         } else if (launchType === 'EMBED_INNER_FULL' || launchType === 'FULL_SCREEN_LAUNCH') {
             showMode = 1;
+        } else {
+            showMode = 0;
         }
         let info = {
             'bundleName': 'com.huawei.hmos.asde',
