@@ -136,9 +136,31 @@ class NativeEventManager {
     /**
      * 服务面板按钮点击回调
      * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+     * 
+     * @param bundleName 待获取资料信息的元服务bundleName
+     * @param launchType 嵌入式启动方式
      */
-    static onMenuButtonClick() {
-        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK);
+    static onMenuButtonClick(bundleName, launchType) {
+        let showMode;
+        if (launchType === 'EMBED_HALF') {
+            showMode = 2;
+        } else if (launchType === 'EMBED_INNER_FULL' || launchType === 'FULL_SCREEN_LAUNCH') {
+            showMode = 1;
+        } else {
+            showMode = 0;
+        }
+        let info = {
+            'bundleName': 'com.huawei.hmos.asde',
+            'abilityName': 'PanelAbility',
+            'params': [
+                `bundleName:${bundleName}`,
+                'abilityName:EntryAbility',
+                'module:entry',
+                'ability.want.params.uiExtensionType:sysDialog/atomicServicePanel',
+                `ohos.extra.menubar.param.key.showMode:${showMode}`
+            ]
+        };
+        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL, info);
     }
     /**
      * 关闭按钮点击回调
@@ -1102,7 +1124,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             Gesture.create(GesturePriority.Low);
             TapGesture.create();
             TapGesture.onAction(() => {
-                NativeEventManager.onMenuButtonClick();
+                NativeEventManager.onMenuButtonClick(this.bundleName, this.launchType);
             });
             TapGesture.pop();
             Gesture.pop();
