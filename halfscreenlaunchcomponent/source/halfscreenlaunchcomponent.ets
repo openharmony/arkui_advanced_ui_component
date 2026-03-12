@@ -44,7 +44,7 @@ export struct HalfScreenLaunchComponent {
   onTerminated?: Callback<TerminationInfo>;
   onReceive?: Callback<Record<string, Object>>;
   private isSystemApp: boolean = false;
-  private hostType: string = '';
+  private hostType: bundleManager.BundleType | string = '';
   private hostAppId: string = '';
 
   aboutToAppear(): void {

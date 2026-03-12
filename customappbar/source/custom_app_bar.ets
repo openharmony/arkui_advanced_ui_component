@@ -284,7 +284,7 @@ export struct CustomAppBar {
   private isShowRevisit: boolean = false;
   private isShowRevisitFinished: boolean = false;
   private launchType: string = '';
-  private hostType: string = '';
+  private hostType: bundleManager.BundleType | string = '';
   private hostAppId: string = '';
   private stopPropagation = (event?: TouchEvent) => {
     event?.stopPropagation();
@@ -1327,28 +1327,34 @@ class HiAnalyticsUtil {
   /**
    * 打点数据封装
    *
-   * @param startMode 元服务的启动方式
+   * @param launchType 元服务的启动方式
    * @param hostType 宿主方来源类型，分为应用和元服务
    * @param hostAppId 宿主方AppId
    * @returns 封装好的数据对象
    */
-  private static getAnalyticsData(startMode: string, hostType: string, hostAppId: string): AnalyticsData {
-    let embedMode: string = '';
-    switch (startMode) {
+  private static getAnalyticsData(launchType: string, hostType: bundleManager.BundleType | string, hostAppId: string): 
+    AnalyticsData {
+    if (hostType === '') {
+      hilog.warn(0x3900, LOG_TAG, 'hostType is null');
+    }
+    let startMode: number;
+    let embedMode: number;
+    switch (launchType) {
       case 'FULL_SCREEN_LAUNCH':
-        startMode = '1';
-        embedMode = '2';
+        startMode = 1;
+        embedMode = 2;
         break;
       case 'EMBED_INNER_FULL':
-        startMode = '1';
-        embedMode = '3';
+        startMode = 1;
+        embedMode = 3;
         break;
       case 'EMBED_HALF':
-        startMode = '2';
-        embedMode = '1';
+        startMode = 2;
+        embedMode = 1;
         break;
       default:
-        startMode = '0';
+        startMode = 0;
+        embedMode = 0;
         break;
     }
     return {
@@ -1356,7 +1362,7 @@ class HiAnalyticsUtil {
       embedMode: embedMode,
       hostType: hostType,
       hostAppId: hostAppId,
-      deviceId: deviceInfo.ODID
+      odid: deviceInfo.ODID
     };
   }
 
@@ -1409,7 +1415,7 @@ class HiAnalyticsUtil {
         startMode: analyticsData.startMode,
         hostType: analyticsData.hostType,
         hostAppId: analyticsData.hostAppId,
-        deviceId: analyticsData.deviceId
+        odid: analyticsData.odid
       });
       HiAnalyticsUtil.writeLaunchEvent(content, Date.now());
     } catch (err) {
@@ -1419,9 +1425,9 @@ class HiAnalyticsUtil {
 }
 
 interface AnalyticsData {
-  startMode: string,
-  embedMode: string,
-  hostType: string,
+  startMode: number,
+  embedMode: number,
+  hostType: bundleManager.BundleType | string,
   hostAppId: string,
   deviceId: string
 }
