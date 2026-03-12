@@ -1529,28 +1529,33 @@ class HiAnalyticsUtil {
     /**
      * 打点数据封装
      *
-     * @param startMode 元服务的启动方式
+     * @param launchType 元服务的启动方式
      * @param hostType 宿主方来源类型，分为应用和元服务
      * @param hostAppId 宿主方AppId
      * @returns 封装好的数据对象
      */
-    static getAnalyticsData(startMode, hostType, hostAppId) {
-        let embedMode = '';
-        switch (startMode) {
+    static getAnalyticsData(launchType, hostType, hostAppId) {
+        if (hostType === '') {
+            hilog.warn(0x3900, LOG_TAG, 'hostType is null');
+        }
+        let startMode;
+        let embedMode;
+        switch (launchType) {
             case 'FULL_SCREEN_LAUNCH':
-                startMode = '1';
-                embedMode = '2';
+                startMode = 1;
+                embedMode = 2;
                 break;
             case 'EMBED_INNER_FULL':
-                startMode = '1';
-                embedMode = '3';
+                startMode = 1;
+                embedMode = 3;
                 break;
             case 'EMBED_HALF':
-                startMode = '2';
-                embedMode = '1';
+                startMode = 2;
+                embedMode = 1;
                 break;
             default:
-                startMode = '0';
+                startMode = 0;
+                embedMode = 0;
                 break;
         }
         return {
@@ -1558,7 +1563,7 @@ class HiAnalyticsUtil {
             embedMode: embedMode,
             hostType: hostType,
             hostAppId: hostAppId,
-            deviceId: deviceInfo.ODID
+            odid: deviceInfo.ODID
         };
     }
     /**
@@ -1609,7 +1614,7 @@ class HiAnalyticsUtil {
                 startMode: analyticsData.startMode,
                 hostType: analyticsData.hostType,
                 hostAppId: analyticsData.hostAppId,
-                deviceId: analyticsData.deviceId
+                odid: analyticsData.odid
             });
             HiAnalyticsUtil.writeLaunchEvent(content, Date.now());
         } catch (err) {
