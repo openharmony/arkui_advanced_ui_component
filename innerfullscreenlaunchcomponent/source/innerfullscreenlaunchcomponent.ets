@@ -58,7 +58,7 @@ export struct InnerFullScreenLaunchComponent {
   onError?: ErrorCallback;
   onTerminated?: Callback<TerminationInfo>;
   private isSystemApp: boolean = false;
-  private hostType: string = '';
+  private hostType: bundleManager.BundleType | string = '';
   private hostAppId: string = '';
 
   aboutToAppear() {
