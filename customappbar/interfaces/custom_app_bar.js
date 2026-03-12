@@ -138,15 +138,14 @@ class NativeEventManager {
      * 在ets无法实现，需要在编译后的js中加入对应的实现方法
      * 
      * @param bundleName 待获取资料信息的元服务bundleName
-     * @param showMode 嵌入式启动方式
+     * @param launchType 嵌入式启动方式
      */
-    static onMenuButtonClick(bundleName, showMode) {
-        if (showMode === 'EMBED_HALF') {
-            showMode = '2';
-        } else if (showMode === 'EMBED_INNER_FULL' || showMode === 'FULL_SCREEN_LAUNCH') {
-            showMode = '1';
-        } else {
-            showMode = '0';
+    static onMenuButtonClick(bundleName, launchType) {
+        let showMode = 0;
+        if (launchType === 'EMBED_HALF') {
+            showMode = 2;
+        } else if (launchType === 'EMBED_INNER_FULL' || launchType === 'FULL_SCREEN_LAUNCH') {
+            showMode = 1;
         }
         let info = {
             'bundleName': 'com.huawei.hmos.asde',
