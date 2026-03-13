@@ -8,18 +8,17 @@
 
 | 组件名称 | 功能描述 |
 |---------|---------|
-| [customappbar](./customappbar/CODEAGENT.md) | menubar的代码实现，包括了在半屏嵌入式组件/全屏嵌入式组件中的menubar样式 |
-| [atomicservicenavigation](./atomicservicenavigation/CODEAGENT.md) | AtomicServiceNavigation导航组件，提供统一导航框架和标题栏定制 |
-| [atomicservicesearch](./atomicservicesearch/CODEAGENT.md) | AtomicServiceSearch搜索组件，提供统一搜索交互体验 |
-| [atomicservicetabs](./atomicservicetabs/CODEAGENT.md) | AtomicServiceTabs标签页组件，提供标签切换功能 |
-| [atomicserviceweb](./atomicserviceweb/CODEAGENT.md) | 适用于元服务的Web组件，提供Web内容加载和交互 |
-| [fullscreenlaunchcomponent](./fullscreenlaunchcomponent/CODEAGENT.md) | 全屏嵌入式组件，支持在元服务中全屏嵌入式拉起元服务 |
-| [halfscreenlaunchcomponent](./halfscreenlaunchcomponent/CODEAGENT.md) | 半屏嵌入式组件，支持在元服务中半屏嵌入式拉起元服务 |
-| [innerfullscreenlaunchcomponent](./innerfullscreenlaunchcomponent/CODEAGENT.md) | 全屏嵌入式组件，支持在一方系统应用中全屏嵌入式拉起元服务 |
-| [interstitialdialogaction](./interstitialdialogaction/CODEAGENT.md) | 弹框组件，提供临时任务型弹窗 |
-| [navpushpathhelper](./navpushpathhelper/CODEAGENT.md) | 页面路由管理工具，对ArkUI的NavPathStack进行封装，提供页面路由管理功能 |
-| [advanced_ui_component_static](./advanced_ui_component_static/CODEAGENT.md) | 静态版本组件库，对标ArkTS 1.2标准的组件 |
-
+| customappbar | menubar的代码实现，包括了在半屏嵌入式组件/全屏嵌入式组件中的menubar样式，详细介绍参考@customappbar/customappbar.md |
+| atomicservicenavigation | AtomicServiceNavigation导航组件，提供统一导航框架和标题栏定制，详细介绍参考@atomicservicenavigation/atomicservicenavigation.md |
+| atomicservicesearch | AtomicServiceSearch搜索组件，提供统一搜索交互体验，详细介绍参考@atomicservicesearch/atomicservicesearch.md |
+| atomicservicetabs | AtomicServiceTabs标签页组件，提供标签切换功能，详细介绍参考@atomicservicetabs/atomicservicetabs.md |
+| atomicserviceweb | 适用于元服务的Web组件，提供Web内容加载和交互，详细介绍参考@atomicserviceweb/atomicserviceweb.md |
+| fullscreenlaunchcomponent | 全屏嵌入式组件，支持在元服务中全屏嵌入式拉起元服务，详细介绍参考@fullscreenlaunchcomponent/fullscreenlaunchcomponent.md |
+| halfscreenlaunchcomponent | 半屏嵌入式组件，支持在元服务中半屏嵌入式拉起元服务，详细介绍参考@halfscreenlaunchcomponent/halfscreenlaunchcomponent.md |
+| innerfullscreenlaunchcomponent | 全屏嵌入式组件，支持在一方系统应用中全屏嵌入式拉起元服务，详细介绍参考@innerfullscreenlaunchcomponent/innerfullscreenlaunchcomponent.md |
+| interstitialdialogaction | 弹框组件，提供临时任务型弹窗，详细介绍参考@interstitialdialogaction/interstitialdialogaction.md |
+| navpushpathhelper | 页面路由管理工具，对ArkUI的NavPathStack进行封装，提供页面路由管理功能，详细介绍参考@navpushpathhelper/navpushpathhelper.md |
+| advanced_ui_component_static | 静态版本组件库，对标ArkTS 1.2标准的组件，详细介绍参考@advanced_ui_component_static/advanced_ui_component_static.md |
 ## 目录结构
 
 ```
