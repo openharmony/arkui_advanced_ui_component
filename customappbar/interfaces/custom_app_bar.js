@@ -886,7 +886,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.closeHalfContainerAnimation();
             return;
         }
-        if (this.isHalfToFullScreen) {
+        if (this.isEmbedComp) {
             // 关闭弹框
             Context.animateTo({
                 duration: 250,
