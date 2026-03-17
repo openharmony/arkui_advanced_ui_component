@@ -319,7 +319,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             Row.bindContentCover({ value: this.isShow, changeEvent: k => { this.isShow = k; } }, { builder: () => {
                 this.uiExtensionBuilder.call(this);
             } }, {
-                modalTransition: ModalTransition.DEFAULT,
+                modalTransition: ModalTransition.NONE,
                 enableSafeArea: true,
                 onWillDisappear: () => {
                     this.resetStatusBarContentColor();
@@ -344,7 +344,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             }, {
                 windowModeFollowStrategy: WindowModeFollowStrategy.FOLLOW_HOST_WINDOW_MODE
             });
-            UIExtensionComponent.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_titlebar_bg'], 'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
+            UIExtensionComponent.backgroundColor(Color.Transparent);
             UIExtensionComponent.defaultFocus(true);
             UIExtensionComponent.height('100%');
             UIExtensionComponent.width('100%');

@@ -281,7 +281,7 @@ export struct InnerFullScreenLaunchComponent {
     }
     .justifyContent(FlexAlign.Center)
     .bindContentCover($$this.isShow, this.uiExtensionBuilder(), {
-      modalTransition: ModalTransition.DEFAULT,
+      modalTransition: ModalTransition.NONE,
       enableSafeArea: true,
       onWillDisappear: () => {
         this.resetStatusBarContentColor();
@@ -299,7 +299,7 @@ export struct InnerFullScreenLaunchComponent {
       },{
         windowModeFollowStrategy: WindowModeFollowStrategy.FOLLOW_HOST_WINDOW_MODE
       })
-        .backgroundColor($r('sys.color.ohos_id_color_titlebar_bg'))
+        .backgroundColor(Color.Transparent)
         .defaultFocus(true)
         .height('100%')
         .width('100%')

@@ -584,7 +584,7 @@ export struct CustomAppBar {
    * 由ArkUI通知调用
    */
   private backPressedEvent(): void {
-    if (this.isHalfScreen || this.isHalfToFullScreen) {
+    if (this.isEmbedComp) {
       hilog.info(0x3900, LOG_TAG, 'setCustomCallback halfScreen onBackPress');
       this.closeContainerAnimation();
       NativeEventManager.onBackPressConsumed();
@@ -774,6 +774,18 @@ export struct CustomAppBar {
   }
 
   /**
+   * 全屏拉起动效
+   */
+  fullScreenShowAnimation() {
+    Context.animateTo({
+        duration: 250,
+        curve: curves.interpolatingSpring(0, 1, 328, 36),
+    }, () => {
+        this.stackHeight = '100%';
+    })
+  }
+
+  /**
    * 元服务关闭动效，包含嵌入式组件关闭动效
    */
   closeContainerAnimation(): void {
@@ -781,7 +793,7 @@ export struct CustomAppBar {
       this.closeHalfContainerAnimation();
       return;
     }
-    if (this.isHalfToFullScreen) {
+    if (this.isEmbedComp) {
       // 关闭弹框
       animateTo({
         duration: 250,
@@ -1248,6 +1260,11 @@ export struct CustomAppBar {
           this.contentBgColor = Color.Transparent;
           this.titleHeight = EYELASH_HEIGHT + 2 * TITLE_MARGIN_TOP + this.statusBarHeight;
           this.halfScreenShowAnimation();
+        } else if (this.isEmbedComp) {
+          this.contentBgColor = Color.Transparent;
+          this.stackHeight = '0%';
+          this.containerHeight = '100%';
+          this.fullScreenShowAnimation();
         } else {
           this.containerHeight = '100%';
           this.containerWidth = '100%';
