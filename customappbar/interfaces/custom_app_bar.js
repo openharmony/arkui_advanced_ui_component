@@ -1135,7 +1135,9 @@ export class CustomAppBar extends MenubarBaseInfo {
             Gesture.create(GesturePriority.Low);
             TapGesture.create();
             TapGesture.onAction(() => {
-                NativeEventManager.onMenuButtonClick(this.bundleName, this.launchType);
+                ThrottleUtil.throttle(() => {
+                    NativeEventManager.onMenuButtonClick(this.bundleName, this.launchType);
+                });
             });
             TapGesture.pop();
             Gesture.pop();
@@ -1228,7 +1230,9 @@ export class CustomAppBar extends MenubarBaseInfo {
             ViewStackProcessor.visualState();
             Row.borderRadius(EYELASH_HEIGHT / 2);
             Row.onClick(() => {
-                NativeEventManager.onEyelashTitleClick(this.bundleName);
+                ThrottleUtil.throttle(() => {
+                    NativeEventManager.onEyelashTitleClick(this.bundleName);
+                });
             });
             Row.margin({ start: LengthMetrics.vp(TITLE_MARGIN_RIGHT) });
         }, Row);
@@ -1551,9 +1555,6 @@ class HiAnalyticsUtil {
      * @returns 封装好的数据对象
      */
     static getAnalyticsData(launchType, hostType, hostAppId) {
-        if (hostType === '') {
-            hilog.warn(0x3900, LOG_TAG, 'hostType is null');
-        }
         let startMode;
         let embedMode;
         switch (launchType) {
@@ -1640,3 +1641,25 @@ class HiAnalyticsUtil {
 }
 HiAnalyticsUtil.processorId = undefined;
 HiAnalyticsUtil.appIdentifier = '';
+
+/**
+ * 节流工具类
+ */
+class ThrottleUtil {
+    /**
+     * 节流函数，在规定时间内只执行一次
+     *
+     * @param func 需要节流的函数
+     * @param delay 期望的规定时间，默认1000毫秒
+     */
+    static throttle(func, delay) {
+        if (!ThrottleUtil.inThrottle) {
+            func();
+            ThrottleUtil.inThrottle = true;
+            setTimeout(() => {
+                ThrottleUtil.inThrottle = false;
+            }, delay ?? 1000);
+        }
+    }
+}
+ThrottleUtil.inThrottle = false;
