@@ -1011,7 +1011,9 @@ export struct CustomAppBar {
         .height(VIEW_HEIGHT)
         .accessibilityText(this.serviceMenuRead)
         .gesture(TapGesture().onAction(() => {
-          NativeEventManager.onMenuButtonClick(this.bundleName, this.launchType);
+          ThrottleUtil.throttle(() => {
+            NativeEventManager.onMenuButtonClick(this.bundleName, this.launchType);
+          })
         }))
 
         Divider()
@@ -1113,7 +1115,9 @@ export struct CustomAppBar {
         })
         .borderRadius(EYELASH_HEIGHT / 2)
         .onClick(() => {
-          NativeEventManager.onEyelashTitleClick(this.bundleName);
+          ThrottleUtil.throttle(() => {
+            NativeEventManager.onEyelashTitleClick(this.bundleName);
+          })
         })
         .margin({ start: LengthMetrics.vp(TITLE_MARGIN_RIGHT) })
       }
@@ -1351,9 +1355,6 @@ class HiAnalyticsUtil {
    */
   private static getAnalyticsData(launchType: string, hostType: bundleManager.BundleType | string, hostAppId: string): 
     AnalyticsData {
-    if (hostType === '') {
-      hilog.warn(0x3900, LOG_TAG, 'hostType is null');
-    }
     let startMode: number;
     let embedMode: number;
     switch (launchType) {
@@ -1446,5 +1447,28 @@ interface AnalyticsData {
   embedMode: number,
   hostType: bundleManager.BundleType | string,
   hostAppId: string,
-  deviceId: string
+  odid: string
+}
+
+/**
+ * 节流工具类
+ */
+class ThrottleUtil {
+  private static inThrottle: boolean = false;
+
+  /**
+   * 节流函数，在规定时间内只执行一次
+   *
+   * @param func 需要节流的函数
+   * @param delay 期望的规定时间，默认1000毫秒
+   */
+  static throttle(func: Function, delay?: number): void {
+    if (!ThrottleUtil.inThrottle) {
+      func();
+      ThrottleUtil.inThrottle = true;
+      setTimeout(() => {
+        ThrottleUtil.inThrottle = false;
+      }, delay ?? 1000);
+    }
+  }
 }
