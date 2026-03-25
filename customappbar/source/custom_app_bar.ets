@@ -93,8 +93,8 @@ const ARKUI_APP_BAR_SYSTEM_APP_FLAG: string = 'com.atomicservice.params.key.isSy
 const ARKUI_APP_BAR_VISIBILITY_INFO: string = 'com.atomicservice.visible';
 const ARKUI_APP_BAR_HOST_TYPE: string = 'com.atomicservice.params.key.hostType';
 const ARKUI_APP_BAR_HOST_APP_ID: string = 'com.atomicservice.params.key.hostAppId';
-const EVENT_NAME_CUSTOM_APP_BAR_THIRD_CLOSE: string = "arkui_custom_app_bar_third_close";
-const ARKUI_ABILITY_CLOSE_EVENT: string = "arkui_ability_close_event";
+const EVENT_NAME_CUSTOM_APP_BAR_THIRD_CLOSE: string = 'arkui_custom_app_bar_third_close';
+const ARKUI_ABILITY_CLOSE_EVENT: string = 'arkui_ability_close_event';
 
 /**
  * 颜色配置，适用于同一对象属性需要配置深色模式、浅色模式的场景
