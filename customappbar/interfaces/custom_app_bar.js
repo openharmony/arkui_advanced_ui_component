@@ -100,8 +100,8 @@ const ARKUI_APP_BAR_SYSTEM_APP_FLAG = 'com.atomicservice.params.key.isSystemApp'
 const ARKUI_APP_BAR_VISIBILITY_INFO = 'com.atomicservice.visible';
 const ARKUI_APP_BAR_HOST_TYPE = 'com.atomicservice.params.key.hostType';
 const ARKUI_APP_BAR_HOST_APP_ID = 'com.atomicservice.params.key.hostAppId';
-const EVENT_NAME_CUSTOM_APP_BAR_THIRD_CLOSE = "arkui_custom_app_bar_third_close";
-const ARKUI_ABILITY_CLOSE_EVENT = "arkui_ability_close_event";
+const EVENT_NAME_CUSTOM_APP_BAR_THIRD_CLOSE = 'arkui_custom_app_bar_third_close';
+const ARKUI_ABILITY_CLOSE_EVENT = 'arkui_ability_close_event';
 /**
  * 断点类型
  */
