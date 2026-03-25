@@ -100,6 +100,8 @@ const ARKUI_APP_BAR_SYSTEM_APP_FLAG = 'com.atomicservice.params.key.isSystemApp'
 const ARKUI_APP_BAR_VISIBILITY_INFO = 'com.atomicservice.visible';
 const ARKUI_APP_BAR_HOST_TYPE = 'com.atomicservice.params.key.hostType';
 const ARKUI_APP_BAR_HOST_APP_ID = 'com.atomicservice.params.key.hostAppId';
+const EVENT_NAME_CUSTOM_APP_BAR_THIRD_CLOSE = "arkui_custom_app_bar_third_close";
+const ARKUI_ABILITY_CLOSE_EVENT = "arkui_ability_close_event";
 /**
  * 断点类型
  */
@@ -224,6 +226,14 @@ class NativeEventManager {
             ]
         };
         ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_CREATE_SERVICE_PANEL, info);
+    }
+
+    /**
+     * 在嵌入式拉起的元服务中调用接口主动退出
+     * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+     */
+    static onThirdClickCallback() {
+        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_THIRD_CLOSE);
     }
 }
 
@@ -370,6 +380,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.launchType = '';
         this.hostType = '';
         this.hostAppId = '';
+        this.isThirdClose = false;
         this.stopPropagation = (event) => {
             event?.stopPropagation();
         }
@@ -661,7 +672,12 @@ export class CustomAppBar extends MenubarBaseInfo {
      */
     menubarCloseEvent() {
         this.isEmbedComp = false;
-        NativeEventManager.onCloseButtonClick();
+        if (this.isThirdClose) {
+            NativeEventManager.onThirdClickCallback();
+        } else {
+            NativeEventManager.onCloseButtonClick();
+        }
+        this.isThirdClose = false;
     }
 
     /**
@@ -796,6 +812,9 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.getWantParamEvent(param);
         } else if (eventName === ArkUI_APP_BAR_ON_RECEIVE_EVENT) {
             this.onReceiveEvent(param);
+        } else if (eventName === ARKUI_ABILITY_CLOSE_EVENT && this.isEmbedComp) {
+            this.isThirdClose = true;
+            this.closeContainerAnimation();
         }
     }
     /**
