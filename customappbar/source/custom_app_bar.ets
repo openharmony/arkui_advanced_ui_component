@@ -314,12 +314,8 @@ export struct CustomAppBar {
    * 清理所有节流处理器
    */
   private cleanThrottledHandlers(): void {
-    if (this.throttledMenuClickHandler) {
-      this.throttledMenuClickHandler = null;
-    }
-    if (this.throttledTitleClickHandler) {
-      this.throttledTitleClickHandler = null;
-    }
+    this.throttledMenuClickHandler = null;
+    this.throttledTitleClickHandler = null;
   }
 
   aboutToAppear() {
@@ -339,6 +335,7 @@ export struct CustomAppBar {
   }
 
   aboutToDisappear(): void {
+    this.cleanThrottledHandlers();
     if (this.timeoutList.length) {
       this.timeoutList.forEach(id => {
         clearTimeout(id);
