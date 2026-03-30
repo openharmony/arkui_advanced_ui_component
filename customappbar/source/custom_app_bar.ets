@@ -286,6 +286,9 @@ export struct CustomAppBar {
   private launchType: string = '';
   private hostType: bundleManager.BundleType | string = '';
   private hostAppId: string = '';
+  // 缓存节流函数的闭包环境
+  private throttledMenuClickHandler: ((event: ClickEvent | GestureEvent) => void) | null = null;
+  private throttledTitleClickHandler: ((event: ClickEvent | GestureEvent) => void) | null = null;
   private stopPropagation = (event?: TouchEvent) => {
     event?.stopPropagation();
   }
@@ -304,6 +307,18 @@ export struct CustomAppBar {
       });
     } else {
       this.isShowRevisitFinished = true;
+    }
+  }
+
+  /**
+   * 清理所有节流处理器
+   */
+  private cleanThrottledHandlers(): void {
+    if (this.throttledMenuClickHandler) {
+      this.throttledMenuClickHandler = null;
+    }
+    if (this.throttledTitleClickHandler) {
+      this.throttledTitleClickHandler = null;
     }
   }
 
@@ -1010,11 +1025,10 @@ export struct CustomAppBar {
         .width(this.buttonSize)
         .height(VIEW_HEIGHT)
         .accessibilityText(this.serviceMenuRead)
-        .gesture(TapGesture().onAction(() => {
+        .gesture(TapGesture().onAction(this.throttledMenuClickHandler || (this.throttledMenuClickHandler =
           ThrottleUtil.throttle(() => {
             NativeEventManager.onMenuButtonClick(this.bundleName, this.launchType);
-          })
-        }))
+          }))))
 
         Divider()
           .id('AtomicServiceDividerId')
@@ -1114,11 +1128,10 @@ export struct CustomAppBar {
           }
         })
         .borderRadius(EYELASH_HEIGHT / 2)
-        .onClick(() => {
+        .onClick(this.throttledTitleClickHandler || (this.throttledTitleClickHandler =
           ThrottleUtil.throttle(() => {
             NativeEventManager.onEyelashTitleClick(this.bundleName);
-          })
-        })
+          })))
         .margin({ start: LengthMetrics.vp(TITLE_MARGIN_RIGHT) })
       }
       .margin({
@@ -1454,21 +1467,21 @@ interface AnalyticsData {
  * 节流工具类
  */
 class ThrottleUtil {
-  private static inThrottle: boolean = false;
-
   /**
    * 节流函数，在规定时间内只执行一次
    *
    * @param func 需要节流的函数
    * @param delay 期望的规定时间，默认1000毫秒
+   * @returns 节流后的函数
    */
-  static throttle(func: Function, delay?: number): void {
-    if (!ThrottleUtil.inThrottle) {
-      func();
-      ThrottleUtil.inThrottle = true;
-      setTimeout(() => {
-        ThrottleUtil.inThrottle = false;
-      }, delay ?? 1000);
-    }
+  static throttle(func: (event: ClickEvent | GestureEvent) => void, delay: number = 1000):
+    (event: ClickEvent | GestureEvent) => void {
+    let timer: number = 0;
+    return (event: ClickEvent | GestureEvent) => {
+      if (Date.now() - timer >= delay) {
+        func(event);
+        timer = Date.now();
+      }
+    };
   }
 }
