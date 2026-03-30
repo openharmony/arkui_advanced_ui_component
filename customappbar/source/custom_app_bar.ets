@@ -93,6 +93,8 @@ const ARKUI_APP_BAR_SYSTEM_APP_FLAG: string = 'com.atomicservice.params.key.isSy
 const ARKUI_APP_BAR_VISIBILITY_INFO: string = 'com.atomicservice.visible';
 const ARKUI_APP_BAR_HOST_TYPE: string = 'com.atomicservice.params.key.hostType';
 const ARKUI_APP_BAR_HOST_APP_ID: string = 'com.atomicservice.params.key.hostAppId';
+const EVENT_NAME_CUSTOM_APP_BAR_THIRD_CLOSE: string = 'arkui_custom_app_bar_third_close';
+const ARKUI_ABILITY_CLOSE_EVENT: string = 'arkui_ability_close_event';
 
 /**
  * 颜色配置，适用于同一对象属性需要配置深色模式、浅色模式的场景
@@ -185,6 +187,13 @@ class NativeEventManager {
    * @param bundleName 宿主元服务bundleName
    */
   static startRevisitServicePanel(bundleName: string) {
+  }
+
+  /**
+   * 在嵌入式拉起的元服务中调用接口主动退出
+   * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+   */
+  static onThirdClickCallback(): void {
   }
 }
 
@@ -286,6 +295,7 @@ export struct CustomAppBar {
   private launchType: string = '';
   private hostType: bundleManager.BundleType | string = '';
   private hostAppId: string = '';
+  private isThirdClose: boolean = false;
   private stopPropagation = (event?: TouchEvent) => {
     event?.stopPropagation();
   }
@@ -562,7 +572,12 @@ export struct CustomAppBar {
    */
   private menubarCloseEvent(): void {
     this.isEmbedComp = false;
-    NativeEventManager.onBackPressConsumed();
+    if (this.isThirdClose) {
+      NativeEventManager.onThirdClickCallback();
+    } else {
+      NativeEventManager.onCloseButtonClick();
+    }
+    this.isThirdClose = false;
   }
 
   /**
@@ -698,6 +713,9 @@ export struct CustomAppBar {
       this.getWantParamEvent(param);
     } else if (eventName === ARKUI_APP_BAR_ON_RECEIVE_EVENT) {
       this.onReceiveEvent(param);
+    } else if (eventName === ARKUI_ABILITY_CLOSE_EVENT && this.isEmbedComp) {
+      this.isThirdClose = true;
+      this.closeContainerAnimation();
     }
   }
 
