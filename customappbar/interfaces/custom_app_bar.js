@@ -422,12 +422,8 @@ export class CustomAppBar extends MenubarBaseInfo {
      * 清理所有节流处理器
      */
     cleanThrottledHandlers() {
-        if (this.throttledMenuClickHandler) {
-            this.throttledMenuClickHandler = null;
-        }
-        if (this.throttledTitleClickHandler) {
-            this.throttledTitleClickHandler = null;
-        }
+        this.throttledMenuClickHandler = null;
+        this.throttledTitleClickHandler = null;
     }
     aboutToAppear() {
         try {
