@@ -381,6 +381,9 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.hostType = '';
         this.hostAppId = '';
         this.isThirdClose = false;
+        // 缓存节流函数的闭包环境
+        this.throttledMenuClickHandler = null;
+        this.throttledTitleClickHandler = null;
         this.stopPropagation = (event) => {
             event?.stopPropagation();
         }
@@ -426,6 +429,13 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.isShowRevisitFinished = true;
         }
     }
+    /**
+     * 清理所有节流处理器
+     */
+    cleanThrottledHandlers() {
+        this.throttledMenuClickHandler = null;
+        this.throttledTitleClickHandler = null;
+    }
     aboutToAppear() {
         try {
             import('@hms:atomicservicedistribution.atomicbasicengine').then((res) => {
@@ -452,6 +462,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.aboutToBeDeletedInternal();
     }
     aboutToDisappear() {
+        this.cleanThrottledHandlers();
         if (this.timeoutList.length) {
             this.timeoutList.forEach(id => {
                 clearTimeout(id);
@@ -1153,9 +1164,10 @@ export class CustomAppBar extends MenubarBaseInfo {
             Button.accessibilityText(this.serviceMenuRead);
             Gesture.create(GesturePriority.Low);
             TapGesture.create();
-            TapGesture.onAction(() => {
+            TapGesture.onAction(this.throttledMenuClickHandler || (this.throttledMenuClickHandler = 
+                ThrottleUtil.throttle(() => {
                 NativeEventManager.onMenuButtonClick(this.bundleName, this.launchType);
-            });
+            })));
             TapGesture.pop();
             Gesture.pop();
         }, Button);
@@ -1246,9 +1258,10 @@ export class CustomAppBar extends MenubarBaseInfo {
             Row.backgroundColor(Color.Transparent);
             ViewStackProcessor.visualState();
             Row.borderRadius(EYELASH_HEIGHT / 2);
-            Row.onClick(() => {
+            Row.onClick(this.throttledTitleClickHandler || (this.throttledTitleClickHandler = 
+                ThrottleUtil.throttle(() => {
                 NativeEventManager.onEyelashTitleClick(this.bundleName);
-            });
+            })));
             Row.margin({ start: LengthMetrics.vp(TITLE_MARGIN_RIGHT) });
         }, Row);
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -1570,9 +1583,6 @@ class HiAnalyticsUtil {
      * @returns 封装好的数据对象
      */
     static getAnalyticsData(launchType, hostType, hostAppId) {
-        if (hostType === '') {
-            hilog.warn(0x3900, LOG_TAG, 'hostType is null');
-        }
         let startMode;
         let embedMode;
         switch (launchType) {
@@ -1659,3 +1669,25 @@ class HiAnalyticsUtil {
 }
 HiAnalyticsUtil.processorId = undefined;
 HiAnalyticsUtil.appIdentifier = '';
+
+/**
+ * 节流工具类
+ */
+class ThrottleUtil {
+    /**
+     * 节流函数，在规定时间内只执行一次
+     *
+     * @param func 需要节流的函数
+     * @param delay 期望的规定时间，默认1000毫秒
+     * @returns 节流后的函数
+     */
+    static throttle(func, delay = 1000) {
+        let timer = 0;
+        return (event) => {
+            if (Date.now() - timer >= delay) {
+                func(event);
+                timer = Date.now();
+            }
+        };
+    }
+}
