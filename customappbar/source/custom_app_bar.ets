@@ -296,6 +296,9 @@ export struct CustomAppBar {
   private hostType: bundleManager.BundleType | string = '';
   private hostAppId: string = '';
   private isThirdClose: boolean = false;
+  // 缓存节流函数的闭包环境
+  private throttledMenuClickHandler: ((event: ClickEvent | GestureEvent) => void) | null = null;
+  private throttledTitleClickHandler: ((event: ClickEvent | GestureEvent) => void) | null = null;
   private stopPropagation = (event?: TouchEvent) => {
     event?.stopPropagation();
   }
@@ -317,6 +320,14 @@ export struct CustomAppBar {
     }
   }
 
+  /**
+   * 清理所有节流处理器
+   */
+  private cleanThrottledHandlers(): void {
+    this.throttledMenuClickHandler = null;
+    this.throttledTitleClickHandler = null;
+  }
+
   aboutToAppear() {
     try {
       import('@hms:atomicservicedistribution.atomicbasicengine').then((res: ESObject) => {
@@ -334,6 +345,7 @@ export struct CustomAppBar {
   }
 
   aboutToDisappear(): void {
+    this.cleanThrottledHandlers();
     if (this.timeoutList.length) {
       this.timeoutList.forEach(id => {
         clearTimeout(id);
@@ -1028,9 +1040,10 @@ export struct CustomAppBar {
         .width(this.buttonSize)
         .height(VIEW_HEIGHT)
         .accessibilityText(this.serviceMenuRead)
-        .gesture(TapGesture().onAction(() => {
-          NativeEventManager.onMenuButtonClick(this.bundleName, this.launchType);
-        }))
+        .gesture(TapGesture().onAction(this.throttledMenuClickHandler || (this.throttledMenuClickHandler =
+          ThrottleUtil.throttle(() => {
+            NativeEventManager.onMenuButtonClick(this.bundleName, this.launchType);
+          }))))
 
         Divider()
           .id('AtomicServiceDividerId')
@@ -1130,9 +1143,10 @@ export struct CustomAppBar {
           }
         })
         .borderRadius(EYELASH_HEIGHT / 2)
-        .onClick(() => {
-          NativeEventManager.onEyelashTitleClick(this.bundleName);
-        })
+        .onClick(this.throttledTitleClickHandler || (this.throttledTitleClickHandler =
+          ThrottleUtil.throttle(() => {
+            NativeEventManager.onEyelashTitleClick(this.bundleName);
+          })))
         .margin({ start: LengthMetrics.vp(TITLE_MARGIN_RIGHT) })
       }
       .margin({
@@ -1369,9 +1383,6 @@ class HiAnalyticsUtil {
    */
   private static getAnalyticsData(launchType: string, hostType: bundleManager.BundleType | string, hostAppId: string): 
     AnalyticsData {
-    if (hostType === '') {
-      hilog.warn(0x3900, LOG_TAG, 'hostType is null');
-    }
     let startMode: number;
     let embedMode: number;
     switch (launchType) {
@@ -1464,5 +1475,28 @@ interface AnalyticsData {
   embedMode: number,
   hostType: bundleManager.BundleType | string,
   hostAppId: string,
-  deviceId: string
+  odid: string
+}
+
+/**
+ * 节流工具类
+ */
+class ThrottleUtil {
+  /**
+   * 节流函数，在规定时间内只执行一次
+   *
+   * @param func 需要节流的函数
+   * @param delay 期望的规定时间，默认1000毫秒
+   * @returns 节流后的函数
+   */
+  static throttle(func: (event: ClickEvent | GestureEvent) => void, delay: number = 1000):
+    (event: ClickEvent | GestureEvent) => void {
+    let timer: number = 0;
+    return (event: ClickEvent | GestureEvent) => {
+      if (Date.now() - timer >= delay) {
+        func(event);
+        timer = Date.now();
+      }
+    };
+  }
 }
