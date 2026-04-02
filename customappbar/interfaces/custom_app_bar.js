@@ -94,14 +94,14 @@ const ARKUI_APP_BAR_ON_BACK_PRESSED_CONSUMED = 'arkui_app_bar_on_back_pressed_co
 const ARKUI_APP_BAR_IS_MENUBAR_VISIBLE = 'arkui_menu_bar_visible';
 const ARKUI_APP_BAR_GET_WANT_PARAM = 'arkui_extension_host_params';
 const ArkUI_APP_BAR_ON_RECEIVE_EVENT = 'arkui_app_bar_receive';
+const EVENT_NAME_CUSTOM_APP_BAR_THIRD_CLOSE = 'arkui_custom_app_bar_third_close';
+const ARKUI_ABILITY_CLOSE_EVENT = 'arkui_ability_close_event';
 // 定义由嵌入式组件发来的Want消息事件名称
 const ARKUI_APP_BAR_LAUNCH_TYPE = 'com.atomicservice.params.key.launchType';
 const ARKUI_APP_BAR_SYSTEM_APP_FLAG = 'com.atomicservice.params.key.isSystemApp';
 const ARKUI_APP_BAR_VISIBILITY_INFO = 'com.atomicservice.visible';
 const ARKUI_APP_BAR_HOST_TYPE = 'com.atomicservice.params.key.hostType';
 const ARKUI_APP_BAR_HOST_APP_ID = 'com.atomicservice.params.key.hostAppId';
-const EVENT_NAME_CUSTOM_APP_BAR_THIRD_CLOSE = 'arkui_custom_app_bar_third_close';
-const ARKUI_ABILITY_CLOSE_EVENT = 'arkui_ability_close_event';
 /**
  * 断点类型
  */
@@ -231,9 +231,12 @@ class NativeEventManager {
     /**
      * 在嵌入式拉起的元服务中调用接口主动退出
      * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+     * 
+     * @param thirdCloseCode 元服务主动调用terminal接口退出code，回传ArkUI
      */
-    static onThirdClickCallback() {
-        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_THIRD_CLOSE);
+    static onThirdClickCallback(thirdCloseCode) {
+        let info = thirdCloseCode;
+        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_THIRD_CLOSE, info);
     }
 }
 
@@ -381,6 +384,7 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.hostType = '';
         this.hostAppId = '';
         this.isThirdClose = false;
+        this.thirdCloseCodeQueue = [];
         // 缓存节流函数的闭包环境
         this.throttledMenuClickHandler = null;
         this.throttledTitleClickHandler = null;
@@ -684,7 +688,11 @@ export class CustomAppBar extends MenubarBaseInfo {
     menubarCloseEvent() {
         this.isEmbedComp = false;
         if (this.isThirdClose) {
-            NativeEventManager.onThirdClickCallback();
+            // 按顺序发送队列中的所有值
+            while (this.thirdCloseCodeQueue.length > 0) {
+                const code = this.thirdCloseCodeQueue.shift();
+                NativeEventManager.onThirdClickCallback(code);
+            }
         } else {
             NativeEventManager.onCloseButtonClick();
         }
@@ -825,6 +833,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.onReceiveEvent(param);
         } else if (eventName === ARKUI_ABILITY_CLOSE_EVENT && this.isEmbedComp) {
             this.isThirdClose = true;
+            this.thirdCloseCodeQueue.push(param);
             this.closeContainerAnimation();
         }
     }
