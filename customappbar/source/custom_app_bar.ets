@@ -87,14 +87,14 @@ const ARKUI_APP_BAR_ON_BACK_PRESSED_CONSUMED: string = 'arkui_app_bar_on_back_pr
 const ARKUI_APP_BAR_IS_MENUBAR_VISIBLE: string = 'arkui_menu_bar_visible';
 const ARKUI_APP_BAR_GET_WANT_PARAM: string = 'arkui_extension_host_params';
 const ARKUI_APP_BAR_ON_RECEIVE_EVENT: string = 'arkui_app_bar_receive';
+const EVENT_NAME_CUSTOM_APP_BAR_THIRD_CLOSE: string = 'arkui_custom_app_bar_third_close';
+const ARKUI_ABILITY_CLOSE_EVENT: string = 'arkui_ability_close_event';
 // 定义由嵌入式组件发来的Want消息事件名称
 const ARKUI_APP_BAR_LAUNCH_TYPE: string = 'com.atomicservice.params.key.launchType';
 const ARKUI_APP_BAR_SYSTEM_APP_FLAG: string = 'com.atomicservice.params.key.isSystemApp';
 const ARKUI_APP_BAR_VISIBILITY_INFO: string = 'com.atomicservice.visible';
 const ARKUI_APP_BAR_HOST_TYPE: string = 'com.atomicservice.params.key.hostType';
 const ARKUI_APP_BAR_HOST_APP_ID: string = 'com.atomicservice.params.key.hostAppId';
-const EVENT_NAME_CUSTOM_APP_BAR_THIRD_CLOSE: string = 'arkui_custom_app_bar_third_close';
-const ARKUI_ABILITY_CLOSE_EVENT: string = 'arkui_ability_close_event';
 
 /**
  * 颜色配置，适用于同一对象属性需要配置深色模式、浅色模式的场景
@@ -192,8 +192,10 @@ class NativeEventManager {
   /**
    * 在嵌入式拉起的元服务中调用接口主动退出
    * 在ets无法实现，需要在编译后的js中加入对应的实现方法
+   * 
+   * @param thirdCloseCode 元服务主动调用terminal接口退出code，回传ArkUI
    */
-  static onThirdClickCallback(): void {
+  static onThirdClickCallback(thirdCloseCode: string): void {
   }
 }
 
@@ -296,6 +298,7 @@ export struct CustomAppBar {
   private hostType: bundleManager.BundleType | string = '';
   private hostAppId: string = '';
   private isThirdClose: boolean = false;
+  private thirdCloseCodeQueue: string[] = [];
   // 缓存节流函数的闭包环境
   private throttledMenuClickHandler: ((event: ClickEvent | GestureEvent) => void) | null = null;
   private throttledTitleClickHandler: ((event: ClickEvent | GestureEvent) => void) | null = null;
@@ -585,7 +588,11 @@ export struct CustomAppBar {
   private menubarCloseEvent(): void {
     this.isEmbedComp = false;
     if (this.isThirdClose) {
-      NativeEventManager.onThirdClickCallback();
+      // 按顺序发送队列中的所有thirdCloseCode
+      while (this.thirdCloseCodeQueue.length > 0) {
+        const code: string = this.thirdCloseCodeQueue.shift();
+        NativeEventManager.onThirdClickCallback(code);
+      }
     } else {
       NativeEventManager.onCloseButtonClick();
     }
@@ -727,6 +734,7 @@ export struct CustomAppBar {
       this.onReceiveEvent(param);
     } else if (eventName === ARKUI_ABILITY_CLOSE_EVENT && this.isEmbedComp) {
       this.isThirdClose = true;
+      this.thirdCloseCodeQueue.push(param);
       this.closeContainerAnimation();
     }
   }
