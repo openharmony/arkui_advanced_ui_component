@@ -383,7 +383,6 @@ export class CustomAppBar extends MenubarBaseInfo {
         this.launchType = '';
         this.hostType = '';
         this.hostAppId = '';
-        this.isThirdClose = false;
         this.thirdCloseCodeQueue = [];
         // 缓存节流函数的闭包环境
         this.throttledMenuClickHandler = null;
@@ -685,9 +684,9 @@ export class CustomAppBar extends MenubarBaseInfo {
     /**
      * menubar关闭事件，此处用于直接关闭元服务，并重置相关字段信息
      */
-    menubarCloseEvent() {
+    menubarCloseEvent(isThirdClose = false) {
         this.isEmbedComp = false;
-        if (this.isThirdClose) {
+        if (isThirdClose) {
             // 按顺序发送队列中的所有值
             while (this.thirdCloseCodeQueue.length > 0) {
                 const code = this.thirdCloseCodeQueue.shift();
@@ -696,7 +695,6 @@ export class CustomAppBar extends MenubarBaseInfo {
         } else {
             NativeEventManager.onCloseButtonClick();
         }
-        this.isThirdClose = false;
     }
 
     /**
@@ -832,9 +830,8 @@ export class CustomAppBar extends MenubarBaseInfo {
         } else if (eventName === ArkUI_APP_BAR_ON_RECEIVE_EVENT) {
             this.onReceiveEvent(param);
         } else if (eventName === ARKUI_ABILITY_CLOSE_EVENT && this.isEmbedComp) {
-            this.isThirdClose = true;
             this.thirdCloseCodeQueue.push(param);
-            this.closeContainerAnimation();
+            this.closeContainerAnimation(true);
         }
     }
     /**
@@ -920,9 +917,9 @@ export class CustomAppBar extends MenubarBaseInfo {
     /**
      * 元服务关闭动效，包含嵌入式组件关闭动效
      */
-    closeContainerAnimation() {
+    closeContainerAnimation(isThirdClose = false) {
         if (this.isHalfScreen) {
-            this.closeHalfContainerAnimation();
+            this.closeHalfContainerAnimation(isThirdClose);
             return;
         }
         if (this.isEmbedComp) {
@@ -931,7 +928,7 @@ export class CustomAppBar extends MenubarBaseInfo {
                 duration: 250,
                 curve: curves.interpolatingSpring(0, 1, 328, 36),
                 onFinish: () => {
-                    this.menubarCloseEvent();
+                    this.menubarCloseEvent(isThirdClose);
                 }
             }, () => {
                 this.stackHeight = '0%';
@@ -945,13 +942,13 @@ export class CustomAppBar extends MenubarBaseInfo {
     /**
      * 半屏嵌入式组件关闭动效
      */
-    closeHalfContainerAnimation() {
+    closeHalfContainerAnimation(isThirdClose = false) {
         // 关闭弹框
         Context.animateTo({
             duration: 250,
             curve: curves.interpolatingSpring(0, 1, 328, 36),
             onFinish: () => {
-                this.menubarCloseEvent();
+                this.menubarCloseEvent(isThirdClose);
             }
         }, () => {
             this.containerHeight = '0%';
