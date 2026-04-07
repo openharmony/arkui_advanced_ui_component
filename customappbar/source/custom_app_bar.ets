@@ -147,7 +147,7 @@ class NativeEventManager {
    * @param bundleName 宿主元服务bundleName
    * @param launchType 嵌入式启动方式
    */
-  static onMenuButtonClick(bundleName: string, launchType: string): void {
+  static onMenuButtonClick(launchType: string): void {
   }
 
   /**
@@ -1042,7 +1042,7 @@ export struct CustomAppBar {
         .accessibilityText(this.serviceMenuRead)
         .gesture(TapGesture().onAction(this.throttledMenuClickHandler || (this.throttledMenuClickHandler =
           ThrottleUtil.throttle(() => {
-            NativeEventManager.onMenuButtonClick(this.bundleName, this.launchType);
+            NativeEventManager.onMenuButtonClick(this.launchType);
           }))))
 
         Divider()
