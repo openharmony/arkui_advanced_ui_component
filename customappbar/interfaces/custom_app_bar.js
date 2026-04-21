@@ -31,7 +31,7 @@ const deviceInfo = requireNapi('deviceInfo');
 // Menubar作用域内的日志打印前缀
 const LOG_TAG = 'CustomAppBar';
 // 常规模式/全屏嵌入式使用的参数
-const VIEW_HEIGHT = 36;
+const VIEW_HEIGHT = 40;
 const BUTTON_SIZE = 40;
 const IMAGE_SIZE = '20vp';
 const MENU_RADIUS = '20vp';
