@@ -24,7 +24,7 @@ import { bundleManager } from '@kit.AbilityKit';
 // Menubar作用域内的日志打印前缀
 const LOG_TAG: string = 'CustomAppBar';
 // 常规模式/全屏嵌入式使用的参数
-const VIEW_HEIGHT: number = 36;
+const VIEW_HEIGHT: number = 40;
 const BUTTON_SIZE: number = 40;
 const IMAGE_SIZE: string = '20vp';
 const MENU_RADIUS: string = '20vp';
