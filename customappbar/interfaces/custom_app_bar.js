@@ -156,6 +156,10 @@ class NativeEventManager {
                 `ohos.extra.menubar.param.key.showMode:${showMode}`
             ]
         };
+        const currentShareMenuStatus = AppStorage.get('currentShareMenuStatus');
+        if (currentShareMenuStatus) {
+            info.params.push(`shareMenuStatus:${currentShareMenuStatus}`);
+        }
         ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK, info);
     }
     /**
