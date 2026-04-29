@@ -139,7 +139,6 @@ class NativeEventManager {
      * 服务面板按钮点击回调
      * 在ets无法实现，需要在编译后的js中加入对应的实现方法
      * 
-     * @param bundleName 待获取资料信息的元服务bundleName
      * @param launchType 嵌入式启动方式
      */
     static onMenuButtonClick(launchType) {
@@ -156,6 +155,10 @@ class NativeEventManager {
                 `ohos.extra.menubar.param.key.showMode:${showMode}`
             ]
         };
+        const currentShareMenuStatus = AppStorage.get('currentShareMenuStatus');
+        if (currentShareMenuStatus) {
+            info.params.push(`shareMenuStatus:${currentShareMenuStatus}`);
+        }
         ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK, info);
     }
     /**
