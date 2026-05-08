@@ -363,7 +363,10 @@ export class CustomAppBarForPC extends ViewPU {
      * menu按钮点击
      */
     onMenuButtonClick() {
-        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK);
+        let info = {
+            'params': []
+        };
+        ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_MENU_CLICK, info);
     }
     /**
      * 点击放大按钮
