@@ -40,6 +40,12 @@ gen_obj("interstitialdialogaction_abc_preview") {
 ohos_shared_library("interstitialdialogaction") {
   # 后向PAC使能
   branch_protector_ret = "pac_ret"
+  # 前向CFI使能
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
   
   sources = [ "interstitialdialogaction.cpp" ]
 
