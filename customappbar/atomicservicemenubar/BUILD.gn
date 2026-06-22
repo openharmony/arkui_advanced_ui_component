@@ -39,6 +39,15 @@ gen_obj("atomicservicemenubar_abc_preview") {
 }
  
 ohos_shared_library("atomicservicemenubar") {
+  # 后向PAC使能
+  branch_protector_ret = "pac_ret"
+  # 前向CFI使能
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  
   sources = [
     "src/native_menubar.cpp",
     "src/menubar_api_implement.cpp"
