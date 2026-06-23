@@ -32,6 +32,7 @@ if (!("finalizeConstruction" in ViewPU.prototype)) {
     Reflect.set(ViewPU.prototype, "finalizeConstruction", () => {
     });
 }
+const hilog = requireNapi('hilog');
 const webView = requireNapi('web.webview');
 const router = requireNapi('router');
 const deviceInfo = requireNapi('deviceInfo');
@@ -182,6 +183,7 @@ export class AtomicServiceWeb extends ViewPU {
         this.schemeHandler = new webView.WebSchemeHandler();
         this.atomicService = undefined;
         this.atomicServiceProxy = undefined;
+        this.accessTokenId = 0;
         this.setInitiallyProvidedValue(t10);
         this.finalizeConstruction();
     }
@@ -304,6 +306,7 @@ export class AtomicServiceWeb extends ViewPU {
         }
         try {
             let h2 = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+            this.accessTokenId = h2?.appInfo?.accessTokenId ?? 0;
             if (h2?.appInfo?.appProvisionType === 'debug') {
                 console.log(`AtomicServiceWeb setWebDebuggingAccess`);
                 webView.WebviewController.setWebDebuggingAccess(true);
@@ -1025,8 +1028,19 @@ class AtomicService {
     }
 
     checkAccessToken(v5) {
-        let w5 = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
-        let x5 = w5.appInfo.accessTokenId;
+        let x5 = this.accessTokenId;
+        if (x5 === 0) {
+            let w5;
+            try {
+                w5 = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+            } catch (err) {
+                let message = err?.message;
+                hilog.error(0x3900, 'AtomicServiceWeb', 'checkAccessToken getBundleInfoForSelfSync fail, cause: %{public}s.', message);
+                return Promise.reject(err);
+            }
+            x5 = w5.appInfo.accessTokenId;
+            this.accessTokenId = x5;
+        }
         let y5 = abilityAccessCtrl.createAtManager();
         return y5.checkAccessToken(x5, v5);
     }
