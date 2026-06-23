@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+import hilog from '@ohos.hilog';
 import webView from '@ohos.web.webview';
 import router from '@ohos.router';
 import deviceInfo from '@ohos.deviceInfo';
@@ -175,6 +176,7 @@ export struct AtomicServiceWeb {
   private schemeHandler: webView.WebSchemeHandler = new webView.WebSchemeHandler();
   private atomicService?: AtomicService;
   private atomicServiceProxy?: AtomicServiceProxy;
+  private accessTokenId: number = 0;
 
   aboutToAppear(): void {
     if (!this.atomicService) {
@@ -185,6 +187,7 @@ export struct AtomicServiceWeb {
     try {
       let bundleInfo: bundleManager.BundleInfo = bundleManager.getBundleInfoForSelfSync(
         bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+      this.accessTokenId = bundleInfo?.appInfo?.accessTokenId ?? 0;
       if (bundleInfo?.appInfo?.appProvisionType === 'debug') {
         console.log(`AtomicServiceWeb setWebDebuggingAccess`);
         webView.WebviewController.setWebDebuggingAccess(true);
@@ -950,9 +953,20 @@ class AtomicService {
   }
 
   checkAccessToken(permissionName: Permissions): Promise<abilityAccessCtrl.GrantStatus> {
-    let bundleInfo: bundleManager.BundleInfo = bundleManager.getBundleInfoForSelfSync(
-      bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
-    let tokenId: number = bundleInfo.appInfo.accessTokenId;
+    let tokenId: number = this.accessTokenId;
+    if (tokenId === 0) {
+      let bundleInfo: bundleManager.BundleInfo;
+      try {
+        bundleInfo = bundleManager.getBundleInfoForSelfSync(
+          bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+      } catch (err) {
+        let message = (err as BusinessError).message;
+        hilog.error(0x3900, 'AtomicServiceWeb', 'checkAccessToken getBundleInfoForSelfSync fail, cause: %{public}s.', message);
+        return Promise.reject(err);
+      }
+      tokenId = bundleInfo.appInfo.accessTokenId;
+      this.accessTokenId = tokenId;
+    }
     let atManager: abilityAccessCtrl.AtManager = abilityAccessCtrl.createAtManager();
     return atManager.checkAccessToken(tokenId, permissionName);
   }
