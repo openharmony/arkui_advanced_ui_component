@@ -1,0 +1,323 @@
+{
+  "schema_version": "2.0",
+  "skill_name": "advance-ui-doc-review",
+  "dataset_version": "v1.0",
+  "coverage_stats": {
+    "by_category": {
+      "core_use_case": 2,
+      "edge_case": 1,
+      "adversarial": 2,
+      "regression": 0
+    },
+    "by_difficulty": {
+      "easy": 1,
+      "medium": 2,
+      "hard": 2
+    },
+    "warnings": []
+  },
+  "evals": [
+    {
+      "id": 1,
+      "name": "complete-doc-review",
+      "prompts": {
+        "with_skill_a": "请使用 .codegenie/skills/advance-ui-doc-review skill 对以下文档进行完整文档检视，代码路径/内容：test-data/ohos-arkui-advanced-FullScreenLaunchComponent.md",
+        "with_skill_b": "",
+        "without_skill": "请不调用任何 skill 系统，作为 OpenHarmony ArkUI 高阶组件文档质量专家对以下文档进行完整检视，代码路径/内容：test-data/ohos-arkui-advanced-FullScreenLaunchComponent.md"
+      },
+      "prompt": "请使用 .codegenie/skills/advance-ui-doc-review skill 对以下文档进行完整文档检视，代码路径/内容：test-data/ohos-arkui-advanced-FullScreenLaunchComponent.md",
+      "expected_output": "生成完整文档检视报告，包含：经验模式预检(P1~P13)、规范映射检查(G1~G16)、签名-表格一致性核对、SDK一致性检验。该文档整体规范，检查项证据列应附文档原文，检查项覆盖表不可留空。",
+      "files": ["test-data/ohos-arkui-advanced-FullScreenLaunchComponent.md"],
+      "category": "core_use_case",
+      "difficulty": "medium",
+      "tags": ["complete-review", "fullscreen"],
+      "expectations": [
+        {
+          "id": "exp-1-1",
+          "type": "llm_output",
+          "text": "输出包含完整检视报告结构（对象、范围、时间、检视覆盖、发现问题/检查项覆盖）",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否包含'文档检视报告'标题及'检视覆盖'、'发现问题'或'检查项覆盖'等标准章节",
+          "grading_weight": 0.15
+        },
+        {
+          "id": "exp-1-2",
+          "type": "llm_output",
+          "text": "执行了经验模式预检(P1~P13)，逐项给出匹配结果",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否提及P1~P13各模式的检查结果（匹配或未匹配）",
+          "grading_weight": 0.2
+        },
+        {
+          "id": "exp-1-3",
+          "type": "llm_output",
+          "text": "执行了签名-表格一致性核对，输出参数逐一比对表",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否包含'签名-表格一致性核对'章节，且对每个参数给出了签名可选性vs表格必填的比对结果",
+          "grading_weight": 0.25
+        },
+        {
+          "id": "exp-1-4",
+          "type": "llm_output",
+          "text": "检查了通用检查项(G1~G16)中的关键项：起始版本、导入模块、参数标题、表格格式、默认值、原子化服务标注",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否对G2/G3/G7/G8/G10/G11等通用检查项给出了检查结果",
+          "grading_weight": 0.25
+        },
+        {
+          "id": "exp-1-5",
+          "type": "llm_output",
+          "text": "检查项覆盖表的证据列非空，附有文档原文片段",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出中检查项的'证据'列是否包含文档实际原文片段而非留空",
+          "grading_weight": 0.15
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "complete-doc-review-with-defects",
+      "prompts": {
+        "with_skill_a": "请使用 .codegenie/skills/advance-ui-doc-review skill 对以下文档进行完整文档检视，代码路径/内容：test-data/ohos-atomicservice-HalfScreenLaunchComponent.md",
+        "with_skill_b": "",
+        "without_skill": "请不调用任何 skill 系统，作为 OpenHarmony ArkUI 高阶组件文档质量专家对以下文档进行完整检视，代码路径/内容：test-data/ohos-atomicservice-HalfScreenLaunchComponent.md"
+      },
+      "prompt": "请使用 .codegenie/skills/advance-ui-doc-review skill 对以下文档进行完整文档检视，代码路径/内容：test-data/ohos-atomicservice-HalfScreenLaunchComponent.md",
+      "expected_output": "检视报告应发现多个问题：P4(sup标签未闭合)、P1(null检查判断对象而非结果)、P13(JS包装类型String/Number/Boolean)、G4(缺少子组件章节)、G10(参数缺少默认值)、P2(方法缺少参数标题)、P11(UI组件无效果图)。",
+      "files": ["test-data/ohos-atomicservice-HalfScreenLaunchComponent.md"],
+      "category": "core_use_case",
+      "difficulty": "hard",
+      "tags": ["complete-review", "multi-defect", "P1", "P4", "P13"],
+      "expectations": [
+        {
+          "id": "exp-2-1",
+          "type": "llm_output",
+          "text": "发现P1 Fatal问题：示例代码中null检查判断对象(dialogUIContext === null)而非结果",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否识别出`dialogUIContext === null`是P1模式（判断对象而非获取结果）且标记为Fatal",
+          "grading_weight": 0.25
+        },
+        {
+          "id": "exp-2-2",
+          "type": "llm_output",
+          "text": "发现P4问题：onReceive<sup>20+<sup>上标标签未闭合",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否指出sup标签不闭合问题（第二个<sup>应为</sup>）",
+          "grading_weight": 0.2
+        },
+        {
+          "id": "exp-2-3",
+          "type": "llm_output",
+          "text": "发现P13问题：SearchParams使用JS包装类型String/Number/Boolean，应为小写",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否明确指出SearchParams中的String/Number/Boolean应为string/number/boolean",
+          "grading_weight": 0.2
+        },
+        {
+          "id": "exp-2-4",
+          "type": "llm_output",
+          "text": "发现P2问题：show方法缺少**参数：**标题",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否指出show方法参数表前缺少'参数：'标题",
+          "grading_weight": 0.15
+        },
+        {
+          "id": "exp-2-5",
+          "type": "llm_output",
+          "text": "发现G4问题：文档缺少'子组件'章节",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否指出缺少'子组件'章节",
+          "grading_weight": 0.1
+        },
+        {
+          "id": "exp-2-6",
+          "type": "llm_output",
+          "text": "发现P11问题：UI组件示例缺少效果图",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否指出示例代码缺少效果图(figures/截图)",
+          "grading_weight": 0.1
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "pr-diff-review",
+      "prompts": {
+        "with_skill_a": "请使用 .codegenie/skills/advance-ui-doc-review skill 对以下 PR 变更进行检视，代码路径/内容：test-data/pr-diff-AtomicServiceNavigation.md",
+        "with_skill_b": "",
+        "without_skill": "请不调用任何 skill 系统，作为 OpenHarmony ArkUI 高阶组件文档质量专家对以下 PR 变更进行检视，代码路径/内容：test-data/pr-diff-AtomicServiceNavigation.md"
+      },
+      "prompt": "请使用 .codegenie/skills/advance-ui-doc-review skill 对以下 PR 变更进行检视，代码路径/内容：test-data/pr-diff-AtomicServiceNavigation.md",
+      "expected_output": "执行PR变更检视（仅检查diff涉及的部分），应发现：1)navPathStack和navigationContent签名带?可选但表格标'必填=是'(P3)；2)新增的titleOptions参数缺少默认值说明(G10/P7)；3)变更范围检视(签名+表格+说明需全量同步P9)。",
+      "files": ["test-data/pr-diff-AtomicServiceNavigation.md"],
+      "category": "core_use_case",
+      "difficulty": "medium",
+      "tags": ["pr-diff-review", "P3", "P7", "P9"],
+      "expectations": [
+        {
+          "id": "exp-3-1",
+          "type": "llm_output",
+          "text": "输出包含PR变更检视报告结构，明确标注'PR变更检视'范围",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否明确标注为'PR变更检视'而非'完整文档检视'",
+          "grading_weight": 0.15
+        },
+        {
+          "id": "exp-3-2",
+          "type": "llm_output",
+          "text": "发现P3问题：navPathStack/navigationContent签名带?可选，但表格标为'必填=是'，不一致",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否指出navPathStack/navigationContent的可选性与表格必填标注不一致",
+          "grading_weight": 0.3
+        },
+        {
+          "id": "exp-3-3",
+          "type": "llm_output",
+          "text": "发现P7/G10问题：新增参数titleOptions及其子参数缺少默认值说明",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否指出新增参数默认值缺失",
+          "grading_weight": 0.25
+        },
+        {
+          "id": "exp-3-4",
+          "type": "llm_output",
+          "text": "检查了P9签名变更全量同步：签名变更后表格和说明是否已全量更新",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否提及P9模式（签名变更需全量同步签名+表格+说明+示例）",
+          "grading_weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "merged-pr-knowledge-base-update",
+      "prompts": {
+        "with_skill_a": "请使用 .codegenie/skills/advance-ui-doc-review skill，PR #148137 已合并，请根据此已合并的 PR 更新知识库。代码路径/内容：test-data/pr-merged-148137.md",
+        "with_skill_b": "",
+        "without_skill": "请不调用任何 skill 系统，作为 OpenHarmony ArkUI 高阶组件文档专家，PR #148137 已合并，请根据此已合并的 PR 更新知识库。代码路径/内容：test-data/pr-merged-148137.md"
+      },
+      "prompt": "请使用 .codegenie/skills/advance-ui-doc-review skill，PR #148137 已合并，请根据此已合并的 PR 更新知识库。代码路径/内容：test-data/pr-merged-148137.md",
+      "expected_output": "触发知识库更新流程：1)确认PR已merged；2)筛选目标文件(ohos-atomicservice-*.md)；3)与P1~P13匹配(发现P7模式：新增参数缺默认值)；4)按需更新pr-history-analysis.md(P7频率+1)；5)输出自检确认。",
+      "files": ["test-data/pr-merged-148137.md"],
+      "category": "edge_case",
+      "difficulty": "hard",
+      "tags": ["knowledge-base-update", "merged-pr", "P7"],
+      "expectations": [
+        {
+          "id": "exp-4-1",
+          "type": "llm_output",
+          "text": "触发了知识库更新流程而非仅检视报告",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否包含知识库更新步骤（确认merged→筛选文件→模式匹配→更新参考文件→自检）",
+          "grading_weight": 0.3
+        },
+        {
+          "id": "exp-4-2",
+          "type": "llm_output",
+          "text": "与P1~P13模式匹配，识别出变更涉及P7模式（默认值缺失）",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否将本次PR变更与P7模式（默认值被简化/删除/缺失）关联",
+          "grading_weight": 0.3
+        },
+        {
+          "id": "exp-4-3",
+          "type": "llm_output",
+          "text": "输出自检确认：已确认merged、已筛选目标文件、已与P1~P13匹配、已更新参考文件",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否包含自检清单的确认结果",
+          "grading_weight": 0.2
+        },
+        {
+          "id": "exp-4-4",
+          "type": "llm_output",
+          "text": "明确指出更新的目标文件（如pr-history-analysis.md中P7频率更新）",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否具体说明了需要更新的参考文件及更新内容",
+          "grading_weight": 0.2
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "unmerged-pr-no-update",
+      "prompts": {
+        "with_skill_a": "请使用 .codegenie/skills/advance-ui-doc-review skill 检视一下 PR #148137 的变更，代码路径/内容：test-data/pr-diff-AtomicServiceNavigation.md",
+        "with_skill_b": "",
+        "without_skill": "请不调用任何 skill 系统，作为 OpenHarmony ArkUI 高阶组件文档质量专家检视一下 PR #148137 的变更，代码路径/内容：test-data/pr-diff-AtomicServiceNavigation.md"
+      },
+      "prompt": "请使用 .codegenie/skills/advance-ui-doc-review skill 检视一下 PR #148137 的变更，代码路径/内容：test-data/pr-diff-AtomicServiceNavigation.md",
+      "expected_output": "仅执行PR变更检视，不触发知识库更新（用户说'检视一下'而非'更新知识库'，不满足更新触发条件）。输出应为PR变更检视报告而非知识库更新。",
+      "files": ["test-data/pr-diff-AtomicServiceNavigation.md"],
+      "category": "adversarial",
+      "difficulty": "easy",
+      "tags": ["pr-review-only", "no-kb-update", "trigger-condition"],
+      "expectations": [
+        {
+          "id": "exp-5-1",
+          "type": "llm_output",
+          "text": "执行PR变更检视而非知识库更新",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否为PR变更检视报告，而非知识库更新流程输出",
+          "grading_weight": 0.5
+        },
+        {
+          "id": "exp-5-2",
+          "type": "llm_output",
+          "text": "未触发知识库更新（未出现pr-history-analysis.md更新、自检确认等更新相关内容）",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否不包含知识库更新流程（如pr-history-analysis.md更新、P1~P13频率变更等）",
+          "grading_weight": 0.3
+        },
+        {
+          "id": "exp-5-3",
+          "type": "llm_output",
+          "text": "输出包含PR变更检视报告结构",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否包含标准检视报告结构（对象、范围、发现问题等）",
+          "grading_weight": 0.2
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "out-of-scope-doc-review",
+      "prompts": {
+        "with_skill_a": "请使用 .codegenie/skills/advance-ui-doc-review skill 对以下文档进行完整文档检视，代码路径/内容：test-data/ohos-ui-Button.md",
+        "with_skill_b": "",
+        "without_skill": "请不调用任何 skill 系统，作为 OpenHarmony ArkUI 高阶组件文档质量专家对以下文档进行完整检视，代码路径/内容：test-data/ohos-ui-Button.md"
+      },
+      "prompt": "请使用 .codegenie/skills/advance-ui-doc-review skill 对以下文档进行完整文档检视，代码路径/内容：test-data/ohos-ui-Button.md",
+      "expected_output": "识别文档不在检视范围内(文件名ohos-ui-Button.md不匹配ohos-atomicservice-*/ohos-arkui-advanced-*模式)，提示范围限制但仍执行基本检视。",
+      "files": ["test-data/ohos-ui-Button.md"],
+      "category": "adversarial",
+      "difficulty": "easy",
+      "tags": ["out-of-scope", "scope-detection"],
+      "expectations": [
+        {
+          "id": "exp-6-1",
+          "type": "llm_output",
+          "text": "明确指出文件不在atomicservice/advanced组件文档检视范围内",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否说明文件名/路径不在skill指定的检视范围内",
+          "grading_weight": 0.5
+        },
+        {
+          "id": "exp-6-2",
+          "type": "llm_output",
+          "text": "仍执行了基本检视，但明确提示不保证覆盖组件特有检查项",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否在范围提示后仍提供了基本检视结果，并说明检查项覆盖受限",
+          "grading_weight": 0.3
+        },
+        {
+          "id": "exp-6-3",
+          "type": "llm_output",
+          "text": "输出包含检视报告结构",
+          "verification": "automatic",
+          "how_to_verify": "通过LLM裁判判定输出是否包含标准检视报告结构",
+          "grading_weight": 0.2
+        }
+      ]
+    }
+  ]
+}

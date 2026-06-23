@@ -1,0 +1,177 @@
+[
+  {
+    "id": 1,
+    "query": "请帮我检视一下这个 PR，主要是修改了原子化服务组件的文档",
+    "should_trigger": true,
+    "reason": "明确提到原子化服务组件文档 PR 检视，匹配 skill 核心触发条件",
+    "category": "core_intent"
+  },
+  {
+    "id": 2,
+    "query": "review this PR for ohos-atomicservice-NavPushPathHelper documentation changes",
+    "should_trigger": true,
+    "reason": "明确提到 atomicservice 组件文档 PR 检视，匹配 skill 描述中的触发词",
+    "category": "core_intent"
+  },
+  {
+    "id": 3,
+    "query": "PR #1234 改动了 arkui-ts/ 目录下的 TabContent 文档，帮忙看一下有没有问题",
+    "should_trigger": true,
+    "reason": "明确提到 arkui-ts/ 目录下的文档变更，符合 skill 检视范围",
+    "category": "core_intent"
+  },
+  {
+    "id": 4,
+    "query": "OpenHarmony 高阶组件 API 文档 PR 检视：https://gitcode.com/openharmony/docs/pull/5678",
+    "should_trigger": true,
+    "reason": "明确提到高阶组件文档和 PR 检视，完全匹配触发条件",
+    "category": "core_intent"
+  },
+  {
+    "id": 5,
+    "query": "帮我 review 这份文档的代码示例：\n```markdown\n## AtomicServiceNavigation\n### constructor\n无\n```",
+    "should_trigger": true,
+    "reason": "涉及 atomicservice 组件文档 review，包含可检视的代码内容",
+    "category": "core_intent"
+  },
+  {
+    "id": 6,
+    "query": "检视文档 PR：ohos-arkui-advanced-FullScreenLaunchComponent.md 有没有遗漏参数说明",
+    "should_trigger": true,
+    "reason": "明确指向 advanced 组件文档检视，匹配 skill 核心功能",
+    "category": "core_intent"
+  },
+  {
+    "id": 7,
+    "query": "can you review the documentation for atomicservice/advanced components? 这里是一段文档内容",
+    "should_trigger": true,
+    "reason": "明确提到 atomicservice/advanced 组件文档检视，符合触发条件",
+    "category": "core_intent"
+  },
+  {
+    "id": 8,
+    "query": "这个 PR 的文档变更需要检视，文件路径包含 arkui-ts/atomicservice/",
+    "should_trigger": true,
+    "reason": "文件路径明确包含 arkui-ts/atomicservice/，在 skill 检视范围内",
+    "category": "core_intent"
+  },
+  {
+    "id": 9,
+    "query": "帮忙检视下这个 ohos-atomicservice-AtomicServiceWeb.md 文档的参数表格是否规范",
+    "should_trigger": true,
+    "reason": "指向 atomicservice 组件文档检视，符合 skill 检视范围",
+    "category": "core_intent"
+  },
+  {
+    "id": 10,
+    "query": "PR 检视一下，变更了 InterstitialDialogAction 组件的使用说明文档",
+    "should_trigger": true,
+    "reason": "提到 atomicservice 组件文档变更 + PR 检视，匹配核心意图",
+    "category": "core_intent"
+  },
+  {
+    "id": 11,
+    "query": "请检视 OpenHarmony 应用的 UI 组件代码 PR",
+    "should_trigger": false,
+    "reason": "提到 UI 组件和 PR，但未明确指向 atomicservice/advanced 文档检视，意图不匹配",
+    "category": "negative_case"
+  },
+  {
+    "id": 12,
+    "query": "review this JavaScript code for errors",
+    "should_trigger": false,
+    "reason": "普通代码检视请求，与 OpenHarmony 文档检视无关",
+    "category": "negative_case"
+  },
+  {
+    "id": 13,
+    "query": "帮忙看一下这个 README.md 的格式有没有问题",
+    "should_trigger": false,
+    "reason": "普通 README 文档检视，不涉及 atomicservice/advanced 组件文档",
+    "category": "negative_case"
+  },
+  {
+    "id": 14,
+    "query": "帮我 review 这段 ArkUI 代码的性能优化建议",
+    "should_trigger": false,
+    "reason": "代码性能优化请求，不是文档检视任务",
+    "category": "negative_case"
+  },
+  {
+    "id": 15,
+    "query": "this is a general documentation review request for any markdown file",
+    "should_trigger": false,
+    "reason": "通用文档检视，未指定 atomicservice/advanced 组件文档范围",
+    "category": "negative_case"
+  },
+  {
+    "id": 16,
+    "query": "帮我检查 PR #567 中 docs/readme.md 是否符合规范",
+    "should_trigger": false,
+    "reason": "docs/readme.md 不在 arkui-ts/ 目录下，也不是 atomicservice/advanced 组件文档",
+    "category": "negative_case"
+  },
+  {
+    "id": 17,
+    "query": "review the code in arkui-ts/components/ for coding standards",
+    "should_trigger": false,
+    "reason": "代码规范检视请求，不是文档检视，路径也不符合组件文档位置",
+    "category": "negative_case"
+  },
+  {
+    "id": 18,
+    "query": "帮忙检视文档 PR，文件是 ohos-ui-Button.md",
+    "should_trigger": false,
+    "reason": "文件名 ohos-ui-Button.md 不在 skill 指定的 ohos-atomicservice-*/ohos-arkui-advanced-* 范围内",
+    "category": "negative_case"
+  },
+  {
+    "id": 19,
+    "query": "我想了解 atomicservice 组件有哪些特性",
+    "should_trigger": false,
+    "reason": "咨询类问题，不是文档检视请求",
+    "category": "negative_case"
+  },
+  {
+    "id": 20,
+    "query": "advanced 组件的用法有示例吗",
+    "should_trigger": false,
+    "reason": "用法咨询，不是文档检视任务",
+    "category": "negative_case"
+  },
+  {
+    "id": 21,
+    "query": "帮我看一下这个 PR 对 arkui-ts/api/ 目录下 ArkTS 接口文档的修改是否符合规范",
+    "should_trigger": true,
+    "reason": "明确指向 arkui-ts/api/ 目录下的接口文档 PR 检视，在 skill 范围内",
+    "category": "adjacent_intent"
+  },
+  {
+    "id": 22,
+    "query": "review documentation changes in zh-cn/application-dev reference docs",
+    "should_trigger": false,
+    "reason": "指向 application-dev 参考文档，未明确指定 arkui-ts/ 目录或 atomicservice/advanced 组件",
+    "category": "adjacent_intent"
+  },
+  {
+    "id": 23,
+    "query": "PR 检视：docs/zh-cn/api 的 API 参考文档有语法错误吗",
+    "should_trigger": false,
+    "reason": "docs/zh-cn/api 路径与 skill 要求的 arkui-ts/ 不同，是相邻但不在范围内的路径",
+    "category": "adjacent_intent"
+  },
+  {
+    "id": 24,
+    "query": "帮忙 review 这个 OpenHarmony 仓库的 docs/ 目录下的所有 MD 文档",
+    "should_trigger": false,
+    "reason": "docs/ 目录与 arkui-ts/ 不同，且未指定 atomicservice/advanced 组件文档",
+    "category": "adjacent_intent"
+  },
+  {
+    "id": 25,
+    "query": "这个 PR 改了 AtomicServiceTabs 组件的示例代码，文档部分也需要检查",
+    "should_trigger": true,
+    "reason": "明确提到 AtomicServiceTabs 组件文档检查请求，在 skill 范围内",
+    "category": "edge_case"
+  }
+]
