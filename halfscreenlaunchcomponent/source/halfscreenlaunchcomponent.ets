@@ -56,7 +56,7 @@ export struct HalfScreenLaunchComponent {
       this.hostType = selfBundleInfo?.appInfo?.bundleType;
       this.hostAppId = selfBundleInfo?.signatureInfo?.appIdentifier;
     } catch (err) {
-      let message = (err as BusinessError).message;
+      let message = (err as BusinessError)?.message ?? '';
       hilog.error(0x3900, LOG_TAG, 'aboutToAppear getBundleInfoForSelfSync fail, cause: %{public}s.', message);
     }
     let subscribeInfo: commonEventManager.CommonEventSubscribeInfo = {
