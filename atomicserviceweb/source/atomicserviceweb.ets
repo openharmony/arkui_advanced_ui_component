@@ -176,7 +176,6 @@ export struct AtomicServiceWeb {
   private schemeHandler: webView.WebSchemeHandler = new webView.WebSchemeHandler();
   private atomicService?: AtomicService;
   private atomicServiceProxy?: AtomicServiceProxy;
-  private accessTokenId: number = 0;
 
   aboutToAppear(): void {
     if (!this.atomicService) {
