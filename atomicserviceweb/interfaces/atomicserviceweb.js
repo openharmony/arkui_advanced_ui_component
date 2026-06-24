@@ -585,7 +585,10 @@ export class AtomicServiceWeb extends ViewPU {
         if (i8 === 0) {
             try {
                 let l8 = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
-                i8 = l8?.appInfo?.accessTokenId ?? 0;
+                if (!l8?.appInfo?.accessTokenId) {
+                    return false;        
+                }
+                i8 = l8.appInfo.accessTokenId;
                 this.atomicService?.initAccessToken(i8);
             } catch (k8) {
                 console.error(`AtomicServiceWeb isPermissionGranted error, code: ${k8.code}, message: ${k8.message}`);
