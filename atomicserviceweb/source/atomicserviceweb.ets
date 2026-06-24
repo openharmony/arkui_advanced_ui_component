@@ -504,7 +504,10 @@ export struct AtomicServiceWeb {
       try {
         let bundleInfo: bundleManager.BundleInfo =
           bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
-        tokenId = bundleInfo?.appInfo?.accessTokenId ?? 0;
+        if (!bundleInfo?.appInfo?.accessTokenId) {
+          return false;
+        }
+        tokenId = bundleInfo.appInfo.accessTokenId;
         this.atomicService?.initAccessToken(tokenId);
       } catch (err) {
         console.error(`AtomicServiceWeb isPermissionGranted error, code: ${err.code}, message: ${err.message}`);
