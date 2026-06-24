@@ -291,9 +291,14 @@ export struct AtomicServiceNavigation {
       return;
     }
     let bundleFlags: number = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
-    let bundleInfo: bundleManager.BundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags);
-    let iconRes: Resource = bundleInfo?.appInfo?.iconResource;
-    this.atomicServiceIcon = getContext(this)?.resourceManager?.getDrawableDescriptor(iconRes)?.getPixelMap();
+    try {
+      let bundleInfo: bundleManager.BundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags);
+      let iconRes: Resource = bundleInfo?.appInfo?.iconResource;
+      this.atomicServiceIcon = getContext(this)?.resourceManager?.getDrawableDescriptor(iconRes)?.getPixelMap();
+    } catch (err) {
+      let message = (err as BusinessError)?.message ?? '';
+      hilog.error(0x3900, 'AtomicServiceNavigation', 'initIcon getBundleInfoForSelfSync fail, cause: %{public}s.', message);
+    }
   }
 
   /**

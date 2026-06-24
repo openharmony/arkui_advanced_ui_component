@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+import hilog from '@ohos.hilog';
 import webView from '@ohos.web.webview';
 import router from '@ohos.router';
 import deviceInfo from '@ohos.deviceInfo';
@@ -185,6 +186,7 @@ export struct AtomicServiceWeb {
     try {
       let bundleInfo: bundleManager.BundleInfo = bundleManager.getBundleInfoForSelfSync(
         bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+      this.atomicService?.initAccessToken(bundleInfo?.appInfo?.accessTokenId ?? 0);
       if (bundleInfo?.appInfo?.appProvisionType === 'debug') {
         console.log(`AtomicServiceWeb setWebDebuggingAccess`);
         webView.WebviewController.setWebDebuggingAccess(true);
@@ -497,13 +499,19 @@ export struct AtomicServiceWeb {
    * 检查用户是否授予权限
    */
   private isPermissionUserGranted(permission: string): boolean {
-    try {
-      let bundleInfo: bundleManager.BundleInfo =
-        bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
-      if (!bundleInfo?.appInfo?.accessTokenId) {
+    let tokenId: number = this.atomicService?.getAccessTokenId() ?? 0;
+    if (tokenId === 0) {
+      try {
+        let bundleInfo: bundleManager.BundleInfo =
+          bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+        tokenId = bundleInfo?.appInfo?.accessTokenId ?? 0;
+        this.atomicService?.initAccessToken(tokenId);
+      } catch (err) {
+        console.error(`AtomicServiceWeb isPermissionGranted error, code: ${err.code}, message: ${err.message}`);
         return false;
       }
-      let tokenId: number = bundleInfo.appInfo.accessTokenId;
+    }
+    try {
       let grantStatus: abilityAccessCtrl.GrantStatus = abilityAccessCtrl.createAtManager()
         .checkAccessTokenSync(tokenId, permission as Permissions);
       if (grantStatus !== abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED) {
@@ -647,12 +655,21 @@ class AtomicService {
   protected messageDataList: object[] = [];
   protected onMessage: (event: OnMessageEvent) => void = () => {
   };
+  protected accessTokenId: number = 0;
 
   constructor(context: common.UIAbilityContext, navPathStack?: NavPathStack,
     onMessage?: (event: OnMessageEvent) => void) {
     this.context = context;
     this.navPathStack = navPathStack;
     this.onMessage = onMessage ? onMessage : this.onMessage;
+  }
+
+  initAccessToken(tokenId: number): void {
+    this.accessTokenId = tokenId;
+  }
+
+  getAccessTokenId(): number {
+    return this.accessTokenId;
   }
 
   success<T>(res: T, options: BaseOptions<T>): void {
@@ -950,11 +967,20 @@ class AtomicService {
   }
 
   checkAccessToken(permissionName: Permissions): Promise<abilityAccessCtrl.GrantStatus> {
-    let bundleInfo: bundleManager.BundleInfo = bundleManager.getBundleInfoForSelfSync(
-      bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
-    let tokenId: number = bundleInfo.appInfo.accessTokenId;
+    if (this.accessTokenId === 0) {
+      let bundleInfo: bundleManager.BundleInfo;
+      try {
+        bundleInfo = bundleManager.getBundleInfoForSelfSync(
+          bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+      } catch (err) {
+        let message = (err as BusinessError)?.message ?? '';
+        hilog.error(0x3900, 'AtomicServiceWeb', 'checkAccessToken getBundleInfoForSelfSync fail, cause: %{public}s.', message);
+        return Promise.reject(err);
+      }
+      this.accessTokenId = bundleInfo?.appInfo?.accessTokenId ?? 0;
+    }
     let atManager: abilityAccessCtrl.AtManager = abilityAccessCtrl.createAtManager();
-    return atManager.checkAccessToken(tokenId, permissionName);
+    return atManager.checkAccessToken(this.accessTokenId, permissionName);
   }
 
   checkPermissions(permissionName: Permissions, grantCallback: (err?: BusinessError) => void): void {

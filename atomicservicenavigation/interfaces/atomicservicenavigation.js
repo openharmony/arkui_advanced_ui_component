@@ -450,9 +450,14 @@ export class AtomicServiceNavigation extends ViewPU {
             return;
         }
         let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
-        let g1 = bundleManager.getBundleInfoForSelfSync(bundleFlags);
-        let h1 = g1?.appInfo?.iconResource;
-        this.atomicServiceIcon = getContext(this)?.resourceManager?.getDrawableDescriptor(h1)?.getPixelMap();
+        try {
+            let g1 = bundleManager.getBundleInfoForSelfSync(bundleFlags);
+            let h1 = g1?.appInfo?.iconResource;
+            this.atomicServiceIcon = getContext(this)?.resourceManager?.getDrawableDescriptor(h1)?.getPixelMap();
+        } catch (err) {
+            let message = err?.message ?? '';
+            hilog.error(0x3900, 'AtomicServiceNavigation', 'initIcon getBundleInfoForSelfSync fail, cause: %{public}s.', message);
+        }
     }
     updateBreakPoint(windowWidth) {
         if (!windowWidth || windowWidth <= 0) {

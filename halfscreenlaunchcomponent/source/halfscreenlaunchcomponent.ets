@@ -50,10 +50,15 @@ export struct HalfScreenLaunchComponent {
   aboutToAppear(): void {
     const bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
     bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
-    const selfBundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags);
-    this.isSystemApp = selfBundleInfo?.appInfo?.systemApp;
-    this.hostType = selfBundleInfo?.appInfo?.bundleType;
-    this.hostAppId = selfBundleInfo?.signatureInfo?.appIdentifier;
+    try {
+      const selfBundleInfo = bundleManager.getBundleInfoForSelfSync(bundleFlags);
+      this.isSystemApp = selfBundleInfo?.appInfo?.systemApp;
+      this.hostType = selfBundleInfo?.appInfo?.bundleType;
+      this.hostAppId = selfBundleInfo?.signatureInfo?.appIdentifier;
+    } catch (err) {
+      let message = (err as BusinessError)?.message ?? '';
+      hilog.error(0x3900, LOG_TAG, 'aboutToAppear getBundleInfoForSelfSync fail, cause: %{public}s.', message);
+    }
     let subscribeInfo: commonEventManager.CommonEventSubscribeInfo = {
       events: [commonEventManager.Support.COMMON_EVENT_DISTRIBUTED_ACCOUNT_LOGOUT],
     };

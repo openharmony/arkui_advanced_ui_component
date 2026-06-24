@@ -32,6 +32,7 @@ if (!("finalizeConstruction" in ViewPU.prototype)) {
     Reflect.set(ViewPU.prototype, "finalizeConstruction", () => {
     });
 }
+const hilog = requireNapi('hilog');
 const webView = requireNapi('web.webview');
 const router = requireNapi('router');
 const deviceInfo = requireNapi('deviceInfo');
@@ -304,6 +305,7 @@ export class AtomicServiceWeb extends ViewPU {
         }
         try {
             let h2 = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+            this.atomicService?.initAccessToken(h2?.appInfo?.accessTokenId ?? 0);
             if (h2?.appInfo?.appProvisionType === 'debug') {
                 console.log(`AtomicServiceWeb setWebDebuggingAccess`);
                 webView.WebviewController.setWebDebuggingAccess(true);
@@ -579,14 +581,20 @@ export class AtomicServiceWeb extends ViewPU {
     }
 
     isPermissionUserGranted(j8) {
-        try {
-            let l8 = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
-            if (!l8?.appInfo?.accessTokenId) {
+        let i8 = this.atomicService?.getAccessTokenId() ?? 0;
+        if (i8 === 0) {
+            try {
+                let l8 = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+                i8 = l8?.appInfo?.accessTokenId ?? 0;
+                this.atomicService?.initAccessToken(i8);
+            } catch (k8) {
+                console.error(`AtomicServiceWeb isPermissionGranted error, code: ${k8.code}, message: ${k8.message}`);
                 return false;
             }
-            let m8 = l8.appInfo.accessTokenId;
+        }
+        try {
             let n8 = abilityAccessCtrl.createAtManager()
-                .checkAccessTokenSync(m8, j8);
+                .checkAccessTokenSync(i8, j8);
             if (n8 !== abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED) {
                 console.error(`AtomicServiceWeb isPermissionGranted permission ${j8} is not grant`);
                 return false;
@@ -727,9 +735,18 @@ class AtomicService {
         this.messageDataList = [];
         this.onMessage = () => {
         };
+        this.accessTokenId = 0;
         this.context = q9;
         this.navPathStack = r9;
         this.onMessage = s9 ? s9 : this.onMessage;
+    }
+
+    initAccessToken(i9) {
+        this.accessTokenId = i9;
+    }
+
+    getAccessTokenId() {
+        return this.accessTokenId;
     }
 
     success(o9, p9) {
@@ -1025,10 +1042,19 @@ class AtomicService {
     }
 
     checkAccessToken(v5) {
-        let w5 = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
-        let x5 = w5.appInfo.accessTokenId;
+        if (this.accessTokenId === 0) {
+            let w5;
+            try {
+                w5 = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
+            } catch (err) {
+                let message = err?.message ?? '';
+                hilog.error(0x3900, 'AtomicServiceWeb', 'checkAccessToken getBundleInfoForSelfSync fail, cause: %{public}s.', message);
+                return Promise.reject(err);
+            }
+            this.accessTokenId = w5?.appInfo?.accessTokenId ?? 0;
+        }
         let y5 = abilityAccessCtrl.createAtManager();
-        return y5.checkAccessToken(x5, v5);
+        return y5.checkAccessToken(this.accessTokenId, v5);
     }
 
     checkPermissions(j5, k5) {
