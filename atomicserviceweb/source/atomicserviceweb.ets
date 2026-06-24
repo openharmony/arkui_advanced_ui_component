@@ -973,7 +973,7 @@ class AtomicService {
         bundleInfo = bundleManager.getBundleInfoForSelfSync(
           bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
       } catch (err) {
-        let message = (err as BusinessError).message;
+        let message = (err as BusinessError)?.message ?? '';
         hilog.error(0x3900, 'AtomicServiceWeb', 'checkAccessToken getBundleInfoForSelfSync fail, cause: %{public}s.', message);
         return Promise.reject(err);
       }
