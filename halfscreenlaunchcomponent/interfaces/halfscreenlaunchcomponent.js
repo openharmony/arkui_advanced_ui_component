@@ -105,7 +105,7 @@ export class HalfScreenLaunchComponent extends ViewPU {
             this.hostType = selfBundleInfo?.appInfo?.bundleType;
             this.hostAppId = selfBundleInfo?.signatureInfo?.appIdentifier;
         } catch (err) {
-            let message = err?.message;
+            let message = err?.message ?? '';
             hilog.error(0x3900, LOG_TAG, 'aboutToAppear getBundleInfoForSelfSync fail, cause: %{public}s.', message);
         }
         let subscribeInfo = {
