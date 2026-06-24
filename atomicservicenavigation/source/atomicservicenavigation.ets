@@ -296,8 +296,8 @@ export struct AtomicServiceNavigation {
       let iconRes: Resource = bundleInfo?.appInfo?.iconResource;
       this.atomicServiceIcon = getContext(this)?.resourceManager?.getDrawableDescriptor(iconRes)?.getPixelMap();
     } catch (err) {
-      let message = err ? (err as BusinessError).message : '';
-      hilog.error(0x3900, 'AtomicServiceNavigation', 'initIcon getBundleInfoForSelfSync fail, cause: %{public}s.', message ?? '');
+      let message = (err as BusinessError)?.message ?? '';
+      hilog.error(0x3900, 'AtomicServiceNavigation', 'initIcon getBundleInfoForSelfSync fail, cause: %{public}s.', message);
     }
   }
 
