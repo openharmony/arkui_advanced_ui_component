@@ -729,8 +729,9 @@ export struct CustomAppBar {
       this.getWantParamEvent(param);
     } else if (eventName === ARKUI_APP_BAR_ON_RECEIVE_EVENT) {
       this.onReceiveEvent(param);
-    } else if (eventName === ARKUI_ABILITY_CLOSE_EVENT && this.isEmbedComp) {
+    } else if (eventName === ARKUI_ABILITY_CLOSE_EVENT) {
       this.thirdCloseCodeQueue.push(param);
+      hilog.info(0x3900, LOG_TAG, `thirdCloseCodeQueue, push code = ${param}`);
       this.closeContainerAnimation(true);
     }
   }
@@ -839,7 +840,7 @@ export struct CustomAppBar {
         this.stackHeight = '0%';
       });
     } else {
-      this.menubarCloseEvent();
+      this.menubarCloseEvent(isThirdClose);
     }
     this.isHalfScreenCompFirstLaunch = true;
   }

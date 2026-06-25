@@ -233,6 +233,7 @@ class NativeEventManager {
      */
     static onThirdClickCallback(thirdCloseCode) {
         let info = thirdCloseCode;
+        hilog.info(0x3900, LOG_TAG, `onThirdClickCallback, code = ${thirdCloseCode}`);
         ContainerAppBar.callNative(EVENT_NAME_CUSTOM_APP_BAR_THIRD_CLOSE, info);
     }
 }
@@ -826,8 +827,9 @@ export class CustomAppBar extends MenubarBaseInfo {
             this.getWantParamEvent(param);
         } else if (eventName === ArkUI_APP_BAR_ON_RECEIVE_EVENT) {
             this.onReceiveEvent(param);
-        } else if (eventName === ARKUI_ABILITY_CLOSE_EVENT && this.isEmbedComp) {
+        } else if (eventName === ARKUI_ABILITY_CLOSE_EVENT) {
             this.thirdCloseCodeQueue.push(param);
+            hilog.info(0x3900, LOG_TAG, `thirdCloseCodeQueue, push code = ${param}`);
             this.closeContainerAnimation(true);
         }
     }
@@ -932,7 +934,7 @@ export class CustomAppBar extends MenubarBaseInfo {
             });
         }
         else {
-            this.menubarCloseEvent();
+            this.menubarCloseEvent(isThirdClose);
         }
         this.isHalfScreenCompFirstLaunch = true;
     }
