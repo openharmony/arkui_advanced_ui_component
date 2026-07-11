@@ -65,7 +65,9 @@ ohos_shared_library("atomicservicemenubar") {
     "hilog:libhilog",
     "napi:ace_napi",
     "ace_engine:ace_ndk",
-    "ace_engine:ace_uicontent"
+    "ace_engine:ace_uicontent",
+    "node:node_header_notice",
+    "libuv:uv",
   ]
  
   relative_install_dir = "module/atomicservice"

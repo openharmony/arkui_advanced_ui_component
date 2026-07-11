@@ -58,6 +58,8 @@ ohos_shared_library("atomicservicesearch") {
   external_deps = [
     "hilog:libhilog",
     "napi:ace_napi",
+    "node:node_header_notice",
+    "libuv:uv",
   ]
 
   relative_install_dir = "module/atomicservice"
