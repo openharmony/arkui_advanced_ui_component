@@ -54,6 +54,7 @@ ohos_shared_library("innerfullscreenlaunchcomponent") {
   external_deps = [
     "hilog:libhilog",
     "napi:ace_napi",
+    "node:node_header_notice",
   ]
 
   defines = []
