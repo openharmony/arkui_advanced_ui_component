@@ -36,7 +36,7 @@ ApiPolicyAdapter::~ApiPolicyAdapter()
 #endif
 }
 
-int32_t ApiPolicyAdapter::CheckUrl(std::string& bundleName, std::string& domainType, std::string& url)
+int32_t ApiPolicyAdapter::CheckUrl(std::string bundleName, std::string domainType, std::string url)
 {
     int32_t res = 0;
     if (func == nullptr) {
