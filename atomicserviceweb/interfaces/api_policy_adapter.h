@@ -26,9 +26,9 @@ public:
     ApiPolicyAdapter();
     ~ApiPolicyAdapter();
 
-    int32_t CheckUrl(const std::string& bundleName, const std::string& domainType, const std::string& url);
+    int32_t CheckUrl(std::string bundleName, std::string domainType, std::string url);
 
-    using CheckUrlFunc = int32_t (*)(const std::string&, const std::string&, const std::string&);
+    using CheckUrlFunc = int32_t (*)(std::string, std::string, std::string);
     void SetCheckUrlFunc(CheckUrlFunc& func);
 
 private:
