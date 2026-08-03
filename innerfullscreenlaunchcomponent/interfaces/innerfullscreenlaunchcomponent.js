@@ -344,8 +344,8 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             }, {
                 windowModeFollowStrategy: WindowModeFollowStrategy.FOLLOW_HOST_WINDOW_MODE
             });
-            UIExtensionComponent.backgroundColor({ "id": -1, "type": 10001, params: ['sys.color.ohos_id_color_titlebar_bg'],
-             "bundleName": "__harDefaultBundleName__", "moduleName": "__harDefaultModuleName__" });
+            UIExtensionComponent.backgroundColor({ 'id': -1, 'type': 10001, params: ['sys.color.ohos_id_color_titlebar_bg'],
+             'bundleName': '__harDefaultBundleName__', 'moduleName': '__harDefaultModuleName__' });
             UIExtensionComponent.defaultFocus(true);
             UIExtensionComponent.height('100%');
             UIExtensionComponent.width('100%');
