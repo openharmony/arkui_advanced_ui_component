@@ -299,7 +299,7 @@ export struct InnerFullScreenLaunchComponent {
       },{
         windowModeFollowStrategy: WindowModeFollowStrategy.FOLLOW_HOST_WINDOW_MODE
       })
-        .backgroundColor(Color.Transparent)
+        .backgroundColor($r('sys.color.ohos_id_color_titlebar_bg'))
         .defaultFocus(true)
         .height('100%')
         .width('100%')
