@@ -204,7 +204,7 @@ export class HalfScreenLaunchComponent extends ViewPU {
                     }
                     else {
                         this.pullUpError(err.code, 'query_atomic_service_startup__rule_fail', err.message);
-                    }
+                    } 
                 });
         } catch (err) {
             this.checkAbilityBusy = false;
