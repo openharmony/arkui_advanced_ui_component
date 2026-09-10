@@ -46,6 +46,7 @@ export struct HalfScreenLaunchComponent {
   private isSystemApp: boolean = false;
   private hostType: bundleManager.BundleType | string = '';
   private hostAppId: string = '';
+  private checkAbilityBusy: boolean = false;
 
   aboutToAppear(): void {
     const bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
@@ -136,10 +137,16 @@ export struct HalfScreenLaunchComponent {
       this.isShow = false;
       return;
     }
+    if (this.checkAbilityBusy) {
+      hilog.info(0x3900, LOG_TAG, 'checkAbility is busy, skip duplicate click.');
+      return;
+    }
+    this.checkAbilityBusy = true;
     this.resetOptions();
     try {
       abilityManager.queryAtomicServiceStartupRule(this.context, this.appId)
         .then((data: abilityManager.AtomicServiceStartupRule) => {
+          this.checkAbilityBusy = false;
           if (data.isOpenAllowed) {
             if (data.isEmbeddedAllowed) {
               this.isShow = true;
@@ -152,6 +159,7 @@ export struct HalfScreenLaunchComponent {
             this.pullUpError(ERR_CODE_NOT_OPEN, 'atomic_service_open_fail', 'is not allowed open!');
           }
         }).catch((err: BusinessError) => {
+          this.checkAbilityBusy = false;
           hilog.error(0x3900, LOG_TAG, 'queryAtomicServiceStartupRule called error!%{public}s', err.message);
           if (ERR_CODE_CAPABILITY_NOT_SUPPORT === err.code) {
             this.popUp();
@@ -160,6 +168,7 @@ export struct HalfScreenLaunchComponent {
         }
       });
     } catch (err) {
+      this.checkAbilityBusy = false;
       hilog.error(0x3900, LOG_TAG, 'AtomicServiceStartupRule failed: %{public}s', err.message);
       this.popUp();
     }
