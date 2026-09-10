@@ -142,8 +142,8 @@ export struct HalfScreenLaunchComponent {
       return;
     }
     this.checkAbilityBusy = true;
-    this.resetOptions();
     try {
+      this.resetOptions();
       abilityManager.queryAtomicServiceStartupRule(this.context, this.appId)
         .then((data: abilityManager.AtomicServiceStartupRule) => {
           this.checkAbilityBusy = false;
