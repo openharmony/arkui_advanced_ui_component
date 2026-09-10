@@ -36,6 +36,7 @@ export struct FullScreenLaunchComponent {
   @State private isShow: boolean = false;
   private subscriber: commonEventManager.CommonEventSubscriber | null = null;
   private apiVersion: int = 0;
+  private checkAbilityBusy: boolean = false;
   onError?: ErrorCallback<BusinessError>;
   onTerminated?: Callback<TerminationInfo>;
   onReceive?: ReceiveCallback;
@@ -132,9 +133,15 @@ export struct FullScreenLaunchComponent {
   }
 
   async checkAbility() {
+    if (this.checkAbilityBusy) {
+      hilog.info(0x3900, 'FullScreenLaunchComponent', 'checkAbility is busy, skip duplicate click.');
+      return;
+    }
+    this.checkAbilityBusy = true;
     this.resetOptions()
     let embeddedOpenAllowed: boolean = false;
     abilityManager.isEmbeddedOpenAllowed(this.context, this.appId).then((data: boolean | undefined): void => {
+      this.checkAbilityBusy = false;
       if(data) {
         hilog.info(0x0000, 'FullScreenLaunchComponent', 'isEmbeddedOpenAllowed true.');
         embeddedOpenAllowed = true;
@@ -149,6 +156,7 @@ export struct FullScreenLaunchComponent {
         hilog.info(0x3900, 'FullScreenLaunchComponent', 'popUp is Allowed!');
       }
     }).catch((err: BusinessError<void>|null): void => {
+      this.checkAbilityBusy = false;
       hilog.info(0x0000, 'FullScreenLaunchComponent',
         'isEmbeddedOpenAllowed failed, code is ${err?.code}, message is ${err?.message}');
     });
