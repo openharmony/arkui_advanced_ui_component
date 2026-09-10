@@ -180,8 +180,8 @@ export class HalfScreenLaunchComponent extends ViewPU {
             return;
         }
         this.checkAbilityBusy = true;
-        this.resetOptions();
         try {
+            this.resetOptions();
             abilityManager.queryAtomicServiceStartupRule(this.context, this.appId)
                 .then((data) => {
                     this.checkAbilityBusy = false;
