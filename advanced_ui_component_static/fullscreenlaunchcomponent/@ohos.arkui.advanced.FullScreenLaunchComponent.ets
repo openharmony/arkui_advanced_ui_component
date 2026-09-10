@@ -25,6 +25,7 @@ import bundleManager from "@ohos.bundle.bundleManager"
 
 const errCodeAbnormal: number = 100014;
 const API20: number = 20;
+const LOG_TAG: string = 'FullScreenLaunchComponent';
 const requestComponentTerminateKey: string = 'ohos.param.key.requestComponentTerminate';
 const atomicServiceDataTag: string = "ohos.atomicService.window";
 @Component
@@ -42,17 +43,17 @@ export struct FullScreenLaunchComponent {
   onReceive?: ReceiveCallback;
 
   aboutToAppear() {
-    hilog.error(0x3900, 'FullScreenLaunchComponent', 'start FullScreenLaunchComponent');
+    hilog.error(0x3900, LOG_TAG, 'start FullScreenLaunchComponent');
     let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
         bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_METADATA;
     bundleManager.getBundleInfoForSelf(bundleFlags).then((data): void => {
       let tmp = new Int(data.targetVersion);
       this.apiVersion = tmp % 1000;
-      hilog.info(0x3900, 'FullScreenLaunchComponent',
+      hilog.info(0x3900, LOG_TAG,
         'getBundleInfoForSelf success, data: %{public}s.', JSON.stringify(this.apiVersion));
     }).catch((err): void => {
       if (err instanceof BusinessError) {
-        hilog.error(0x3900, 'FullScreenLaunchComponent',
+        hilog.error(0x3900, LOG_TAG,
           'getBundleInfoForSelf fail_1, cause: %{public}s.', err.message);
       }
     });
@@ -63,13 +64,13 @@ export struct FullScreenLaunchComponent {
     commonEventManager.createSubscriber(subscribeInfo,
       (err: BusinessError<void> | null, data: commonEventManager.CommonEventSubscriber | undefined) => {
         if (err) {
-          hilog.error(0x3900, 'FullScreenLaunchComponent',
+          hilog.error(0x3900, LOG_TAG,
             'Failed to create subscriber, err: %{public}s.', JSON.stringify(err))
           return;
         }
 
         if (data == null || data == undefined) {
-          hilog.error(0x3900, 'FullScreenLaunchComponent', 'Failed to create subscriber, data is null.')
+          hilog.error(0x3900, LOG_TAG, 'Failed to create subscriber, data is null.')
           return;
         }
 
@@ -77,26 +78,26 @@ export struct FullScreenLaunchComponent {
         commonEventManager.subscribe(this.subscriber as commonEventManager.CommonEventSubscriber,
           (err: BusinessError | null, data: commonEventManager.CommonEventData | undefined) => {
             if (err) {
-              hilog.error(0x3900, 'FullScreenLaunchComponent',
+              hilog.error(0x3900, LOG_TAG,
                 'Failed to subscribe common event, err: %{public}s.', JSON.stringify(err))
               return;
             }
 
-            hilog.info(0x3900, 'FullScreenLaunchComponent', 'Received account logout event.')
+            hilog.info(0x3900, LOG_TAG, 'Received account logout event.')
             this.isShow = false;
           })
       })
-    hilog.error(0x3900, 'FullScreenLaunchComponent', 'end FullScreenLaunchComponent')
+    hilog.error(0x3900, LOG_TAG, 'end FullScreenLaunchComponent')
   }
 
   aboutToDisappear() {
     if (this.subscriber !== null) {
       commonEventManager.unsubscribe(this.subscriber as commonEventManager.CommonEventSubscriber, (err) => {
         if (err) {
-          hilog.error(0x3900, 'FullScreenLaunchComponent',
+          hilog.error(0x3900, LOG_TAG,
             'UnsubscribeCallBack, err: %{public}s.', JSON.stringify(err))
         } else {
-          hilog.info(0x3900, 'FullScreenLaunchComponent', 'Unsubscribe.')
+          hilog.info(0x3900, LOG_TAG, 'Unsubscribe.')
           this.subscriber = null
         }
       })
@@ -119,7 +120,7 @@ export struct FullScreenLaunchComponent {
       parameters['ability.want.params.IsNotifyOccupiedAreaChange'] = true;
       parameters['ability.want.params.IsModal'] = true;
       parameters['ohos.extra.atomicservice.param.key.isFollowHostWindowMode'] = isFollowHostWindowMode;
-      hilog.info(0x3900, 'FullScreenLaunchComponent', 'replaced options is %{public}s !', JSON.stringify(this.options))
+      hilog.info(0x3900, LOG_TAG, 'replaced options is %{public}s !', JSON.stringify(this.options))
     } else {
       this.options = {
         parameters: {
@@ -134,49 +135,54 @@ export struct FullScreenLaunchComponent {
 
   async checkAbility() {
     if (this.checkAbilityBusy) {
-      hilog.info(0x3900, 'FullScreenLaunchComponent', 'checkAbility is busy, skip duplicate click.');
+      hilog.info(0x3900, LOG_TAG, 'checkAbility is busy, skip duplicate click.');
       return;
     }
     this.checkAbilityBusy = true;
     this.resetOptions()
     let embeddedOpenAllowed: boolean = false;
-    abilityManager.isEmbeddedOpenAllowed(this.context, this.appId).then((data: boolean | undefined): void => {
+    try {
+      abilityManager.isEmbeddedOpenAllowed(this.context, this.appId).then((data: boolean | undefined): void => {
+        this.checkAbilityBusy = false;
+        if(data) {
+          hilog.info(0x0000, LOG_TAG, 'isEmbeddedOpenAllowed true.');
+          embeddedOpenAllowed = true;
+        } else {
+          hilog.info(0x0000, LOG_TAG, 'isEmbeddedOpenAllowed false.');
+        }
+        if (embeddedOpenAllowed) {
+          this.isShow = true;
+          hilog.info(0x3900, LOG_TAG, 'EmbeddedOpen is Allowed!');
+        } else {
+          this.popUp();
+          hilog.info(0x3900, LOG_TAG, 'popUp is Allowed!');
+        }
+      }).catch((err: BusinessError<void>|null): void => {
+        this.checkAbilityBusy = false;
+        hilog.info(0x0000, LOG_TAG,
+          'isEmbeddedOpenAllowed failed, code is ${err?.code}, message is ${err?.message}');
+      });
+    } catch (err) {
       this.checkAbilityBusy = false;
-      if(data) {
-        hilog.info(0x0000, 'FullScreenLaunchComponent', 'isEmbeddedOpenAllowed true.');
-        embeddedOpenAllowed = true;
-      } else {
-        hilog.info(0x0000, 'FullScreenLaunchComponent', 'isEmbeddedOpenAllowed false.');
-      }
-      if (embeddedOpenAllowed) {
-        this.isShow = true;
-        hilog.info(0x3900, 'FullScreenLaunchComponent', 'EmbeddedOpen is Allowed!');
-      } else {
-        this.popUp();
-        hilog.info(0x3900, 'FullScreenLaunchComponent', 'popUp is Allowed!');
-      }
-    }).catch((err: BusinessError<void>|null): void => {
-      this.checkAbilityBusy = false;
-      hilog.info(0x0000, 'FullScreenLaunchComponent',
-        'isEmbeddedOpenAllowed failed, code is ${err?.code}, message is ${err?.message}');
-    });
+      hilog.info(0x0000, LOG_TAG, 'isEmbeddedOpenAllowed sync error');
+    }
   }
 
   async popUp() {
     this.isShow = false;
     try {
       const ability = await this.context.openAtomicService(this.appId, this.options);
-      hilog.info(0x3900, 'FullScreenLaunchComponent', '%{public}s open service success!', ability.want);
+      hilog.info(0x3900, LOG_TAG, '%{public}s open service success!', ability.want);
     }
     catch (err) {
       if (err instanceof BusinessError) {
-        hilog.error(0x3900, 'FullScreenLaunchComponent', '%{public}s open service error!', err.message);
+        hilog.error(0x3900, LOG_TAG, '%{public}s open service error!', err.message);
       }
     }
   }
 
   build() {
-    hilog.error(0x3900, 'FullScreenLaunchComponent',
+    hilog.error(0x3900, LOG_TAG,
       'FullScreenLaunchComponent build start')
     Row() {
       this.content();
@@ -189,7 +195,7 @@ export struct FullScreenLaunchComponent {
       this.uiExtensionBuilder()
     }) as CustomBuilder, {} as ContentCoverOptions);
 
-    hilog.error(0x3900, 'FullScreenLaunchComponent',
+    hilog.error(0x3900, LOG_TAG,
       'FullScreenLaunchComponent build end')
   }
 
@@ -208,7 +214,7 @@ export struct FullScreenLaunchComponent {
             errCallback(err);
           }
           this.isShow = false;
-          hilog.error(0x3900, 'FullScreenLaunchComponent', 'call up UIExtension error:%{public}d!%{public}s', err.code,
+          hilog.error(0x3900, LOG_TAG, 'call up UIExtension error:%{public}d!%{public}s', err.code,
             err.message)
           if (err.code != errCodeAbnormal) {
             this.getUIContext().showAlertDialog({
