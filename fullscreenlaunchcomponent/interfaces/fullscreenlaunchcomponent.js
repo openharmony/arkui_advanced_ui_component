@@ -52,6 +52,7 @@ export class FullScreenLaunchComponent extends ViewPU {
         this.isSystemApp = false;
         this.hostType = '';
         this.hostAppId = '';
+        this.checkAbilityBusy = false;
         this.setInitiallyProvidedValue(params);
         this.finalizeConstruction();
     }
@@ -187,9 +188,15 @@ export class FullScreenLaunchComponent extends ViewPU {
         }
     }
     async checkAbility() {
+        if (this.checkAbilityBusy) {
+            hilog.info(0x3900, 'FullScreenLaunchComponent', 'checkAbility is busy, skip duplicate click.');
+            return;
+        }
+        this.checkAbilityBusy = true;
         this.resetOptions();
         abilityManager.queryAtomicServiceStartupRule(this.context, this.appId)
             .then((data) => {
+            this.checkAbilityBusy = false;
             if (data.isOpenAllowed) {
                 if (data.isEmbeddedAllowed) {
                     this.isShow = true;
@@ -205,6 +212,7 @@ export class FullScreenLaunchComponent extends ViewPU {
                 this.pullUpError(ERR_CODE_NOT_OPEN, 'atomic_service_open_fail', 'is not allowed open!');
             }
         }).catch((err) => {
+            this.checkAbilityBusy = false;
             hilog.error(0x3900, 'FullScreenLaunchComponent', 'queryAtomicServiceStartupRule called error!%{public}d:%{public}s', err.code, err.message);
             if (u === err.code) {
                 this.popUp();
