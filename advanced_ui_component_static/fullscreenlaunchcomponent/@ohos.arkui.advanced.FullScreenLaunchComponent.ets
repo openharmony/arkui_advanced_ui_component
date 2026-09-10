@@ -139,9 +139,9 @@ export struct FullScreenLaunchComponent {
       return;
     }
     this.checkAbilityBusy = true;
-    this.resetOptions()
-    let embeddedOpenAllowed: boolean = false;
     try {
+      this.resetOptions();
+      let embeddedOpenAllowed: boolean = false;
       abilityManager.isEmbeddedOpenAllowed(this.context, this.appId).then((data: boolean | undefined): void => {
         this.checkAbilityBusy = false;
         if(data) {
