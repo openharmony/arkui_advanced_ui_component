@@ -48,6 +48,7 @@ export struct FullScreenLaunchComponent {
   private isSystemApp: boolean = false;
   private hostType: bundleManager.BundleType | string = '';
   private hostAppId: string = '';
+  private checkAbilityBusy: boolean = false;
  
   aboutToAppear() {
     let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION |
@@ -147,9 +148,15 @@ export struct FullScreenLaunchComponent {
   }
  
   async checkAbility() {
+    if (this.checkAbilityBusy) {
+      hilog.info(0x3900, 'FullScreenLaunchComponent', 'checkAbility is busy, skip duplicate click.');
+      return;
+    }
+    this.checkAbilityBusy = true;
     this.resetOptions()
     abilityManager.queryAtomicServiceStartupRule(this.context, this.appId)
       .then((data: abilityManager.AtomicServiceStartupRule) => {
+        this.checkAbilityBusy = false;
         if (data.isOpenAllowed) {
           if (data.isEmbeddedAllowed) {
             this.isShow = true;
@@ -163,6 +170,7 @@ export struct FullScreenLaunchComponent {
           this.pullUpError(ERR_CODE_NOT_OPEN, 'atomic_service_open_fail', 'is not allowed open!');
         }
       }).catch((err: BusinessError) => {
+        this.checkAbilityBusy = false;
         hilog.error(0x3900, 'FullScreenLaunchComponent', 'queryAtomicServiceStartupRule called error!%{public}s', err.message)
         if (errCodeCapabilityNotSupported === err.code) {
           this.popUp()
