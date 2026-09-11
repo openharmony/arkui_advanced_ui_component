@@ -52,6 +52,7 @@ export class FullScreenLaunchComponent extends ViewPU {
         this.isSystemApp = false;
         this.hostType = '';
         this.hostAppId = '';
+        this.checkAbilityBusy = false;
         this.setInitiallyProvidedValue(params);
         this.finalizeConstruction();
     }
@@ -109,38 +110,38 @@ export class FullScreenLaunchComponent extends ViewPU {
         bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
         try {
             bundleManager.getBundleInfoForSelf(bundleFlags).then((data) => {
-                hilog.info(0x3900, 'FullScreenLaunchComponent', 'getBundleInfoForSelf success, data: %{public}s.', JSON.stringify(data.targetVersion % 1000));
+                hilog.info(0x3900, LOG_TAG, 'getBundleInfoForSelf success, data: %{public}s.', JSON.stringify(data.targetVersion % 1000));
                 this.apiVersion = data.targetVersion % 1000;
                 this.isSystemApp = data.appInfo?.systemApp;
                 this.hostType = data.appInfo?.bundleType;
                 this.hostAppId = data.signatureInfo?.appIdentifier;
             }).catch((err) => {
-                hilog.error(0x3900, 'FullScreenLaunchComponent', 'getBundleInfoForSelf fail_1, cause: %{public}s.', err.message);
+                hilog.error(0x3900, LOG_TAG, 'getBundleInfoForSelf fail_1, cause: %{public}s.', err.message);
             });
         }
         catch (err) {
             let message = err.message;
-            hilog.error(0x3900, 'FullScreenLaunchComponent', 'getBundleInfoForSelf fail_2, cause: %{public}s.', message);
+            hilog.error(0x3900, LOG_TAG, 'getBundleInfoForSelf fail_2, cause: %{public}s.', message);
         }
         let subscribeInfo = {
             events: [commonEventManager.Support.COMMON_EVENT_DISTRIBUTED_ACCOUNT_LOGOUT],
         };
         commonEventManager.createSubscriber(subscribeInfo, (err, data) => {
             if (err) {
-                hilog.error(0x3900, 'FullScreenLaunchComponent', 'Failed to create subscriber, err: %{public}s.', JSON.stringify(err));
+                hilog.error(0x3900, LOG_TAG, 'Failed to create subscriber, err: %{public}s.', JSON.stringify(err));
                 return;
             }
             if (data == null || data == undefined) {
-                hilog.error(0x3900, 'FullScreenLaunchComponent', 'Failed to create subscriber, data is null.');
+                hilog.error(0x3900, LOG_TAG, 'Failed to create subscriber, data is null.');
                 return;
             }
             this.subscriber = data;
             commonEventManager.subscribe(this.subscriber, (err, data) => {
                 if (err) {
-                    hilog.error(0x3900, 'FullScreenLaunchComponent', 'Failed to subscribe common event, err: %{public}s.', JSON.stringify(err));
+                    hilog.error(0x3900, LOG_TAG, 'Failed to subscribe common event, err: %{public}s.', JSON.stringify(err));
                     return;
                 }
-                hilog.info(0x3900, 'FullScreenLaunchComponent', 'Received account logout event.');
+                hilog.info(0x3900, LOG_TAG, 'Received account logout event.');
                 this.isShow = false;
             });
         });
@@ -149,10 +150,10 @@ export class FullScreenLaunchComponent extends ViewPU {
         if (this.subscriber !== null) {
             commonEventManager.unsubscribe(this.subscriber, (err) => {
                 if (err) {
-                    hilog.error(0x3900, 'FullScreenLaunchComponent', 'UnsubscribeCallBack, err: %{public}s.', JSON.stringify(err));
+                    hilog.error(0x3900, LOG_TAG, 'UnsubscribeCallBack, err: %{public}s.', JSON.stringify(err));
                 }
                 else {
-                    hilog.info(0x3900, 'FullScreenLaunchComponent', 'Unsubscribe.');
+                    hilog.info(0x3900, LOG_TAG, 'Unsubscribe.');
                     this.subscriber = null;
                 }
             });
@@ -187,41 +188,52 @@ export class FullScreenLaunchComponent extends ViewPU {
         }
     }
     async checkAbility() {
-        this.resetOptions();
-        abilityManager.queryAtomicServiceStartupRule(this.context, this.appId)
-            .then((data) => {
-            if (data.isOpenAllowed) {
+        if (this.checkAbilityBusy) {
+            hilog.info(0x3900, LOG_TAG, 'checkAbility is busy, skip duplicate click.');
+            return;
+        }
+        this.checkAbilityBusy = true;
+        try {
+            this.resetOptions();
+            abilityManager.queryAtomicServiceStartupRule(this.context, this.appId)
+                .then((data) => {
+                this.checkAbilityBusy = false;
+                if (!data.isOpenAllowed) {
+                    hilog.info(0x3900, LOG_TAG, 'is not allowed open!');
+                    this.pullUpError(ERR_CODE_NOT_OPEN, 'atomic_service_open_fail', 'is not allowed open!');
+                    return;
+                }
                 if (data.isEmbeddedAllowed) {
                     this.isShow = true;
-                    hilog.info(0x3900, 'FullScreenLaunchComponent', 'EmbeddedOpen is Allowed!');
+                    hilog.info(0x3900, LOG_TAG, 'EmbeddedOpen is Allowed!');
+                    return;
+                }
+                this.popUp();
+                hilog.info(0x3900, LOG_TAG, 'popUp is Allowed!');
+            }).catch((err) => {
+                this.checkAbilityBusy = false;
+                hilog.error(0x3900, LOG_TAG, 'queryAtomicServiceStartupRule called error!%{public}d:%{public}s', err.code, err.message);
+                if (u === err.code) {
+                    this.popUp();
                 }
                 else {
-                    this.popUp();
-                    hilog.info(0x3900, 'FullScreenLaunchComponent', 'popUp is Allowed!');
+                    this.pullUpError(err.code, 'query_atomic_service_startup__rule_fail', err.message);
                 }
-            }
-            else {
-                hilog.info(0x3900, 'FullScreenLaunchComponent', 'is not allowed open!');
-                this.pullUpError(ERR_CODE_NOT_OPEN, 'atomic_service_open_fail', 'is not allowed open!');
-            }
-        }).catch((err) => {
-            hilog.error(0x3900, 'FullScreenLaunchComponent', 'queryAtomicServiceStartupRule called error!%{public}d:%{public}s', err.code, err.message);
-            if (u === err.code) {
-                this.popUp();
-            }
-            else {
-                this.pullUpError(err.code, 'query_atomic_service_startup__rule_fail', err.message);
-            }
-        });
+            });
+        } catch (err) {
+            this.checkAbilityBusy = false;
+            hilog.error(0x3900, LOG_TAG, 'queryAtomicServiceStartupRule sync error!%{public}s', err.message);
+            this.popUp();
+        }
     }
     async popUp() {
         this.isShow = false;
         try {
             const ability = await this.context.openAtomicService(this.appId, this.options);
-            hilog.info(0x3900, 'FullScreenLaunchComponent', '%{public}s open service success!', ability.want);
+            hilog.info(0x3900, LOG_TAG, '%{public}s open service success!', ability.want);
         }
         catch (e) {
-            hilog.error(0x3900, 'FullScreenLaunchComponent', '%{public}s open service error!', e.message);
+            hilog.error(0x3900, LOG_TAG, '%{public}s open service error!', e.message);
             this.pullUpError(e.code, 'open_atomic_service_fail', e.message);
         }
     }
@@ -276,7 +288,7 @@ export class FullScreenLaunchComponent extends ViewPU {
                     this.onError(err);
                 }
                 this.isShow = false;
-                hilog.error(0x3900, 'FullScreenLaunchComponent', 'call up UIExtension error:%{public}d!%{public}s', err.code, err.message);
+                hilog.error(0x3900, LOG_TAG, 'call up UIExtension error:%{public}d!%{public}s', err.code, err.message);
             });
             UIExtensionComponent.onTerminated(info => {
                 this.isShow = false;

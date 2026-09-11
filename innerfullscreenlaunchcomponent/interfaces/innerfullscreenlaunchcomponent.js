@@ -57,6 +57,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
         this.isSystemApp = false;
         this.hostType = '';
         this.hostAppId = '';
+        this.checkAbilityBusy = false;
         this.launchAtomicService = (k1, l1) => {
             hilog.info(0x3900, LOG_TAG, 'launchAtomicService, appId: %{public}s.', k1);
             this.appId = k1;
@@ -213,22 +214,29 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             this.isShow = false;
             return;
         }
-        this.resetOptions();
+        if (this.checkAbilityBusy) {
+            hilog.info(0x3900, LOG_TAG, 'checkAbility is busy, skip duplicate click.');
+            return;
+        }
+        this.checkAbilityBusy = true;
         try {
+            this.resetOptions();
             abilityManager.queryAtomicServiceStartupRule(this.context, this.appId)
                 .then((data) => {
-                    if (data.isOpenAllowed) {
-                        if (data.isEmbeddedAllowed) {
-                            this.isShow = true;
-                            hilog.info(0x3900, LOG_TAG, 'EmbeddedOpen is Allowed!');
-                        } else {
-                            this.popUp();
-                        }
-                    } else {
+                    this.checkAbilityBusy = false;
+                    if (!data.isOpenAllowed) {
                         hilog.info(0x3900, LOG_TAG, 'is not allowed open!');
                         this.pullUpError(ERR_CODE_NOT_OPEN, 'atomic_service_open_fail', 'is not allowed open!');
+                        return;
                     }
+                    if (data.isEmbeddedAllowed) {
+                        this.isShow = true;
+                        hilog.info(0x3900, LOG_TAG, 'EmbeddedOpen is Allowed!');
+                        return;
+                    }
+                    this.popUp();
                 }).catch((err) => {
+                    this.checkAbilityBusy = false;
                     hilog.error(0x3900, LOG_TAG, 'queryAtomicServiceStartupRule called error!%{public}s', err.message);
                     if (ERR_CODE_CAPABILITY_NOT_SUPPORT === err.code) {
                         this.popUp();
@@ -239,6 +247,7 @@ export class InnerFullScreenLaunchComponent extends ViewPU {
             });
         }
         catch (err) {
+            this.checkAbilityBusy = false;
             hilog.error(0x3900, LOG_TAG, 'AtomicServiceStartupRule failed: %{public}s', err.message);
             this.popUp();
         }
